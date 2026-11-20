@@ -657,6 +657,7 @@ body.fx .box.lit .stat .fill::before { animation-play-state: running; }
 .minispark { position: fixed; z-index: 9996; width: 6px; height: 6px; pointer-events: none; }
 @media (prefers-reduced-motion: reduce) { body.fx *, body.fx *::before, body.fx *::after { animation-duration: .01s !important; animation-iteration-count: 1 !important; } }
 
+.modal .box::after, .modal .box.lit::after { display: none !important; }
 .modal { position: fixed; inset: 0; z-index: 100; background: rgba(10,9,24,.85); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .modal[hidden] { display: none; }
 .modal .box { max-height: 92vh; overflow: auto; width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 16px; }
@@ -929,7 +930,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
         <div class="pomo-phase" id="pomoPhase">FOCUS</div><div class="pomo-time" id="pomoTime">25:00</div><div class="pomo-dots" id="pomoDots"></div></div>
         <div class="pomo-ctl">
           <label class="lab">WORKING ON<select class="field" id="pomoTarget" aria-label="What are you focusing on"></select></label>
-          <div class="row-btns"><button class="btn" id="pomoGo" type="button">START</button><button class="btn alt" id="pomoReset" type="button">RESET</button><button class="btn alt" id="pomoSkip" type="button">SKIP</button><button class="btn alt" id="pomoFF" type="button" data-tip="TEST ONLY: FINISH THE CURRENT SESSION RIGHT NOW">&gt;&gt; FAST FORWARD</button></div>
+          <div class="row-btns"><button class="btn" id="pomoGo" type="button">START</button><button class="btn alt" id="pomoReset" type="button">RESET</button><button class="btn alt" id="pomoSkip" type="button">SKIP</button></div>
           <p class="hint" id="pomoInfo"></p>
         </div>
       </div>
@@ -3151,7 +3152,6 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
 
   $("#pomoGo").addEventListener("click", function () { if (pomo.running) pomoPause(); else pomoStart(); });
   $("#pomoReset").addEventListener("click", function () { pomo.running = false; pomo.left = pomoMs(pomo.phase); renderPomo(); });
-  $("#pomoFF").addEventListener("click", function () { pomoComplete(); renderPomo(); });
   $("#pomoSkip").addEventListener("click", function () {
     pomo.running = false; pomo.phase = pomo.phase === "focus" ? "short" : "focus"; pomo.left = pomoMs(pomo.phase); renderPomo();
   });
