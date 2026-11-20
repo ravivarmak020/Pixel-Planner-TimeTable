@@ -1015,7 +1015,7 @@ body[data-font="crisp"] .btn, body[data-font="crisp"] .tab, body[data-font="cris
       <button class="hero-btn" id="avatarBtn" type="button" aria-label="Change character" data-tip="CHANGE CHARACTER"></button>
       <h1 id="appTitle"><span class="hlogo" id="hLogo" aria-hidden="true"></span><span id="titleTxt">PIXEL PLANNER</span></h1>
     </div>
-    <div class="head-actions"><button class="coinchip" id="coinChip" type="button" data-tip="YOUR COINS. OPEN THE SHOP"><span class="coinic"></span><b id="chipVal">0</b><span class="chipbar"><i id="chipFill"></i></span></button> <button class="btn alt tgl" id="sndBtn" type="button" aria-pressed="true" data-tip="MUTE OR UNMUTE ALL APP SOUNDS">SOUND ON</button> <button class="btn alt tgl" id="fxBtn" type="button" aria-pressed="true" data-tip="LIGHT AND MOTION EFFECTS ON OR OFF">FX ON</button> <button class="btn alt" id="shopBtn" type="button" data-tip="SPEND COINS ON A HOUSE, PETS AND LOOKS">SHOP</button> <button class="btn alt" id="repBtn" type="button" data-tip="WEEKLY REPORT: HOURS, XP, STREAKS AND TASKS">REPORT</button> <button class="btn alt" id="goalsBtn" type="button" data-tip="GOALS AND BACKUP">GOALS</button> <button class="btn alt" id="tourBtn" type="button" aria-label="Show the guided tour" data-tip="TOUR WITH PIXEL">?</button> <button class="btn alt" id="customBtn" type="button" data-tip="COLORS FOR YOUR CHARACTER">CUSTOMIZE</button></div>
+    <div class="head-actions"><button class="coinchip" id="coinChip" type="button" data-tip="YOUR R COINS. OPEN THE SHOP"><span class="coinic"></span><b id="chipVal">0</b><span class="chipbar"><i id="chipFill"></i></span></button> <button class="btn alt tgl" id="sndBtn" type="button" aria-pressed="true" data-tip="MUTE OR UNMUTE ALL APP SOUNDS">SOUND ON</button> <button class="btn alt tgl" id="fxBtn" type="button" aria-pressed="true" data-tip="LIGHT AND MOTION EFFECTS ON OR OFF">FX ON</button> <button class="btn alt" id="shopBtn" type="button" data-tip="SPEND R COINS ON A HOUSE, PETS AND LOOKS">SHOP</button> <button class="btn alt" id="repBtn" type="button" data-tip="WEEKLY REPORT: HOURS, XP, STREAKS AND TASKS">REPORT</button> <button class="btn alt" id="goalsBtn" type="button" data-tip="GOALS AND BACKUP">GOALS</button> <button class="btn alt" id="tourBtn" type="button" aria-label="Show the guided tour" data-tip="TOUR WITH PIXEL">?</button> <button class="btn alt" id="customBtn" type="button" data-tip="COLORS FOR YOUR CHARACTER">CUSTOMIZE</button></div>
   </header>
   <div class="toasts" id="toasts" aria-live="polite"></div>
 
@@ -1188,8 +1188,8 @@ body[data-font="crisp"] .btn, body[data-font="crisp"] .tab, body[data-font="cris
 <div class="modal" id="shop" role="dialog" aria-modal="true" aria-labelledby="shopTitle" hidden>
   <div class="box wide">
     <div class="shop-head"><h2 id="shopTitle">PIXEL SHOP</h2><span class="shop-coins"><span class="coinic"></span><b id="shopCoins">0</b></span></div>
-    <div class="shop-prevwrap"><div class="pv-scene" id="shopPrev"></div><div class="pv-info"><b id="pvName"></b><span id="pvCost"></span><button class="btn alt" id="shopGuide" type="button">COIN GUIDE</button></div></div>
-    <p class="hint" id="shopMsg">Earn coins by finishing tasks, focus sessions, daily goals and streaks.</p>
+    <div class="shop-prevwrap"><div class="pv-scene" id="shopPrev"></div><div class="pv-info"><b id="pvName"></b><span id="pvCost"></span><button class="btn alt" id="shopGuide" type="button">R COIN GUIDE</button></div></div>
+    <p class="hint" id="shopMsg">Earn R coins by finishing tasks, focus sessions, daily goals and streaks.</p>
     <div id="shopList"></div>
     <div class="row-btns"><button class="btn" id="shopDone" type="button">DONE</button></div>
   </div>
@@ -1197,15 +1197,15 @@ body[data-font="crisp"] .btn, body[data-font="crisp"] .tab, body[data-font="cris
 
 <div class="modal" id="coinGuide" role="dialog" aria-modal="true" aria-labelledby="cgTitle" hidden>
   <div class="box">
-    <h2 id="cgTitle">COIN GUIDE</h2>
+    <h2 id="cgTitle">R COIN GUIDE</h2>
     <div class="cg-list">
       <div class="cg-row"><span>FITNESS OR STUDY XP ADDED<small>A ticked task, a finished focus session or a completed block</small></span><b>+5</b></div>
       <div class="cg-row"><span>DAILY HYDRATION GOAL<small>Once per day</small></span><b>+10</b></div>
       <div class="cg-row"><span>DAILY PROTEIN GOAL<small>Once per day</small></span><b>+10</b></div>
       <div class="cg-row"><span>PERFECT DAY<small>All four goals done. Bonus grows with your streak</small></span><b>+15 TO +65</b></div>
-      <div class="cg-row"><span>UNDO A TASK OR SESSION<small>Takes its coins back</small></span><b>-5</b></div>
+      <div class="cg-row"><span>UNDO A TASK OR SESSION<small>Takes its R coins back</small></span><b>-5</b></div>
     </div>
-    <p class="hint">Water and protein taps give XP but no coins on their own. Only reaching the daily goal pays.</p>
+    <p class="hint">Water and protein taps give XP but no R coins on their own. Only reaching the daily goal pays.</p>
     <div class="row-btns"><button class="btn" id="cgDone" type="button">GOT IT</button></div>
   </div>
 </div>
@@ -1683,7 +1683,7 @@ body[data-font="crisp"] .btn, body[data-font="crisp"] .tab, body[data-font="cris
     PXI.study = build(cat(B(2, 2, 12, 12, "#3f8fe0", "#86c6ff", "#255a9e"), B(5, 3, 8, 10, "#f4f1ff", "#ffffff", "#b9b4e0"), B(2, 2, 3, 12, "#2a62b0", "#5a9ae6", "#1c447e"), [[7, 5, 4, 1, "#9a96c8"], [7, 7, 4, 1, "#9a96c8"], [7, 9, 3, 1, "#9a96c8"]], B(10, 1, 2, 6, "#ff5a5f", "#ff9a9c", "#b8272c")));
     PXI.hydration = build([[7, 1, 2, 1, "#4aa8ff"], [6, 2, 4, 2, "#4aa8ff"], [5, 4, 6, 2, "#4aa8ff"], [4, 6, 8, 6, "#4aa8ff"], [5, 12, 6, 1, "#4aa8ff"], [6, 13, 4, 1, "#4aa8ff"], [5, 8, 2, 3, "#d6f0ff"], [6, 6, 1, 2, "#d6f0ff"], [10, 8, 1, 3, "#1f6fd0"], [9, 11, 2, 1, "#1f6fd0"], [8, 12, 2, 1, "#1f6fd0"]]);
     PXI.protein = build(cat(D(10, 6, 4, "#c9783a"), [[8, 3, 3, 1, "#f0a25a"], [7, 4, 2, 2, "#f0a25a"], [10, 8, 3, 1, "#8f4a1a"], [12, 5, 1, 3, "#8f4a1a"], [6, 9, 2, 2, "#f4f1ff"], [5, 10, 2, 2, "#f4f1ff"], [4, 11, 2, 2, "#f4f1ff"], [3, 12, 2, 2, "#f4f1ff"], [1, 12, 3, 2, "#f4f1ff"], [2, 14, 3, 1, "#f4f1ff"]]));
-    PXI.coin = build(cat(D(8, 8, 7, "#b8860b"), D(8, 8, 6, "#ffcc33"), D(8, 8, 5, "#d49a00"), D(8, 8, 4, "#ffdd55"), [[3, 4, 2, 1, "#fff6c0"], [2, 5, 1, 3, "#fff6c0"], [4, 3, 3, 1, "#fff6c0"], [12, 10, 1, 3, "#e0a800"], [10, 12, 3, 1, "#e0a800"], [7, 5, 2, 2, "#c98a00"], [5, 7, 6, 1, "#c98a00"], [6, 8, 4, 1, "#c98a00"], [5, 9, 2, 2, "#c98a00"], [9, 9, 2, 2, "#c98a00"], [7, 5, 1, 2, "#fff0a0"], [5, 7, 2, 1, "#fff0a0"]]));
+    PXI.coin = build(cat(D(8, 8, 7, "#b8860b"), D(8, 8, 6, "#ffcc33"), D(8, 8, 5, "#e8a800"), D(8, 8, 4, "#ffdd55"), [[3, 4, 2, 1, "#fff6c0"], [2, 5, 1, 3, "#fff6c0"], [4, 3, 3, 1, "#fff6c0"], [12, 10, 1, 3, "#e0a800"], [10, 12, 3, 1, "#e0a800"], [6, 4, 5, 1, "#7a4a00"],[6, 5, 2, 7, "#7a4a00"],[10, 5, 2, 3, "#7a4a00"],[8, 8, 3, 1, "#7a4a00"],[8, 9, 2, 1, "#7a4a00"],[9, 10, 2, 1, "#7a4a00"],[10, 11, 2, 1, "#7a4a00"]], [[6, 4, 1, 1, "#5a3400"]].slice(0, 0)));
     PXI.timer = build(cat(D(8, 9, 6, "#f4f1ff"), D(8, 9, 5, "#dcd8f5"), D(8, 9, 4, "#f4f1ff"), B(7, 0, 2, 2, "#8b87b8"), B(12, 2, 2, 2, "#8b87b8"), [[8, 5, 1, 5, K], [8, 9, 3, 1, K], [8, 9, 1, 1, "#ff5a5f"]]));
     PXI.pen = build([[12, 1, 3, 3, "#ff8fb8"], [11, 3, 2, 2, "#c9c5ee"], [10, 4, 3, 3, "#ffcc33"], [9, 5, 3, 3, "#ffcc33"], [8, 6, 3, 3, "#ffcc33"], [7, 7, 3, 3, "#ffcc33"], [6, 8, 3, 3, "#ffcc33"], [11, 5, 1, 2, "#c99a00"], [10, 7, 1, 2, "#c99a00"], [9, 9, 1, 1, "#c99a00"], [11, 4, 1, 1, "#fff2a0"], [10, 5, 1, 1, "#fff2a0"], [9, 6, 1, 1, "#fff2a0"], [8, 7, 1, 1, "#fff2a0"], [4, 10, 3, 3, "#e8c08a"], [2, 12, 2, 2, "#e8c08a"], [1, 14, 2, 1, "#2a2a50"]]);
     PXI.bin = build(cat(B(6, 1, 4, 2, G, GH, GL), B(2, 3, 12, 2, G, GH, GL), B(3, 5, 10, 9, "#b9b4e0", "#e6e3ff", "#7c78b0"), [[5, 7, 1, 5, "#7c78b0"], [7, 7, 1, 5, "#7c78b0"], [9, 7, 1, 5, "#7c78b0"], [11, 7, 1, 5, "#7c78b0"]]));
@@ -1773,13 +1773,13 @@ body[data-font="crisp"] .btn, body[data-font="crisp"] .tab, body[data-font="cris
     var names = ["WATER", "PROTEIN", "FITNESS", "STUDY"];
     var dots = hits.map(function (h, i) { return '<span class="gdot' + (h ? " on" : "") + '" data-tip="' + names[i] + (h ? " DONE" : " TO DO") + '"></span>'; }).join("");
     $("#stats").innerHTML = bars + '<div class="sumrow"><span class="flame">' + flameSvg() + '</span><span class="sumtxt">STREAK ' + curStreak() + " DAY" + (curStreak() === 1 ? "" : "S") + " / BEST " + stats.best + '</span><span class="grow"></span><span class="sumtxt">TODAY ' + n + "/4 GOALS</span>" + dots + "</div>" +
-      '<div class="coinrow" id="coinRow"><span class="coinic"></span><span class="coinval">0</span><span class="cbar"><i class="cfill"></i></span><span class="cnext"></span><button class="btn alt" id="coinHelp" type="button">COIN GUIDE</button><button class="btn" id="coinShop" type="button">SHOP</button></div>';
+      '<div class="coinrow" id="coinRow"><span class="coinic"></span><span class="coinval">0</span><span class="cbar"><i class="cfill"></i></span><span class="cnext"></span><button class="btn alt" id="coinHelp" type="button">R COIN GUIDE</button><button class="btn" id="coinShop" type="button">SHOP</button></div>';
     renderCoins(); barGo();
   }
   function addCoins(n, pop) {
     var b = stats.coins; stats.coins = Math.max(0, b + n); if (n > 0) logAdd("c", n);
     renderCoins(); if (n > 0) coinFly(n);
-    if (pop && n > 0) toast("+" + n + " COINS", "gold");
+    if (pop && n > 0) toast("+" + n + " R COINS", "gold");
   }
   function nextGoal() {
     var h = stats.inv.house; if (h < 5) return { n: SHOP_HOUSE[h + 1].n, c: SHOP_HOUSE[h + 1].c };
@@ -2367,7 +2367,7 @@ body[data-font="crisp"] .btn, body[data-font="crisp"] .tab, body[data-font="cris
   var shopSel = "house";
   function showPrev(id) {
     shopSel = id; var inf = prevInfo(id);
-    $("#shopPrev").innerHTML = prevHtml(id); $("#pvName").textContent = inf.n; $("#pvCost").textContent = inf.c ? inf.c + " COINS" : "BUILT";
+    $("#shopPrev").innerHTML = prevHtml(id); $("#pvName").textContent = inf.n; $("#pvCost").textContent = inf.c ? inf.c + " R COINS" : "BUILT";
     document.querySelectorAll(".shop-prev").forEach(function (b) { b.classList.toggle("on", b.dataset.prev === id); });
   }
   function shopRow(id, name, cost, state, extra) {
@@ -2397,16 +2397,16 @@ body[data-font="crisp"] .btn, body[data-font="crisp"] .tab, body[data-font="cris
     if (op === "buy") {
       var cost, ok = false;
       if (id === "house") { cost = SHOP_HOUSE[i.house + 1].c; } else if (id === "dog" || id === "cat") cost = PET_COST[id]; else if (id.indexOf("hat-") === 0) cost = SHOP_HATS[id.slice(4)].c; else cost = SHOP_OUTS[id.slice(4)].c;
-      if (stats.coins < cost) { $("#shopMsg").textContent = "NOT ENOUGH COINS YET."; return; }
+      if (stats.coins < cost) { $("#shopMsg").textContent = "NOT ENOUGH R COINS YET."; return; }
       stats.coins -= cost;
       if (id === "house") { i.house++; levelSound(); sysBanner("[ SYSTEM ]", "HOUSE UPGRADED!<br>" + SHOP_HOUSE[i.house].n); }
       else if (id === "dog" || id === "cat") { i[id] = 1; levelSound(); }
       else if (id.indexOf("hat-") === 0) { i.hats.push(id.slice(4)); i.hat = id.slice(4); } else { i.outs.push(id.slice(4)); i.outfit = id.slice(4); }
-      shopAfter("PURCHASED! SPENT " + cost + " COINS.");
+      shopAfter("PURCHASED! SPENT " + cost + " R COINS.");
     } else if (op === "equip") { if (id.indexOf("hat-") === 0) i.hat = id.slice(4); else i.outfit = id.slice(4); shopAfter("EQUIPPED."); }
     else if (op === "unequip") { if (id.indexOf("hat-") === 0) i.hat = ""; else i.outfit = ""; shopAfter("TAKEN OFF."); }
   }
-  function openShop() { rollDay(); shopSel = "house"; renderShop(); $("#shopMsg").textContent = "Earn coins by finishing tasks, focus sessions, daily goals and streaks."; $("#shop").hidden = false; $("#shopDone").focus(); }
+  function openShop() { rollDay(); shopSel = "house"; renderShop(); $("#shopMsg").textContent = "Earn R coins by finishing tasks, focus sessions, daily goals and streaks."; $("#shop").hidden = false; $("#shopDone").focus(); }
   function closeShop() { $("#shop").hidden = true; }
   document.addEventListener("click", function (e) {
     var b = e.target.closest && e.target.closest("[data-shop]");
@@ -3679,7 +3679,7 @@ body[data-font="crisp"] .btn, body[data-font="crisp"] .tab, body[data-font="cris
   function renderReport() {
     var a = repData(0), b = repData(1), nm = prof.name || "friend";
     $("#repRange").textContent = fmt(a.days[0]) + " TO " + fmt(a.days[6]) + ". THE LAST 7 DAYS.";
-    var tiles = [["FOCUS TIME", fmtH(a.m), "var(--green)", trend(a.m, b.m)], ["STUDY XP", a.s, "var(--blue)", trend(a.s, b.s)], ["FITNESS XP", a.f, "var(--orange, #ff7a45)", trend(a.f, b.f)], ["TASKS DONE", a.tasks, "var(--gold)", trend(a.tasks, b.tasks)], ["COINS EARNED", a.c, "var(--gold)", ""], ["PERFECT DAYS", a.pf + " / 7", "var(--pink, #ff6fae)", ""]];
+    var tiles = [["FOCUS TIME", fmtH(a.m), "var(--green)", trend(a.m, b.m)], ["STUDY XP", a.s, "var(--blue)", trend(a.s, b.s)], ["FITNESS XP", a.f, "var(--orange, #ff7a45)", trend(a.f, b.f)], ["TASKS DONE", a.tasks, "var(--gold)", trend(a.tasks, b.tasks)], ["R COINS EARNED", a.c, "var(--gold)", ""], ["PERFECT DAYS", a.pf + " / 7", "var(--pink, #ff6fae)", ""]];
     var html = '<div class="rep-tiles">' + tiles.map(function (t) { return '<div class="rep-tile" style="--c:' + t[2] + '"><b>' + t[1] + "</b><span>" + t[0] + "</span>" + t[3] + "</div>"; }).join("") + "</div>";
     var sj = Object.keys(a.sj).map(function (k) { return [k, a.sj[k]]; }).sort(function (x, y) { return y[1] - x[1]; }).slice(0, 8), mx = sj.length ? sj[0][1] : 1;
     html += '<div class="rep-h">FOCUSED HOURS PER SUBJECT</div>' + (sj.length ? sj.map(function (x, i) { return '<div class="rep-sj"><span class="nm">' + esc(x[0]) + '</span><div class="rb"><i style="width:' + Math.max(4, Math.round(x[1] / mx * 100)) + "%;--c:" + ["#5cc8ff", "#5fd068", "#ffd23f", "#ff6fae", "#b08cff", "#ff7a45", "#7ef0d0", "#f4f1ff"][i % 8] + '"></i></div><span class="rv">' + fmtH(x[1]) + "</span></div>"; }).join("") : '<p class="hint">No finished focus sessions yet. Start one in the Time Table and it shows up here.</p>');
@@ -3987,10 +3987,10 @@ body[data-font="crisp"] .btn, body[data-font="crisp"] .tab, body[data-font="cris
     { view: "planner", sel: "#addForm", text: "Tasks start here. Type what needs doing, then set a priority, a due date and an optional repeat. Pick a stat such as FITNESS or STUDY and finishing the task adds XP to it. Pick WATER or PROTEIN and set an amount to log it automatically.", again: "Type a task, set priority and date, and optionally link it to a stat so finishing it earns XP." },
     { view: "planner", sel: "#stats", text: "These bars show your progress. Fitness and Study level up as you earn XP. Water and protein are daily goals, and the quick-add buttons log a drink or a meal in one tap. Every bar has UNDO. Hit all four goals in a day and your streak grows.", again: "Fitness and Study level up with XP. Water and protein are daily goals with quick-add buttons. UNDO reverses any step." },
     { view: "planner", sel: "#stage", text: "That's me, walking in my own little world. The sky follows your phone's clock and the seasons change, so you may see snow, blossoms, fireflies or falling leaves. I grow with your habits. Fitness changes my body at levels 4, 10, 15 and 25, and Study adds gear at the same levels: glasses, a scarf, a graduate cap, then a golden look. I drink when you log water, eat when you log protein, and cheer at your goals. Tap me to chat.", again: "I evolve at levels 4, 10, 15 and 25 and react to what you log. Undo a level and my look goes back." },
-    { view: "planner", sel: "#coinRow", text: "You earn coins for every task, focus session and daily goal, plus a bonus for perfect days. They also show at the top of the screen. Spend them in the SHOP on a house built in five stages, a dog or a cat, and hats and outfits. COIN GUIDE lists exactly what each action pays.", again: "Coins come from tasks, sessions, goals and streaks. The SHOP sells a house, pets, hats and outfits. COIN GUIDE shows the payouts." },
+    { view: "planner", sel: "#coinRow", text: "You earn R coins for every task, focus session and daily goal, plus a bonus for perfect days. They also show at the top of the screen. Spend them in the SHOP on a house built in five stages, a dog or a cat, and hats and outfits. R COIN GUIDE lists exactly what each action pays.", again: "Coins come from tasks, sessions, goals and streaks. The SHOP sells a house, pets, hats and outfits. R COIN GUIDE shows the payouts." },
     { view: "planner", sel: "section[aria-label=Tasks]", text: "Your tasks live here, with the week strip above to filter by day. Tick a task to complete it and earn XP. On a Study task, START TIMER begins a focus session for it. Use the tabs to see open, done, overdue or later tasks.", again: "Tick tasks to finish them and earn XP. START TIMER runs a focus session. Tabs filter open, done, overdue and later." },
     { view: "tt", sel: "#viewTT .exam", text: "Welcome to the Time Table. The bar at the bottom counts down to your exam. PLAN AN EXAM sets up your exam date, subjects, topics and study hours. Your plan fills the weekly grid. Tap a slot to add a block, drag to move it, or pull its edge to resize. TODAY lists the day's blocks.", again: "PLAN AN EXAM builds your weekly grid from your subjects and hours. The bottom bar counts down to the exam." },
-    { view: "tt", sel: "#secPomo", text: "To start a focus timer, press START here, or tap START TIMER on a task, or FOCUS on a block. Choose what you're working on so your minutes are logged. Let it run to zero to complete a session. You earn Study XP and coins, a break begins, and a block ticks itself off once its focus target is reached.", again: "Start from this card, a task or a block. Run to zero to finish a session and earn XP. Enough sessions tick the block off." },
+    { view: "tt", sel: "#secPomo", text: "To start a focus timer, press START here, or tap START TIMER on a task, or FOCUS on a block. Choose what you're working on so your minutes are logged. Let it run to zero to complete a session. You earn Study XP and R coins, a break begins, and a block ticks itself off once its focus target is reached.", again: "Start from this card, a task or a block. Run to zero to finish a session and earn XP. Enough sessions tick the block off." },
     { view: "tt", sel: "#pomoScene", text: "While you focus I read at the desk, with the lamp lighting my book and a little speech bubble cheering me on. In breaks I brew a fresh coffee and sip it. A lightbulb pops up when a session finishes. That's the full tour, {n}. There's a lot more to explore in your free time: customise my look, set goals, back up your data and plan more exams. Replay this any time with the ? button.", finish: true }
   ];
   function curView() { return $("#viewTT").hidden ? "planner" : "tt"; }
