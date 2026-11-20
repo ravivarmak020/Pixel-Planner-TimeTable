@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.AlarmClock;
+import java.util.ArrayList;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowManager;
@@ -340,6 +342,35 @@ public class MainActivity extends Activity {
                     }
                 }
             });
+        }
+
+        /** Sets a real alarm in the phone's Clock app. days = comma list of Calendar day numbers (1=Sun..7=Sat), or empty for a one-time alarm. */
+        @JavascriptInterface
+        public boolean setAlarm(int hour, int minute, String label, String days) {
+            try {
+                Intent i = new Intent(AlarmClock.ACTION_SET_ALARM);
+                i.putExtra(AlarmClock.EXTRA_HOUR, hour);
+                i.putExtra(AlarmClock.EXTRA_MINUTES, minute);
+                i.putExtra(AlarmClock.EXTRA_MESSAGE, label == null ? "Pixel Planner" : label);
+                i.putExtra(AlarmClock.EXTRA_SKIP_UI, true);
+                if (days != null && days.length() > 0) {
+                    ArrayList<Integer> list = new ArrayList<Integer>();
+                    for (String part : days.split(",")) {
+                        try {
+                            list.add(Integer.parseInt(part.trim()));
+                        } catch (NumberFormatException ignored) {
+                        }
+                    }
+                    if (!list.isEmpty()) {
+                        i.putExtra(AlarmClock.EXTRA_DAYS, list);
+                    }
+                }
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
         }
 
         @JavascriptInterface

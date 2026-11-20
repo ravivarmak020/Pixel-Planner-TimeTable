@@ -1058,6 +1058,22 @@ body.fx .fl2 { animation: fl2 .45s steps(1) infinite; }
 .dlgtx { display: flex; flex-direction: column; gap: 3px; }
 .dlgtx b { color: #7a3b00; font-size: 11px; }
 .dlgtx em { font-style: normal; color: #2a6a2a; }
+/* header: no character portrait next to the title */
+#avatarBtn { display: none !important; }
+/* no skyline strip at the top of the header */
+#hdrArt { display: none !important; }
+/* ===== R coin bars: same look + motion as the hydration / protein bars ===== */
+.cbar, .chipbar { position: relative; }
+.cbar .cfill, .chipbar i { position: relative; overflow: hidden; box-shadow: 0 0 8px #ffd23f; transition: width 1.1s cubic-bezier(.22,.9,.28,1); }
+.cbar .cfill { display: block; height: 100%; }
+.cbar .cfill::after, .chipbar i::after { content: ""; position: absolute; inset: 0; border-radius: 999px; background: linear-gradient(180deg, rgba(255,255,255,.4) 0 25%, transparent 25% 75%, rgba(0,0,0,.25) 75%); }
+body.fx .cbar .cfill::before, body.fx .chipbar i::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 40%; transform: translateX(-130%); background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent); animation: fillshine 3.4s ease-in-out infinite; z-index: 1; }
+.cbar.flash .cfill, .chipbar.flash i { animation: sflash .7s steps(4) 1; }
+/* ===== flashy press on every button ===== */
+.pressflash { animation: pressflash .38s ease-out 1; }
+@keyframes pressflash { 0% { transform: scale(1); filter: brightness(1); } 25% { transform: scale(1.09); filter: brightness(1.9) saturate(1.4); box-shadow: 0 0 0 3px rgba(255,236,140,.95), 0 0 18px 6px rgba(255,210,63,.75); } 100% { transform: scale(1); filter: brightness(1); } }
+.pfx { position: fixed; z-index: 9999; pointer-events: none; image-rendering: pixelated; }
+@media (prefers-reduced-motion: reduce) { .pressflash { animation: none; } }
 </style>
 </head>
 <body>
@@ -1119,6 +1135,7 @@ body.fx .fl2 { animation: fl2 .45s steps(1) infinite; }
       <input class="field amt" id="newAmt" type="number" min="1" max="99999" placeholder="AMOUNT" aria-label="Amount (blank uses the default)" hidden>
       <select class="field" id="newRep" aria-label="Repeat"><option value="">NO REPEAT</option><option value="daily">DAILY</option><option value="weekdays">WEEKDAYS</option><option value="weekly">WEEKLY</option></select>
       <input class="field" id="newDue" type="date" aria-label="Due date">
+      <input class="field" id="newAt" type="time" aria-label="Phone alarm time (optional)" data-tip="OPTIONAL PHONE ALARM TIME">
       <button class="btn" type="submit">ADD</button>
     </form>
   </section>
@@ -1281,7 +1298,6 @@ body.fx .fl2 { animation: fl2 .45s steps(1) infinite; }
     <h2 id="customTitle">CUSTOMIZE LOOK</h2>
     <div class="custom-top"><div class="custom-preview" id="customPreview"></div><div class="custom-rows" id="customRows"></div></div>
     <div class="lab" style="margin-top:14px">THEME <div class="chips" id="envTheme"></div></div>
-    <div class="lab" style="margin-top:12px">TEXT FONT <div class="chips" id="envFont"></div></div>
     <div class="lab" style="margin-top:12px">SKY <div class="chips" id="envSky"></div></div>
     <div class="lab" style="margin-top:12px">SEASON <div class="chips" id="envSea"></div></div>
     <p class="hint">AUTO FOLLOWS YOUR PHONE CLOCK AND THE CALENDAR MONTH.</p>
@@ -1373,6 +1389,7 @@ body.fx .fl2 { animation: fl2 .45s steps(1) infinite; }
     <div id="gDays" class="lab">DAYS <div class="chips" id="bDays"></div></div>
     <label class="lab" id="gDate">DATE<input class="field" id="bDate" type="date"></label>
     <div class="timepair"><label class="lab">START<select class="field" id="bStart"></select></label><label class="lab">END<select class="field" id="bEnd"></select></label></div>
+    <label class="lab">PHONE ALARM<select class="field" id="bAlarm"><option value="-1">NO ALARM</option><option value="0">AT START</option><option value="5">5 MIN BEFORE</option><option value="10">10 MIN BEFORE</option><option value="30">30 MIN BEFORE</option></select></label>
     <div class="row-btns"><button class="btn alt" id="bDel" type="button">DELETE</button><button class="btn" id="bTimer" type="button">START TIMER</button><button class="btn alt" id="bDone" type="button">MARK DONE</button><button class="btn alt" id="bCancel" type="button">CANCEL</button><button class="btn" id="bSave" type="button">SAVE</button></div>
   </div>
 </div>
@@ -2204,6 +2221,7 @@ if (typeof module !== "undefined") module.exports = HD;
     var animOk = document.body.classList.contains("fx") && document.body.animate;
     requestAnimationFrame(function () { requestAnimationFrame(function () {
       fill.style.width = pct + "%"; if (sp) sp.style.left = pct + "%";
+      if (pct > from) { bar.classList.remove("flash"); void bar.offsetWidth; bar.classList.add("flash"); setTimeout(function () { bar.classList.remove("flash"); }, 800); }
       if (animOk && sp && pct > from) barSparkle(bar, sp, true, bar);
     }); });
   }
@@ -2330,7 +2348,7 @@ if (typeof module !== "undefined") module.exports = HD;
   function spawnNext(t) {
     if (!t.rep || t.spawnedId) return;
     var base = t.due && t.due > todayIso() ? t.due : todayIso();
-    var n = { id: uid(), title: t.title, pri: t.pri, due: nextDue(t.rep, base), cat: t.cat || "", amt: t.amt || 0, rep: t.rep, done: false };
+    var n = { id: uid(), title: t.title, pri: t.pri, due: nextDue(t.rep, base), cat: t.cat || "", amt: t.amt || 0, rep: t.rep, done: false, at: t.at || "" };
     state.tasks.push(n); t.spawnedId = n.id;
   }
   function unspawn(t) {
@@ -2436,12 +2454,13 @@ if (typeof module !== "undefined") module.exports = HD;
           (CATS[x.cat] && CATS[x.cat].daily ? '<input class="field" type="number" name="amt" min="1" max="99999" value="' + (x.amt || "") + '" placeholder="' + CATS[x.cat].unit + '" aria-label="Edit amount">' : "") +
           '<select class="field" name="rep" aria-label="Edit repeat">' + [["", "NO REPEAT"], ["daily", "DAILY"], ["weekdays", "WEEKDAYS"], ["weekly", "WEEKLY"]].map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === (x.rep || "") ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + "</select>" +
           '<input class="field" type="date" name="due" value="' + (x.due || "") + '" aria-label="Edit due date">' +
+          '<input class="field" type="time" name="at" value="' + (x.at || "") + '" aria-label="Phone alarm time (optional)" data-tip="OPTIONAL PHONE ALARM TIME">' +
           '<button class="btn" type="submit">SAVE</button><button class="btn alt" type="button" data-cancel>CANCEL</button></form></li>';
       }
       return '<li class="task p' + x.pri + (x.done ? " done" : "") + (x.cat && CATS[x.cat] ? " cs" : "") + popCls + '" data-id="' + x.id + '"' + (x.cat && CATS[x.cat] ? ' style="--c:' + CATS[x.cat].color + '"' : "") + '>' +
         '<button class="check" data-act="toggle" aria-label="' + (x.done ? "Mark open" : "Mark done") + '"><svg viewBox="0 0 6 6" shape-rendering="crispEdges"><path d="M0 3h1v1h1v1h1V4h1V3h1V1h-1v1H4v1H3v1H2V3H0z" fill="#000"/></svg></button>' +
         '<div><div class="title">' + (x.cat && CATS[x.cat] ? '<span class="cicon">' + iconSvg(x.cat) + "</span>" : "") + esc(x.title) + '</div><div class="meta"><span class="tag">' + PRI[x.pri] + "</span>" + (x.cat && CATS[x.cat] ? '<span class="cat-tag" style="--c:' + CATS[x.cat].color + '">' + CATS[x.cat].label + (CATS[x.cat].daily ? " " + (x.amt > 0 ? x.amt : CATS[x.cat].def) + CATS[x.cat].unit.toLowerCase() : "") + "</span>" : "") + (x.rep && REPS[x.rep] ? '<span class="rep-tag">' + REPS[x.rep] + "</span>" : "") + (x.focus > 0 ? '<span class="rep-tag fmin">' + Math.round(x.focus) + " MIN FOCUSED</span>" : "") + (x.done || x.cat !== "study" ? "" : '<button class="focusbtn" type="button" data-act="focus" data-tip="START THE FOCUS TIMER ON THIS TASK">START TIMER</button>') +
-        (x.due ? '<span class="' + (late ? "late" : "") + '">' + (late ? "LATE " : "") + fmt(x.due) + "</span>" : "<span>no date</span>") + "</div></div>" +
+        (x.due ? '<span class="' + (late ? "late" : "") + '">' + (late ? "LATE " : "") + fmt(x.due) + "</span>" : "<span>no date</span>") + (x.at ? "<span>ALARM " + x.at + "</span>" : "") + "</div></div>" +
         '<div class="actions"><button class="icon" data-act="tt" aria-label="Add to time table" data-tip="ADD TO TIME TABLE">' + pxi("cal") + '</button><button class="icon edit" data-act="edit" aria-label="Edit task" data-tip="EDIT">' + pxi("pen") + '</button><button class="icon" data-act="del" aria-label="Delete task" data-tip="DELETE">' + pxi("bin") + '</button></div></li>';
     }).join("");
     if (enterId) { var ne = $("#list").querySelector('li[data-id="' + enterId + '"]'); if (ne) ne.classList.add("enter"); enterId = ""; }
@@ -3155,6 +3174,23 @@ if (typeof module !== "undefined") module.exports = PET;
 
 
   /* ---------- button sounds and walking quotes ---------- */
+  var PF_COLS = ["#fff7b0", "#ffd23f", "#ff8fc0", "#8fe0ff", "#b9ff9a"];
+  function pressFlash(el, e) {
+    try {
+      if (!document.body.classList.contains("fx")) return;
+      el.classList.remove("pressflash"); void el.offsetWidth; el.classList.add("pressflash"); setTimeout(function () { el.classList.remove("pressflash"); }, 420);
+      if (!document.body.animate) return;
+      var r = el.getBoundingClientRect(), cx = e && e.clientX ? e.clientX : r.left + r.width / 2, cy = e && e.clientY ? e.clientY : r.top + r.height / 2;
+      for (var i = 0; i < 8; i++) {
+        var p = document.createElement("u"); p.className = "pfx"; var sz = 4 + (i % 3) * 2, col = PF_COLS[i % 5];
+        p.style.cssText = "left:" + (cx - sz / 2) + "px;top:" + (cy - sz / 2) + "px;width:" + sz + "px;height:" + sz + "px;background:" + col + ";box-shadow:0 0 6px " + col;
+        document.body.appendChild(p);
+        var ang = Math.PI * 2 * i / 8 + Math.random() * 0.4, d = 18 + Math.random() * 20;
+        var a = p.animate([{ transform: "translate(0,0) scale(1)", opacity: 1 }, { transform: "translate(" + Math.cos(ang) * d + "px," + Math.sin(ang) * d + "px) scale(.1)", opacity: 0 }], { duration: 480, easing: "cubic-bezier(.2,.8,.3,1)" });
+        a.onfinish = (function (q) { return function () { q.remove(); }; })(p);
+      }
+    } catch (err) {}
+  }
   function clickSound(kind) {
     try {
       audioReady();
@@ -3164,8 +3200,9 @@ if (typeof module !== "undefined") module.exports = PET;
     } catch (e) {}
   }
   document.addEventListener("click", function (e) {
-    var b = e.target.closest && e.target.closest("button, .day, .tab, .check, .swatch, .pick");
+    var b = e.target.closest && e.target.closest("button, .day, .tab, .check, .swatch, .pick, .chip, .coinchip, #coinChip, .shop-prev, .shop-name, [role='button'], [data-shop], [data-prev], label.chip, summary, a.btn");
     if (!b || b.disabled || b.id === "walker" || b.id === "sndBtn") return;
+    pressFlash(b, e);
     clickSound(b.classList.contains("check") ? "check" : b.classList.contains("alt") || b.classList.contains("icon") || b.classList.contains("tab") || b.classList.contains("day") ? "alt" : "main");
   }, true);
   var MORE_QUOTES = ["Every hour you study is an hour your rival isn't.", "Sweat now, shine on exam day.", "Tiny habits build a big result.", "You're closer than you were yesterday.", "Focus for 25 minutes. The world can wait.", "Strong body, sharp mind.", "Mistakes mean you're learning. Keep going.", "Your future rank is built by today's revision."];
@@ -3471,7 +3508,7 @@ if (typeof module !== "undefined") module.exports = PET;
   }
   function applyEnv() {
     var tod = envTod(), sea = envSeason(), b = document.body;
-    b.dataset.theme = prof.theme || "midnight"; b.dataset.font = prof.font || "classic";
+    b.dataset.theme = prof.theme || "midnight"; b.dataset.font = "classic";
     if (b.dataset.tod !== tod || b.dataset.sea !== sea || env.th !== b.dataset.theme) { env.th = b.dataset.theme; b.dataset.tod = tod; b.dataset.sea = sea; env.redraw = true; }
     stageSize();
   }
@@ -3481,7 +3518,6 @@ if (typeof module !== "undefined") module.exports = PET;
       el.innerHTML = vals.map(function (v) { return '<button class="chip" type="button" data-env="' + key + '" data-v="' + v + '" aria-pressed="' + ((prof[key] || (key === "theme" ? "midnight" : key === "font" ? "classic" : "auto")) === v) + '">' + v.toUpperCase() + "</button>"; }).join("");
     }
     row("#envTheme", "theme", ["midnight", "sakura", "forest", "ocean"]);
-    row("#envFont", "font", ["classic", "crisp", "soft"]);
     row("#envSky", "sky", ["auto", "dawn", "day", "sunset", "night"]);
     row("#envSea", "season", ["auto", "spring", "summer", "autumn", "winter", "off"]);
   }
@@ -3604,7 +3640,7 @@ if (typeof module !== "undefined") module.exports = PET;
       var type = ["subject", "task", "break", "rev"].indexOf(b.type) >= 0 ? b.type : "subject";
       return { id: String(b.id || uid()), type: type, day: Math.round(+b.day), date: ISO_RE.test(b.date || "") ? b.date : "", start: +b.start, end: +b.end,
         subj: b.subj ? String(b.subj) : "", topic: b.topic ? String(b.topic) : "", title: String(b.title || "").slice(0, 60),
-        color: /^#[0-9a-f]{6}$/i.test(b.color) ? b.color : TT_COLORS[1], cat: b.cat === "fitness" || b.cat === "study" ? b.cat : "", link: b.link ? String(b.link) : "",
+        color: /^#[0-9a-f]{6}$/i.test(b.color) ? b.color : TT_COLORS[1], cat: b.cat === "fitness" || b.cat === "study" ? b.cat : "", link: b.link ? String(b.link) : "", alarm: [0, 5, 10, 30].indexOf(+b.alarm) >= 0 ? +b.alarm : -1,
         done: b.done && typeof b.done === "object" ? b.done : {}, xp: b.xp && typeof b.xp === "object" ? b.xp : {}, focus: b.focus && typeof b.focus === "object" ? b.focus : {},
         pomo: b.pomo && +b.pomo.focus > 0 ? { focus: Math.min(120, Math.max(1, Math.round(+b.pomo.focus))), short: Math.min(60, Math.max(1, Math.round(+b.pomo.short) || 5)), long: Math.min(90, Math.max(1, Math.round(+b.pomo.long) || 15)), every: Math.min(10, Math.max(2, Math.round(+b.pomo.every) || 4)), need: +b.pomo.need > 0 ? Math.min(600, Math.round(+b.pomo.need)) : 0 } : null };
     });
@@ -3934,11 +3970,11 @@ if (typeof module !== "undefined") module.exports = PET;
       bType = bEdit.type === "rev" ? "subject" : bEdit.type; bWhen = bEdit.date ? "once" : "weekly"; bColor = bEdit.color || TT_COLORS[1];
       if (bEdit.subj) $("#bSubj").value = bEdit.subj; fillTopics(bEdit.topic);
       $("#bTitle").value = bEdit.title; $("#bCat").value = bEdit.cat; $("#bLink").value = bEdit.link || "";
-      setBPomo(bEdit.pomo, bEdit.end - bEdit.start);
+      setBPomo(bEdit.pomo, bEdit.end - bEdit.start); $("#bAlarm").value = String(bEdit.alarm == null ? -1 : bEdit.alarm);
       bDaysSel = [bEdit.day]; $("#bDate").value = bEdit.date || ""; $("#bStart").value = bEdit.start; $("#bEnd").value = bEdit.end;
     } else {
       bType = o.type || (tt.subjects.length ? "subject" : "task"); bWhen = o.task ? "once" : "weekly"; bColor = TT_COLORS[1];
-      setBPomo(null); fillTopics(""); $("#bTitle").value = ""; $("#bCat").value = ""; $("#bLink").value = "";
+      setBPomo(null); $("#bAlarm").value = "-1"; fillTopics(""); $("#bTitle").value = ""; $("#bCat").value = ""; $("#bLink").value = "";
       var day = o.day == null ? dayIdx(new Date()) : o.day;
       bDaysSel = [day]; $("#bDate").value = dateOfDay(day);
       var st = o.start == null ? Math.max(tt.startHour * 60, Math.ceil(nowMin() / 30) * 30) : o.start;
@@ -3954,11 +3990,22 @@ if (typeof module !== "undefined") module.exports = PET;
     renderBDays(); syncBlockForm();
     $("#blockModal").hidden = false; $("#bSubj").focus();
   }
+  /* sets a real alarm in the phone's Clock app (Android app only). time: "HH:MM" or minutes from midnight; days: array of 0=Mon..6=Sun, or null for one time */
+  function phoneAlarm(time, label, days) {
+    var mins = typeof time === "string" ? (+time.slice(0, 2)) * 60 + (+time.slice(3, 5)) : time;
+    var B = window.AndroidBridge;
+    if (!B || !B.setAlarm) { toast("PHONE ALARMS WORK IN THE ANDROID APP", "gold"); return false; }
+    var ok = false;
+    try { ok = !!B.setAlarm(Math.floor(mins / 60), mins % 60, String(label || "Pixel Planner").slice(0, 60), days && days.length ? days.map(function (d) { return d === 6 ? 1 : d + 2; }).join(",") : ""); } catch (e) {}
+    toast(ok ? "PHONE ALARM SET FOR " + pad2(Math.floor(mins / 60)) + ":" + pad2(mins % 60) : "COULD NOT SET THE ALARM", ok ? "blue" : "red");
+    return ok;
+  }
+  function pad2(n) { return (n < 10 ? "0" : "") + n; }
   function closeBlock() { $("#blockModal").hidden = true; }
   function saveBlock() {
     var s0 = +$("#bStart").value, e0 = +$("#bEnd").value;
     if (e0 <= s0) { toast("END MUST BE AFTER START", "red"); return; }
-    var base = { type: (bEdit && bEdit.type === "rev" && bType === "subject") ? "rev" : bType, subj: "", topic: "", title: "", color: bColor, cat: "", link: "", pomo: null, start: s0, end: e0 };
+    var base = { type: (bEdit && bEdit.type === "rev" && bType === "subject") ? "rev" : bType, subj: "", topic: "", title: "", color: bColor, cat: "", link: "", pomo: null, start: s0, end: e0, alarm: +$("#bAlarm").value };
     if (bType === "subject") {
       base.subj = $("#bSubj").value; if (!base.subj) { toast("ADD A SUBJECT FIRST", "gold"); return; }
       base.topic = $("#bTopic").value;
@@ -3982,6 +4029,7 @@ if (typeof module !== "undefined") module.exports = PET;
       var probe = { day: targets[i].day, date: targets[i].date, start: s0, end: e0 };
       if (clash(probe, bEdit && bEdit.id)) { toast(DAYS[targets[i].day] + " ALREADY HAS A BLOCK THEN", "red"); return; }
     }
+    var prevA = bEdit ? { a: bEdit.alarm, s: bEdit.start } : null;
     if (bEdit) {
       var keep = { done: bEdit.done, xp: bEdit.xp };
       for (var k in base) bEdit[k] = base[k];
@@ -3991,6 +4039,11 @@ if (typeof module !== "undefined") module.exports = PET;
     } else {
       targets.forEach(function (t) { var nb = { id: uid(), day: t.day, date: t.date, done: {}, xp: {} }; for (var k in base) nb[k] = base[k]; tt.blocks.push(nb); });
       toast(targets.length > 1 ? "ADDED " + targets.length + " BLOCKS" : "BLOCK ADDED", "");
+    }
+    if (base.alarm >= 0 && !(prevA && prevA.a === base.alarm && prevA.s === s0)) {
+      var am = Math.max(0, s0 - base.alarm), lbl = base.title || (base.subj && (tt.subjects.find(function (x) { return x.id === base.subj; }) || {}).name) || "Time table block";
+      if (bWhen === "once") phoneAlarm(am, lbl, null);
+      else phoneAlarm(am, lbl, bDaysSel.slice());
     }
     closeBlock(); ttSave();
   }
@@ -4299,8 +4352,9 @@ if (typeof module !== "undefined") module.exports = PET;
     var title = $("#newTitle").value.trim();
     if (!title) return;
     var nid = uid(); enterId = nid;
-    state.tasks.push({ id: nid, title: title, pri: +$("#newPri").value, due: $("#newDue").value || (view.day || ""), cat: $("#newCat").value, amt: +$("#newAmt").value || 0, rep: $("#newRep").value, done: false });
-    $("#newAmt").value = ""; $("#newRep").value = "";
+    state.tasks.push({ id: nid, title: title, pri: +$("#newPri").value, due: $("#newDue").value || (view.day || ""), cat: $("#newCat").value, amt: +$("#newAmt").value || 0, rep: $("#newRep").value, done: false, at: $("#newAt").value || "" });
+    var nt = state.tasks[state.tasks.length - 1]; if (nt.at) phoneAlarm(nt.at, nt.title, null);
+    $("#newAmt").value = ""; $("#newRep").value = ""; $("#newAt").value = "";
     $("#newTitle").value = "";
     commit(); toast("TASK ADDED", "");
     $("#newTitle").focus();
@@ -4351,7 +4405,7 @@ if (typeof module !== "undefined") module.exports = PET;
     try {
       var d = JSON.parse($("#backupText").value);
       if (!d || d.app !== "pixel-planner" || !Array.isArray(d.tasks)) throw new Error("bad");
-      state.tasks = d.tasks.filter(function (x) { return x && typeof x.title === "string"; }).map(function (x) { return { id: String(x.id || uid()), title: String(x.title).slice(0, 120), pri: [1, 2, 3].indexOf(+x.pri) >= 0 ? +x.pri : 2, due: /^\d{4}-\d{2}-\d{2}$/.test(x.due || "") ? x.due : "", cat: CATS[x.cat] ? x.cat : "", amt: +x.amt > 0 ? +x.amt : 0, rep: REPS[x.rep] ? x.rep : "", done: !!x.done, focus: +x.focus > 0 ? +x.focus : 0, pts: +x.pts || 0, doneOn: x.doneOn || null, spawnedId: x.spawnedId || null }; });
+      state.tasks = d.tasks.filter(function (x) { return x && typeof x.title === "string"; }).map(function (x) { return { id: String(x.id || uid()), title: String(x.title).slice(0, 120), pri: [1, 2, 3].indexOf(+x.pri) >= 0 ? +x.pri : 2, due: /^\d{4}-\d{2}-\d{2}$/.test(x.due || "") ? x.due : "", cat: CATS[x.cat] ? x.cat : "", amt: +x.amt > 0 ? +x.amt : 0, rep: REPS[x.rep] ? x.rep : "", done: !!x.done, focus: +x.focus > 0 ? +x.focus : 0, pts: +x.pts || 0, doneOn: x.doneOn || null, spawnedId: x.spawnedId || null, at: /^\d{2}:\d{2}$/.test(x.at || "") ? x.at : "" }; });
       if (d.avatar && SPRITES[d.avatar]) avatar = d.avatar;
       if (d.prof) prof = normProf(d.prof);
       if (d.custom && typeof d.custom === "object") custom = d.custom;
@@ -4628,6 +4682,7 @@ if (typeof module !== "undefined") module.exports = PET;
     if (title) t.title = title;
     t.pri = +f.elements.pri.value; t.due = f.elements.due.value;
     t.rep = f.elements.rep.value;
+    var nat = f.elements.at ? f.elements.at.value : ""; if (nat && nat !== t.at) phoneAlarm(nat, t.title, null); t.at = nat;
     if (f.elements.amt) { var na = +f.elements.amt.value || 0; if (na !== (t.amt || 0)) { if (t.done) { award(t, -1); t.amt = na; award(t, 1); } else t.amt = na; } }
     var nc = f.elements.cat.value;
     if (nc !== (t.cat || "")) {
@@ -4892,40 +4947,6 @@ if (typeof module !== "undefined") module.exports = PET;
       el.addEventListener("touchstart", function () { go(); clearTimeout(dlgT); dlgT = setTimeout(hideDlg, 2600); }, { passive: true });
     });
   })();
-  /* ===== TEST TOOLS START (temporary: delete this whole block to remove) ===== */
-  (function () {
-    var host = document.querySelector(".head-actions"); if (!host) return;
-    var b = document.createElement("button"); b.className = "btn alt testbtn"; b.type = "button"; b.id = "testBtn"; b.textContent = "TEST"; b.setAttribute("data-tip", "TEMPORARY TEST TOOLS");
-    host.appendChild(document.createTextNode(" ")); host.appendChild(b);
-    var m = document.createElement("div"); m.className = "modal"; m.id = "testPanel"; m.hidden = true;
-    m.innerHTML = '<div class="box"><h2>TEST TOOLS</h2><p class="hint">TEMPORARY. THESE ONLY HELP YOU TRY THINGS OUT.</p>' +
-      '<div class="row-btns"><button class="btn" id="tCoins" type="button">+5000 R COINS</button></div>' +
-      '<div class="row-btns"><button class="btn" id="tEvo" type="button">WATCH PIXEL EVOLVE</button></div>' +
-      '<p class="hint">THE EVOLVE DEMO STEPS PIXEL THROUGH ALL FITNESS FORMS THEN ALL STUDY GEAR. YOUR REAL LEVELS ARE NOT CHANGED.</p>' +
-      '<div class="row-btns"><button class="btn alt" id="tClose" type="button">CLOSE</button></div></div>';
-    document.body.appendChild(m);
-    var busy = false;
-    b.addEventListener("click", function () { m.hidden = false; });
-    m.querySelector("#tClose").addEventListener("click", function () { m.hidden = true; });
-    m.querySelector("#tCoins").addEventListener("click", function () {
-      addCoins(5000, true); dirty = true; store.save(); try { renderShop(); } catch (e) {} m.hidden = true;
-    });
-    m.querySelector("#tEvo").addEventListener("click", function () {
-      if (busy || !avatar || (avatar !== "boy" && avatar !== "girl")) { toast("PICK A BOY OR GIRL PIXEL FIRST", ""); return; }
-      busy = true; m.hidden = true;
-      var steps = [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [4, 1], [4, 2], [4, 3], [4, 4]], i = 0;
-      evoDemo = { f: 0, s: 0 }; evoPrev = { f: 0, s: 0 }; renderAvatar(); try { buildWalker(); } catch (x) {} toast("EVOLVE DEMO STARTED", "gold");
-      (function next() {
-        i++;
-        if (i >= steps.length) {
-          setTimeout(function () { evoDemo = null; evoPrev = evoNow(); renderAvatar(); try { buildWalker(); } catch (x) {} toast("DEMO OVER. BACK TO YOUR REAL PIXEL", ""); busy = false; }, 3200);
-          return;
-        }
-        setTimeout(function () { evoDemo = { f: steps[i][0], s: steps[i][1] }; evoCheck(); next(); }, i === 1 ? 1800 : 3400);
-      })();
-    });
-  })();
-  /* ===== TEST TOOLS END ===== */
 })();
 </script>
 </body>
