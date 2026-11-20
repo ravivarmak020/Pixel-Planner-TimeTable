@@ -992,6 +992,19 @@ body[data-font="crisp"] { --font-display: "Silkscreen", "Press Start 2P", "Couri
 body[data-font="soft"] { --font-display: "Pixelify Sans", "Press Start 2P", "Courier New", monospace; --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 18px; }
 body[data-font="crisp"] .btn, body[data-font="crisp"] .tab, body[data-font="crisp"] .chip, body[data-font="crisp"] .qbtn, body[data-font="crisp"] .focusbtn { font-size: 11px; }
 .hdrart { display: block; width: 100%; height: 84px; image-rendering: pixelated; border-radius: 12px; margin-bottom: 12px; }
+
+/* ===== coin bar sparkle ===== */
+.cbar, .chipbar { overflow: visible !important; --c: #ffd23f; }
+.cbar .spk, .chipbar .spk { position: absolute; top: 50%; width: 0; height: 0; pointer-events: none; z-index: 3; left: 0; transition: left 1s cubic-bezier(.22,.9,.28,1); }
+.cbar .spk::before, .chipbar .spk::before { content: ""; position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: radial-gradient(circle, #fff 0 35%, #ffd23f 36% 60%, transparent 62%); box-shadow: 0 0 10px 3px #ffd23f, 0 0 4px 1px #fff; opacity: 0; }
+.cbar .spk::after, .chipbar .spk::after { content: ""; position: absolute; left: 3px; top: -12px; width: 7px; height: 7px; background: #fff; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); opacity: 0; filter: drop-shadow(0 0 3px #fff); }
+.chipbar .spk::before { left: -3px; top: -3px; width: 6px; height: 6px; }
+.chipbar .spk::after { top: -9px; width: 5px; height: 5px; }
+body.fx .cbar .spk.on::before, body.fx .chipbar .spk.on::before { opacity: .9; animation: spkidle 1.4s ease-in-out infinite; }
+body.fx .cbar .spk.on::after, body.fx .chipbar .spk.on::after { animation: spktw 2.2s ease-in-out infinite; }
+.cbar .sp2, .chipbar .sp2 { position: absolute; }
+/* ===== TEST TOOLS (temporary) ===== */
+.testbtn { border-style: dashed !important; }
 </style>
 </head>
 <body>
@@ -1015,7 +1028,7 @@ body[data-font="crisp"] .btn, body[data-font="crisp"] .tab, body[data-font="cris
       <button class="hero-btn" id="avatarBtn" type="button" aria-label="Change character" data-tip="CHANGE CHARACTER"></button>
       <h1 id="appTitle"><span class="hlogo" id="hLogo" aria-hidden="true"></span><span id="titleTxt">PIXEL PLANNER</span></h1>
     </div>
-    <div class="head-actions"><button class="coinchip" id="coinChip" type="button" data-tip="YOUR R COINS. OPEN THE SHOP"><span class="coinic"></span><b id="chipVal">0</b><span class="chipbar"><i id="chipFill"></i></span></button> <button class="btn alt tgl" id="sndBtn" type="button" aria-pressed="true" data-tip="MUTE OR UNMUTE ALL APP SOUNDS">SOUND ON</button> <button class="btn alt tgl" id="fxBtn" type="button" aria-pressed="true" data-tip="LIGHT AND MOTION EFFECTS ON OR OFF">FX ON</button> <button class="btn alt" id="shopBtn" type="button" data-tip="SPEND R COINS ON A HOUSE, PETS AND LOOKS">SHOP</button> <button class="btn alt" id="repBtn" type="button" data-tip="WEEKLY REPORT: HOURS, XP, STREAKS AND TASKS">REPORT</button> <button class="btn alt" id="goalsBtn" type="button" data-tip="GOALS AND BACKUP">GOALS</button> <button class="btn alt" id="tourBtn" type="button" aria-label="Show the guided tour" data-tip="TOUR WITH PIXEL">?</button> <button class="btn alt" id="customBtn" type="button" data-tip="COLORS FOR YOUR CHARACTER">CUSTOMIZE</button></div>
+    <div class="head-actions"><button class="coinchip" id="coinChip" type="button" data-tip="YOUR R COINS. OPEN THE SHOP"><span class="coinic"></span><b id="chipVal">0</b><span class="chipbar"><i id="chipFill"></i><u class="spk"></u></span></button> <button class="btn alt tgl" id="sndBtn" type="button" aria-pressed="true" data-tip="MUTE OR UNMUTE ALL APP SOUNDS">SOUND ON</button> <button class="btn alt tgl" id="fxBtn" type="button" aria-pressed="true" data-tip="LIGHT AND MOTION EFFECTS ON OR OFF">FX ON</button> <button class="btn alt" id="shopBtn" type="button" data-tip="SPEND R COINS ON A HOUSE, PETS AND LOOKS">SHOP</button> <button class="btn alt" id="repBtn" type="button" data-tip="WEEKLY REPORT: HOURS, XP, STREAKS AND TASKS">REPORT</button> <button class="btn alt" id="goalsBtn" type="button" data-tip="GOALS AND BACKUP">GOALS</button> <button class="btn alt" id="tourBtn" type="button" aria-label="Show the guided tour" data-tip="TOUR WITH PIXEL">?</button> <button class="btn alt" id="customBtn" type="button" data-tip="COLORS FOR YOUR CHARACTER">CUSTOMIZE</button></div>
   </header>
   <div class="toasts" id="toasts" aria-live="polite"></div>
 
@@ -1465,7 +1478,8 @@ body[data-font="crisp"] .btn, body[data-font="crisp"] .tab, body[data-font="cris
   }
   /* ---------- evolution: tiers from Fitness / Study level ---------- */
   function tierOf(lv) { return lv >= 25 ? 4 : lv >= 15 ? 3 : lv >= 10 ? 2 : lv >= 4 ? 1 : 0; }
-  function evoNow() { return stats ? { f: tierOf(lvOf("fitness")), s: tierOf(lvOf("study")) } : { f: 0, s: 0 }; }
+  var evoDemo = null;
+  function evoNow() { if (evoDemo) return { f: evoDemo.f, s: evoDemo.s }; return stats ? { f: tierOf(lvOf("fitness")), s: tierOf(lvOf("study")) } : { f: 0, s: 0 }; }
   function sprSig() { var e = evoNow(), i = stats && stats.inv || {}; return e.f + "" + e.s + (i.hat || "") + (i.outfit || ""); }
   function evoSvg(key, frame, e) {
     if (key !== "boy" && key !== "girl") return "";
@@ -1740,12 +1754,12 @@ body[data-font="crisp"] .btn, body[data-font="crisp"] .tab, body[data-font="cris
   }
   var SPK_COLS = ["#ffffff", "#fff2a0", "#ffb8e8", "#b8e8ff", "#d8c0ff"];
   function mkStar(bar, x, y, size, col, dx, dy, dur, spin) {
-    var p = document.createElement("i"); p.className = "sp2"; p.style.left = x - size / 2 + "px"; p.style.top = y - size / 2 + "px"; p.style.width = p.style.height = size + "px"; p.style.background = col; p.style.color = col; bar.appendChild(p);
+    var p = document.createElement("u"); p.className = "sp2"; p.style.left = x - size / 2 + "px"; p.style.top = y - size / 2 + "px"; p.style.width = p.style.height = size + "px"; p.style.background = col; p.style.color = col; bar.appendChild(p);
     var a = p.animate([{ transform: "translate(0,0) scale(.3) rotate(0deg)", opacity: 0 }, { transform: "translate(" + dx * 0.4 + "px," + dy * 0.4 + "px) scale(1) rotate(" + spin * 0.4 + "deg)", opacity: 1, offset: 0.3 }, { transform: "translate(" + dx + "px," + dy + "px) scale(.1) rotate(" + spin + "deg)", opacity: 0 }], { duration: dur, easing: "ease-out" });
     a.onfinish = function () { p.remove(); };
   }
-  function barSparkle(el, sp, up) {
-    var bar = el.querySelector(".bar"), n = 0; if (!bar || !up) return;
+  function barSparkle(el, sp, up, barEl) {
+    var bar = barEl || el.querySelector(".bar"), n = 0; if (!bar || !up) return;
     el.classList.add("mv");
     var iv = setInterval(function () {
       n++; var br = bar.getBoundingClientRect(), sr = sp.getBoundingClientRect(), x = sr.left - br.left, y = br.height / 2;
@@ -1773,7 +1787,7 @@ body[data-font="crisp"] .btn, body[data-font="crisp"] .tab, body[data-font="cris
     var names = ["WATER", "PROTEIN", "FITNESS", "STUDY"];
     var dots = hits.map(function (h, i) { return '<span class="gdot' + (h ? " on" : "") + '" data-tip="' + names[i] + (h ? " DONE" : " TO DO") + '"></span>'; }).join("");
     $("#stats").innerHTML = bars + '<div class="sumrow"><span class="flame">' + flameSvg() + '</span><span class="sumtxt">STREAK ' + curStreak() + " DAY" + (curStreak() === 1 ? "" : "S") + " / BEST " + stats.best + '</span><span class="grow"></span><span class="sumtxt">TODAY ' + n + "/4 GOALS</span>" + dots + "</div>" +
-      '<div class="coinrow" id="coinRow"><span class="coinic"></span><span class="coinval">0</span><span class="cbar"><i class="cfill"></i></span><span class="cnext"></span><button class="btn alt" id="coinHelp" type="button">R COIN GUIDE</button><button class="btn" id="coinShop" type="button">SHOP</button></div>';
+      '<div class="coinrow" id="coinRow"><span class="coinic"></span><span class="coinval">0</span><span class="cbar"><i class="cfill"></i><u class="spk"></u></span><span class="cnext"></span><button class="btn alt" id="coinHelp" type="button">R COIN GUIDE</button><button class="btn" id="coinShop" type="button">SHOP</button></div>';
     renderCoins(); barGo();
   }
   function addCoins(n, pop) {
@@ -1787,14 +1801,26 @@ body[data-font="crisp"] .btn, body[data-font="crisp"] .tab, body[data-font="cris
   }
   function renderChip() {
     var g = nextGoal(), pct = g ? Math.min(100, Math.round(stats.coins / g.c * 100)) : 100;
-    if ($("#chipVal")) { tweenNum($("#chipVal"), stats.coins); $("#chipFill").style.width = pct + "%"; }
+    if ($("#chipVal")) { tweenNum($("#chipVal"), stats.coins); coinBar("chip", $("#chipFill"), pct); }
+  }
+  var coinPrevPct = {};
+  function coinBar(key, fill, pct) {
+    var bar = fill.parentNode, sp = bar.querySelector(".spk"), fresh = !fill.style.width;
+    var from = coinPrevPct[key] == null ? pct : coinPrevPct[key]; if (fresh) { fill.style.width = from + "%"; if (sp) sp.style.left = from + "%"; }
+    coinPrevPct[key] = pct;
+    if (sp) sp.classList.toggle("on", pct > 0 && pct < 100);
+    var animOk = document.body.classList.contains("fx") && document.body.animate;
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      fill.style.width = pct + "%"; if (sp) sp.style.left = pct + "%";
+      if (animOk && sp && pct > from) barSparkle(bar, sp, true, bar);
+    }); });
   }
   function renderCoins() {
     renderChip();
     var el = $("#coinRow"); if (!el) return;
     var g = nextGoal(), pct = g ? Math.min(100, Math.round(stats.coins / g.c * 100)) : 100;
     tweenNum(el.querySelector(".coinval"), stats.coins);
-    el.querySelector(".cfill").style.width = pct + "%";
+    coinBar("row", el.querySelector(".cfill"), pct);
     el.querySelector(".cnext").textContent = g ? "NEXT HOUSE: " + g.n + " " + g.c : "MANSION BUILT!";
     renderChip();
   }
@@ -4143,6 +4169,41 @@ body[data-font="crisp"] .btn, body[data-font="crisp"] .tab, body[data-font="cris
     initDone = true; applyToggles();
     afterSplash(function () { if (!avatar) openPicker(); else if (!prof.toured) tourStart(); else maybeGreet(); });
   }).catch(function () { initDone = true; render(); });
+
+  /* ===== TEST TOOLS START (temporary: delete this whole block to remove) ===== */
+  (function () {
+    var host = document.querySelector(".head-actions"); if (!host) return;
+    var b = document.createElement("button"); b.className = "btn alt testbtn"; b.type = "button"; b.id = "testBtn"; b.textContent = "TEST"; b.setAttribute("data-tip", "TEMPORARY TEST TOOLS");
+    host.appendChild(document.createTextNode(" ")); host.appendChild(b);
+    var m = document.createElement("div"); m.className = "modal"; m.id = "testPanel"; m.hidden = true;
+    m.innerHTML = '<div class="box"><h2>TEST TOOLS</h2><p class="hint">TEMPORARY. THESE ONLY HELP YOU TRY THINGS OUT.</p>' +
+      '<div class="row-btns"><button class="btn" id="tCoins" type="button">+5000 R COINS</button></div>' +
+      '<div class="row-btns"><button class="btn" id="tEvo" type="button">WATCH PIXEL EVOLVE</button></div>' +
+      '<p class="hint">THE EVOLVE DEMO STEPS PIXEL THROUGH ALL FITNESS FORMS THEN ALL STUDY GEAR. YOUR REAL LEVELS ARE NOT CHANGED.</p>' +
+      '<div class="row-btns"><button class="btn alt" id="tClose" type="button">CLOSE</button></div></div>';
+    document.body.appendChild(m);
+    var busy = false;
+    b.addEventListener("click", function () { m.hidden = false; });
+    m.querySelector("#tClose").addEventListener("click", function () { m.hidden = true; });
+    m.querySelector("#tCoins").addEventListener("click", function () {
+      addCoins(5000, true); dirty = true; store.save(); try { renderShop(); } catch (e) {} m.hidden = true;
+    });
+    m.querySelector("#tEvo").addEventListener("click", function () {
+      if (busy || !avatar || (avatar !== "boy" && avatar !== "girl")) { toast("PICK A BOY OR GIRL PIXEL FIRST", ""); return; }
+      busy = true; m.hidden = true;
+      var steps = [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [4, 1], [4, 2], [4, 3], [4, 4]], i = 0;
+      evoDemo = { f: 0, s: 0 }; evoPrev = { f: 0, s: 0 }; renderAvatar(); try { buildWalker(); } catch (x) {} toast("EVOLVE DEMO STARTED", "gold");
+      (function next() {
+        i++;
+        if (i >= steps.length) {
+          setTimeout(function () { evoDemo = null; evoPrev = evoNow(); renderAvatar(); try { buildWalker(); } catch (x) {} toast("DEMO OVER. BACK TO YOUR REAL PIXEL", ""); busy = false; }, 3200);
+          return;
+        }
+        setTimeout(function () { evoDemo = { f: steps[i][0], s: steps[i][1] }; evoCheck(); next(); }, i === 1 ? 1800 : 3400);
+      })();
+    });
+  })();
+  /* ===== TEST TOOLS END ===== */
 })();
 </script>
 </body>
