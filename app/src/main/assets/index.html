@@ -2089,6 +2089,32 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   }
   splashRun();
 
+
+  /* ---------- button sounds and walking quotes ---------- */
+  function clickSound(kind) {
+    try {
+      audioReady();
+      if (kind === "alt") { tone("triangle", 330, 392, 0, 0.07, 0.07); }
+      else if (kind === "check") { tone("square", 523, 523, 0, 0.05, 0.05); tone("square", 784, 880, 0.05, 0.09, 0.05); }
+      else { tone("square", 587, 740, 0, 0.05, 0.05); tone("square", 880, 988, 0.05, 0.07, 0.045); }
+    } catch (e) {}
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("button, .day, .tab, .check, .swatch, .pick");
+    if (!b || b.disabled || b.id === "walker") return;
+    clickSound(b.classList.contains("check") ? "check" : b.classList.contains("alt") || b.classList.contains("icon") || b.classList.contains("tab") || b.classList.contains("day") ? "alt" : "main");
+  }, true);
+  var MORE_QUOTES = ["Every hour you study is an hour your rival isn't.", "Sweat now, shine on exam day.", "Tiny habits build a big result.", "You're closer than you were yesterday.", "Focus for 25 minutes. The world can wait.", "Strong body, sharp mind.", "Mistakes mean you're learning. Keep going.", "Your future rank is built by today's revision."];
+  var lastQuoteAt = 0;
+  setInterval(function () {
+    if (document.hidden || !avatar || talking || $("#stage").hidden) return;
+    if (!splashDone || document.querySelector(".modal:not([hidden]), #tour:not([hidden])")) return;
+    if (Date.now() - lastQuoteAt < 40000) return;
+    lastQuoteAt = Date.now();
+    var all = QUOTES.concat(MORE_QUOTES), q = all[Math.floor(Math.random() * all.length)];
+    pixelSay(q, 3500 + q.length * 45, "quote");
+  }, 10000);
+
   /* ---------- daily hello (once per day) ---------- */
   var QUOTES = [
     "Small steps still move you forward.",
