@@ -45,6 +45,38 @@ public class ReminderReceiver extends BroadcastReceiver {
                 .setAutoCancel(true)
                 .setColor(0xFF6B5BD6);
         try {
+            String acts = intent.getStringExtra("actions");
+            if (acts != null && acts.length() > 2) {
+                JSONArray aa = new JSONArray(acts);
+                for (int i = 0; i < aa.length() && i < 3; i++) {
+                    JSONObject a = aa.getJSONObject(i);
+                    String k = a.optString("k");
+                    PendingIntent api;
+                    int rc = (id * 31 + i + 1) & 0x7fffffff;
+                    if ("focus".equals(k)) {
+                        Intent fi = new Intent(ctx, MainActivity.class);
+                        fi.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        fi.setAction("app.pixelplanner.ACT." + rc);
+                        fi.putExtra("act_k", k);
+                        fi.putExtra("act_b", a.optString("b"));
+                        api = PendingIntent.getActivity(ctx, rc, fi, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                    } else {
+                        Intent ai = new Intent(ctx, ActionReceiver.class);
+                        ai.setAction("app.pixelplanner.ACT." + rc);
+                        ai.putExtra("id", id);
+                        ai.putExtra("k", k);
+                        ai.putExtra("n", a.optInt("n"));
+                        ai.putExtra("t", a.optString("t", null));
+                        ai.putExtra("b", a.optString("b", null));
+                        api = PendingIntent.getBroadcast(ctx, rc, ai, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                    }
+                    b.addAction(new Notification.Action.Builder(
+                            android.graphics.drawable.Icon.createWithResource(ctx, R.drawable.ic_mono),
+                            a.optString("l", "OK"), api).build());
+                }
+            }
+        } catch (Exception ignored) { }
+        try {
             java.io.File icon = new java.io.File(ctx.getFilesDir(), "pixel-icon.png");
             if (icon.exists()) {
                 android.graphics.Bitmap bmp = android.graphics.BitmapFactory.decodeFile(icon.getAbsolutePath());

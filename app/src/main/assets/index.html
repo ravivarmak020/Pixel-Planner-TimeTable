@@ -601,6 +601,62 @@ h2 { line-height: 1.5; }
 
 .notifbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 18px; border-left: 6px solid var(--gold); }
 .notifbar[hidden] { display: none; }
+/* ---------- polish: flashing outlines, motion, backdrop (all under body.fx) ---------- */
+@property --ang { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+.box { position: relative; }
+body.fx .box::after { content: ""; position: absolute; inset: calc(var(--px) * -1); padding: var(--px); pointer-events: none; z-index: 3;
+  background: conic-gradient(from var(--ang), transparent 0deg 180deg, rgba(255,226,122,.2) 225deg, rgba(255,226,122,1) 315deg, #fff 346deg, rgba(255,226,122,0) 360deg); filter: drop-shadow(0 0 5px rgba(255,226,122,.95));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  animation: beam 5.5s linear infinite paused; }
+body.fx .box.lit::after { animation-play-state: running; }
+body.fx .box:nth-child(2n)::after { animation-delay: -1.7s; animation-duration: 6.5s; }
+body.fx .box:nth-child(3n)::after { animation-delay: -3.4s; animation-duration: 4.8s; }
+body.fx .box:nth-child(5n)::after { animation-delay: -0.6s; }
+@keyframes beam { to { --ang: 360deg; } }
+body.fx .box.lit { box-shadow: 0 calc(var(--px) * -1) 0 0 var(--ink), 0 var(--px) 0 0 var(--ink), calc(var(--px) * -1) 0 0 0 var(--ink), var(--px) 0 0 0 var(--ink), 0 calc(var(--px) * 2) 0 0 rgba(0,0,0,.45), 0 0 22px 2px rgba(255,226,122,.10); }
+body.fx::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .22;
+  background-image: radial-gradient(#fff 1px, transparent 1.6px), radial-gradient(#ffd23f 1px, transparent 1.6px), radial-gradient(#5cc8ff 1px, transparent 1.6px);
+  background-size: 97px 97px, 151px 151px, 211px 211px; background-position: 12px 20px, 60px 70px, 30px 120px; animation: twk 3.6s steps(2) infinite; }
+@keyframes twk { 50% { opacity: .1; } }
+body.fx::after { content: ""; position: fixed; left: 0; bottom: -8px; width: 4px; height: 4px; z-index: -1; pointer-events: none; opacity: .5; background: #ffd23f;
+  box-shadow: 8vw 0 #5cc8ff, 19vw 30px #fff, 31vw -20px #ff6fae, 44vw 10px #5fd068, 57vw 40px #ffd23f, 69vw -10px #5cc8ff, 81vw 25px #fff, 93vw 5px #ff6fae;
+  animation: driftup 34s linear infinite; }
+@keyframes driftup { to { transform: translateY(-110vh); } }
+body.fx #titleTxt { text-shadow: none; filter: drop-shadow(3px 3px 0 #000); background: linear-gradient(100deg, #ffd23f 0 38%, #fff7c8 50%, #ffd23f 62% 100%); background-size: 260% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; animation: tshine 4.5s linear infinite paused; }
+body.fx .box.lit #titleTxt { animation-play-state: running; }
+@keyframes tshine { from { background-position: 130% 0; } to { background-position: -130% 0; } }
+body.fx #viewPlanner:not([hidden]), body.fx #viewTT:not([hidden]) { animation: viewin .38s cubic-bezier(.2,.8,.2,1); }
+@keyframes viewin { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+body.fx #viewPlanner > .box { animation: fadeup .5s cubic-bezier(.2,.8,.2,1) both; }
+body.fx #viewPlanner > .box:nth-child(1) { animation-delay: .02s; } body.fx #viewPlanner > .box:nth-child(2) { animation-delay: .08s; } body.fx #viewPlanner > .box:nth-child(3) { animation-delay: .14s; } body.fx #viewPlanner > .box:nth-child(4) { animation-delay: .2s; } body.fx #viewPlanner > .box:nth-child(5) { animation-delay: .26s; } body.fx #viewPlanner > .box:nth-child(n+6) { animation-delay: .32s; }
+@keyframes fadeup { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+body.fx .modal:not([hidden]) { animation: mfade .22s ease-out; }
+body.fx .modal:not([hidden]) > .box { animation: mpop .32s cubic-bezier(.2,.9,.3,1.15); }
+@keyframes mfade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes mpop { from { opacity: 0; transform: translateY(18px) scale(.94); } to { opacity: 1; transform: none; } }
+body.fx .btn, body.fx .icon, body.fx .tab, body.fx .day, body.fx .qbtn, body.fx .chip, body.fx .coinchip, body.fx .pick, body.fx .shop-prev { transition: transform .16s cubic-bezier(.2,.8,.2,1), filter .16s, box-shadow .16s, background-color .16s; }
+body.fx .btn:hover:not(:disabled), body.fx .qbtn:hover:not(:disabled), body.fx .coinchip:hover { transform: translateY(-2px); filter: brightness(1.14); }
+body.fx .btn:active:not(:disabled), body.fx .qbtn:active:not(:disabled), body.fx .coinchip:active { transform: translateY(1px) scale(.96); filter: none; }
+body.fx .tab:hover, body.fx .day:hover, body.fx .icon:hover, body.fx .chip:hover { transform: translateY(-1px); filter: brightness(1.15); }
+body.fx li.task { transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s, background-color .18s; }
+body.fx li.task:hover { transform: translateY(-2px); box-shadow: 0 6px 0 rgba(0,0,0,.35), 0 0 16px rgba(255,226,122,.12); }
+li.task.enter { animation: taskin .45s cubic-bezier(.2,.8,.2,1); }
+@keyframes taskin { from { opacity: 0; transform: translateX(-18px) scale(.97); } to { opacity: 1; transform: none; } }
+li.task.leaving { animation: taskout .26s ease-in forwards; pointer-events: none; }
+@keyframes taskout { to { opacity: 0; transform: translateX(26px) scale(.96); } }
+li.task.justdone .check { animation: checkpop .5s cubic-bezier(.2,.9,.3,1.4); }
+@keyframes checkpop { 0% { transform: scale(.7); } 55% { transform: scale(1.35); } 100% { transform: scale(1); } }
+body.fx .stat .fill { overflow: hidden; }
+body.fx .stat .fill::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 40%; transform: translateX(-130%); background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent); animation: fillshine 3.4s ease-in-out infinite paused; }
+body.fx .box.lit .stat .fill::before { animation-play-state: running; }
+@keyframes fillshine { 0% { transform: translateX(-130%); } 60%, 100% { transform: translateX(330%); } }
+.tgl[aria-pressed="false"] { opacity: .65; }
+.coinfly { position: fixed; z-index: 9997; width: 10px; height: 10px; background: #ffd23f; border: 2px solid #000; box-shadow: inset -2px -2px 0 #e0a800; pointer-events: none; }
+.pulse { animation: chippulse .45s cubic-bezier(.2,.9,.3,1.4); }
+@keyframes chippulse { 40% { transform: scale(1.18); } }
+.minispark { position: fixed; z-index: 9996; width: 6px; height: 6px; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { body.fx *, body.fx *::before, body.fx *::after { animation-duration: .01s !important; animation-iteration-count: 1 !important; } }
+
 .modal { position: fixed; inset: 0; z-index: 100; background: rgba(10,9,24,.85); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .modal[hidden] { display: none; }
 .modal .box { max-height: 92vh; overflow: auto; width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 16px; }
@@ -766,9 +822,9 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   <header class="box">
     <div class="hero">
       <button class="hero-btn" id="avatarBtn" type="button" aria-label="Change character" data-tip="CHANGE CHARACTER"></button>
-      <h1 id="appTitle"><span class="hlogo" id="hLogo" aria-hidden="true"></span>PIXEL PLANNER</h1>
+      <h1 id="appTitle"><span class="hlogo" id="hLogo" aria-hidden="true"></span><span id="titleTxt">PIXEL PLANNER</span></h1>
     </div>
-    <div class="head-actions"><button class="coinchip" id="coinChip" type="button" data-tip="YOUR COINS. OPEN THE SHOP"><span class="coinic"></span><b id="chipVal">0</b><span class="chipbar"><i id="chipFill"></i></span></button> <button class="btn alt" id="shopBtn" type="button" data-tip="SPEND COINS ON A HOUSE, PETS AND LOOKS">SHOP</button> <button class="btn alt" id="goalsBtn" type="button" data-tip="GOALS AND BACKUP">GOALS</button> <button class="btn alt" id="tourBtn" type="button" aria-label="Show the guided tour" data-tip="TOUR WITH PIXEL">?</button> <button class="btn alt" id="customBtn" type="button" data-tip="COLORS FOR YOUR CHARACTER">CUSTOMIZE</button></div>
+    <div class="head-actions"><button class="coinchip" id="coinChip" type="button" data-tip="YOUR COINS. OPEN THE SHOP"><span class="coinic"></span><b id="chipVal">0</b><span class="chipbar"><i id="chipFill"></i></span></button> <button class="btn alt tgl" id="sndBtn" type="button" aria-pressed="true" data-tip="MUTE OR UNMUTE ALL APP SOUNDS">SOUND ON</button> <button class="btn alt tgl" id="fxBtn" type="button" aria-pressed="true" data-tip="LIGHT AND MOTION EFFECTS ON OR OFF">FX ON</button> <button class="btn alt" id="shopBtn" type="button" data-tip="SPEND COINS ON A HOUSE, PETS AND LOOKS">SHOP</button> <button class="btn alt" id="goalsBtn" type="button" data-tip="GOALS AND BACKUP">GOALS</button> <button class="btn alt" id="tourBtn" type="button" aria-label="Show the guided tour" data-tip="TOUR WITH PIXEL">?</button> <button class="btn alt" id="customBtn" type="button" data-tip="COLORS FOR YOUR CHARACTER">CUSTOMIZE</button></div>
   </header>
   <div class="toasts" id="toasts" aria-live="polite"></div>
 
@@ -1127,8 +1183,8 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   var reduceMotion = false; // animation always on: it is the point of ticking a task
   var actx = null;
   var avatar = null;
-  var prof = { name: "", toured: 0 };
-  function normProf(o) { return { name: o && typeof o.name === "string" ? o.name.replace(/[<>&"]/g, "").trim().slice(0, 20) : "", toured: o && o.toured ? 1 : 0 }; }
+  var prof = { name: "", toured: 0, sound: 1, fx: 1 };
+  function normProf(o) { return { name: o && typeof o.name === "string" ? o.name.replace(/[<>&"]/g, "").trim().slice(0, 20) : "", toured: o && o.toured ? 1 : 0, sound: o && o.sound === 0 ? 0 : 1, fx: o && o.fx === 0 ? 0 : 1 }; }
   var greeted = null; // local date (YYYY-MM-DD) the daily hello was last shown
   var SPRITES = { boy: { label: "BOY" }, girl: { label: "GIRL" } };
   // Clean 16x16 retro-style sprites: dark outline, three tones per color.
@@ -1424,7 +1480,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   }
   function addCoins(n, pop) {
     var b = stats.coins; stats.coins = Math.max(0, b + n);
-    renderCoins();
+    renderCoins(); if (n > 0) coinFly(n);
     if (pop && n > 0) toast("+" + n + " COINS", "gold");
   }
   function nextGoal() {
@@ -1433,13 +1489,13 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   }
   function renderChip() {
     var g = nextGoal(), pct = g ? Math.min(100, Math.round(stats.coins / g.c * 100)) : 100;
-    if ($("#chipVal")) { $("#chipVal").textContent = stats.coins; $("#chipFill").style.width = pct + "%"; }
+    if ($("#chipVal")) { tweenNum($("#chipVal"), stats.coins); $("#chipFill").style.width = pct + "%"; }
   }
   function renderCoins() {
     renderChip();
     var el = $("#coinRow"); if (!el) return;
     var g = nextGoal(), pct = g ? Math.min(100, Math.round(stats.coins / g.c * 100)) : 100;
-    el.querySelector(".coinval").textContent = stats.coins;
+    tweenNum(el.querySelector(".coinval"), stats.coins);
     el.querySelector(".cfill").style.width = pct + "%";
     el.querySelector(".cnext").textContent = g ? "NEXT HOUSE: " + g.n + " " + g.c : "MANSION BUILT!";
     renderChip();
@@ -1670,6 +1726,8 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
         (x.due ? '<span class="' + (late ? "late" : "") + '">' + (late ? "LATE " : "") + fmt(x.due) + "</span>" : "<span>no date</span>") + "</div></div>" +
         '<div class="actions"><button class="icon" data-act="tt" aria-label="Add to time table" data-tip="ADD TO TIME TABLE">TT</button><button class="icon edit" data-act="edit" aria-label="Edit task" data-tip="EDIT">ED</button><button class="icon" data-act="del" aria-label="Delete task" data-tip="DELETE">X</button></div></li>';
     }).join("");
+    if (enterId) { var ne = $("#list").querySelector('li[data-id="' + enterId + '"]'); if (ne) ne.classList.add("enter"); enterId = ""; }
+    if (doneId) { var de = $("#list").querySelector('li[data-id="' + doneId + '"] .check'); if (de) de.parentNode.classList.add("justdone"); doneId = ""; }
   }
   function renderFoot() {
     var m = store.mode;
@@ -1684,6 +1742,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
 
   /* ---------- completion pop: sound + pixel burst ---------- */
   function tone(type, f0, f1, t0, dur, vol) {
+    if (prof.sound === 0) return;
     var o = actx.createOscillator(), g = actx.createGain();
     o.type = type;
     o.frequency.setValueAtTime(f0, actx.currentTime + t0);
@@ -1775,7 +1834,8 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     actx = actx || new (window.AudioContext || window.webkitAudioContext)();
     if (actx.state === "suspended") actx.resume();
   }
-  function synthKey(space) { // typewriter key: bright click on top of a short low "thock"
+  function synthKey(space) {
+    if (prof.sound === 0) return; // typewriter key: bright click on top of a short low "thock"
     try {
       audioReady();
       var t = actx.currentTime, r = 0.92 + Math.random() * 0.16;
@@ -1821,6 +1881,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     } catch (e) { twLoading = false; }
   }
   function playSlice(sl, vol, rate) {
+    if (prof.sound === 0) return;
     var src = actx.createBufferSource(); src.buffer = twBuf; src.playbackRate.value = rate;
     var g = actx.createGain(); g.gain.value = vol * 0.32;
     src.connect(g); g.connect(actx.destination);
@@ -2104,7 +2165,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   }
   document.addEventListener("click", function (e) {
     var b = e.target.closest && e.target.closest("button, .day, .tab, .check, .swatch, .pick");
-    if (!b || b.disabled || b.id === "walker") return;
+    if (!b || b.disabled || b.id === "walker" || b.id === "sndBtn") return;
     clickSound(b.classList.contains("check") ? "check" : b.classList.contains("alt") || b.classList.contains("icon") || b.classList.contains("tab") || b.classList.contains("day") ? "alt" : "main");
   }, true);
   var MORE_QUOTES = ["Every hour you study is an hour your rival isn't.", "Sweat now, shine on exam day.", "Tiny habits build a big result.", "You're closer than you were yesterday.", "Focus for 25 minutes. The world can wait.", "Strong body, sharp mind.", "Mistakes mean you're learning. Keep going.", "Your future rank is built by today's revision."];
@@ -2124,7 +2185,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   function hash31(k) { var h = 7; for (var i = 0; i < k.length; i++) h = (h * 31 + k.charCodeAt(i)) | 0; return Math.abs(h) % 2000000000 + 1; }
   function buildReminders(away) {
     var now = Date.now(), name = prof.name || "friend", out = [], smile = "😊";
-    function add(key, at, title, body) { if (at > now + 2000) out.push({ id: hash31(key), at: at, title: title, body: body }); }
+    function add(key, at, title, body, actions) { if (at > now + 2000) { var o = { id: hash31(key), at: at, title: title, body: body }; if (actions) o.actions = actions; out.push(o); } }
     function atMin(date, m) { var d = parseIso(date); return new Date(d.getFullYear(), d.getMonth(), d.getDate(), Math.floor(m / 60), m % 60).getTime(); }
     if (pomo.running && pomo.endAt > now) {
       if (pomo.phase === "focus") add("timer", pomo.endAt, "Focus session done " + smile, "Great work, " + name + "! Take your break.");
@@ -2138,10 +2199,10 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
         if (b.type === "break" || !(b.start >= 0)) return;
         if (b.date ? b.date !== date : b.day !== wdOfDate(date)) return;
         if (isDone(b, date)) return;
-        add("blk-" + b.id + "-" + date, atMin(date, b.start), "Time to study " + smile, blockName(b) + " starts now, " + name + ".");
+        add("blk-" + b.id + "-" + date, atMin(date, b.start), "Time to study " + smile, blockName(b) + " starts now, " + name + ".", [{ k: "focus", b: b.id, l: "FOCUS" }]);
       });
       var due = state.tasks.filter(function (t) { return !t.done && t.due === date; });
-      if (due.length) add("due-" + date, atMin(date, 540), "Tasks due today", due.length === 1 ? due[0].title : due[0].title + " and " + (due.length - 1) + " more");
+      if (due.length) add("due-" + date, atMin(date, 540), "Tasks due today", due.length === 1 ? due[0].title : due[0].title + " and " + (due.length - 1) + " more", [{ k: "done", t: due[0].id, l: due.length === 1 ? "DONE" : "DONE FIRST" }]);
       var hit = k === 0 ? goalsHit(stats).filter(Boolean).length : -1;
       if (k !== 0 || hit < 4) add("eve-" + date, atMin(date, 1200), "Evening check-in", k === 0 ? name + ", " + hit + " of 4 goals done today. A little more?" : "How did today go, " + name + "? Log your goals before bed.");
       add("plan-" + date, atMin(date, 1260), "Plan tomorrow " + smile, "Take two minutes to plan tomorrow, " + name + ".");
@@ -2149,11 +2210,11 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       var hy = stats.hydration, hg = stats.goals.hydration, pr = stats.protein, pg2 = stats.goals.protein;
       [600, 750, 900, 1050, 1170].forEach(function (m) {
         if (k === 0 && hy >= hg) return;
-        add("hyd-" + date + "-" + m, atMin(date, m), "Water time \uD83D\uDCA7", k === 0 ? name + ", you're at " + hy + " of " + hg + " ml. Have a glass of water." : "Have a glass of water, " + name + ". Aim for " + hg + " ml today.");
+        add("hyd-" + date + "-" + m, atMin(date, m), "Water time \uD83D\uDCA7", k === 0 ? name + ", you're at " + hy + " of " + hg + " ml. Have a glass of water." : "Have a glass of water, " + name + ". Aim for " + hg + " ml today.", [{ k: "water", n: 250, l: "+250 ml" }, { k: "water", n: 500, l: "+500 ml" }]);
       });
       [570, 810, 990, 1140].forEach(function (m) {
         if (k === 0 && pr >= pg2) return;
-        add("pro-" + date + "-" + m, atMin(date, m), "Protein check \uD83C\uDF57", k === 0 ? name + ", you're at " + pr + " of " + pg2 + " g protein. Add a protein-rich meal or snack." : "Include some protein in your meals today, " + name + ". Goal: " + pg2 + " g.");
+        add("pro-" + date + "-" + m, atMin(date, m), "Protein check \uD83C\uDF57", k === 0 ? name + ", you're at " + pr + " of " + pg2 + " g protein. Add a protein-rich meal or snack." : "Include some protein in your meals today, " + name + ". Goal: " + pg2 + " g.", [{ k: "protein", n: 10, l: "+10 g" }, { k: "protein", n: 25, l: "+25 g" }]);
       });
       add("mot17-" + date, atMin(date, 1020), "Focus " + name + "! " + smile, "I'll be right here in your app. Work hard " + smile);
     }
@@ -2167,7 +2228,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       if (j !== lastRemJson || force) { lastRemJson = j; B.schedule(j); }
     } catch (e) {}
   }
-  window.__syncReminders = function (away) { pushIcon(); if (away === true) { awayAt = Date.now(); syncReminders(true, true); } else { awayAt = 0; syncReminders(false, true); notifCheck(); } };
+  window.__syncReminders = function (away) { pushIcon(); if (away === true) { awayAt = Date.now(); syncReminders(true, true); } else { awayAt = 0; pullActions(); syncReminders(false, true); notifCheck(); } };
   var lastIconSig = "";
   function pushIcon() {
     var B = window.AndroidBridge; if (!B || !B.setIcon || !avatar) return;
@@ -2184,6 +2245,19 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   }
   setInterval(function () { if (!awayAt) { syncReminders(false); pushIcon(); } }, 15000);
   setTimeout(pushIcon, 2500);
+  function pullActions() {
+    var B = window.AndroidBridge; if (!B || !B.takeActions || !stats) return;
+    var arr = []; try { arr = JSON.parse(B.takeActions() || "[]"); } catch (e) {}
+    arr.forEach(function (a) {
+      if (a.k === "water") quickAdd("hydration", +a.n || 250);
+      else if (a.k === "protein") quickAdd("protein", +a.n || 10);
+      else if (a.k === "done") {
+        var t = state.tasks.find(function (x) { return x.id === a.t; });
+        if (t && !t.done) { t.done = true; award(t, 1); spawnNext(t); commit(); toast("TASK DONE FROM NOTIFICATION", "gold"); }
+      } else if (a.k === "focus" && a.b) { setView("tt"); pomoFocusOn("b:" + a.b); }
+    });
+    if (arr.length) { dirty = true; store.save(); render(); }
+  }
   function notifCheck() {
     var B = window.AndroidBridge; if (!B || !B.notifStatus) return;
     var st = 0; try { st = B.notifStatus(); } catch (e) {}
@@ -2192,6 +2266,69 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   }
   $("#notifGo").addEventListener("click", function () { try { window.AndroidBridge.askNotif(); } catch (e) {} setTimeout(notifCheck, 2000); });
   setTimeout(notifCheck, 1500);
+  setTimeout(pullActions, 2500);
+
+
+  /* ---------- toggles, outline light, motion helpers ---------- */
+  function applyToggles() {
+    var rm = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.body.classList.toggle("fx", prof.fx !== 0 && !rm);
+    var sb = $("#sndBtn"), fb = $("#fxBtn");
+    sb.textContent = prof.sound === 0 ? "SOUND OFF" : "SOUND ON"; sb.setAttribute("aria-pressed", String(prof.sound !== 0));
+    fb.textContent = prof.fx === 0 ? "FX OFF" : "FX ON"; fb.setAttribute("aria-pressed", String(prof.fx !== 0));
+  }
+  $("#sndBtn").addEventListener("click", function () { prof.sound = prof.sound === 0 ? 1 : 0; dirty = true; store.save(); applyToggles(); if (prof.sound !== 0) clickSound("main"); });
+  $("#fxBtn").addEventListener("click", function () { prof.fx = prof.fx === 0 ? 1 : 0; dirty = true; store.save(); applyToggles(); });
+  var boxIO = null;
+  function watchBoxes() {
+    if (!("IntersectionObserver" in window)) { document.querySelectorAll(".box").forEach(function (b) { b.classList.add("lit"); }); return; }
+    boxIO = boxIO || new IntersectionObserver(function (es) { es.forEach(function (e) { e.target.classList.toggle("lit", e.isIntersecting); }); }, { threshold: 0.02 });
+    document.querySelectorAll(".box").forEach(function (b) { boxIO.observe(b); });
+  }
+  watchBoxes();
+  var lastPtr = { x: innerWidth / 2, y: innerHeight * 0.6 };
+  document.addEventListener("pointerdown", function (e) { lastPtr = { x: e.clientX, y: e.clientY }; }, { passive: true, capture: true });
+  function miniBurst(x, y) {
+    if (prof.fx === 0 || !document.body.animate) return;
+    var cols = ["#ffd23f", "#5cc8ff", "#ff6fae", "#5fd068", "#fff"];
+    for (var i = 0; i < 6; i++) {
+      var d = document.createElement("i"); d.className = "minispark"; d.style.left = x - 3 + "px"; d.style.top = y - 3 + "px"; d.style.background = cols[i % 5];
+      document.body.appendChild(d);
+      var a = Math.PI * 2 * i / 6 + Math.random() * 0.6, r = 18 + Math.random() * 16;
+      var an = d.animate([{ transform: "translate(0,0) scale(1)", opacity: 1 }, { transform: "translate(" + Math.cos(a) * r + "px," + Math.sin(a) * r + "px) scale(.2)", opacity: 0 }], { duration: 420, easing: "cubic-bezier(.2,.8,.2,1)" });
+      an.onfinish = function (el) { return function () { el.remove(); }; }(d);
+    }
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest(".btn, .qbtn, .icon, .tab, .day, .coinchip");
+    if (b && !b.disabled) miniBurst(e.clientX || lastPtr.x, e.clientY || lastPtr.y);
+  }, true);
+  function coinFly(n) {
+    var chip = $("#coinChip"); if (!chip || prof.fx === 0 || !document.body.animate) return;
+    var t = chip.getBoundingClientRect(), tx = t.left + 16, ty = t.top + t.height / 2;
+    for (var i = 0; i < Math.min(6, 2 + n); i++) {
+      var c = document.createElement("i"); c.className = "coinfly"; c.style.left = lastPtr.x - 5 + (Math.random() * 24 - 12) + "px"; c.style.top = lastPtr.y - 5 + (Math.random() * 16 - 8) + "px";
+      document.body.appendChild(c);
+      var dx = tx - parseFloat(c.style.left), dy = ty - parseFloat(c.style.top);
+      var an = c.animate([{ transform: "translate(0,0) scale(1)", opacity: 1 }, { transform: "translate(" + dx * 0.5 + "px," + (dy * 0.5 - 40) + "px) scale(1.2)", opacity: 1, offset: .45 }, { transform: "translate(" + dx + "px," + dy + "px) scale(.5)", opacity: .9 }], { duration: 650 + i * 60, delay: i * 50, easing: "cubic-bezier(.4,.1,.3,1)", fill: "backwards" });
+      an.onfinish = function (el) { return function () { el.remove(); chip.classList.remove("pulse"); void chip.offsetWidth; chip.classList.add("pulse"); }; }(c);
+    }
+  }
+  var numTw = new WeakMap();
+  function tweenNum(el, to) {
+    if (!el) return;
+    var from = numTw.has(el) ? numTw.get(el).v : (+el.textContent || 0);
+    if (prof.fx === 0 || from === to) { el.textContent = to; numTw.set(el, { v: to }); return; }
+    var t0 = performance.now(), dur = 600, st = { v: from };
+    numTw.set(el, st);
+    (function step(now) {
+      var k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      st.v = Math.round(from + (to - from) * e); el.textContent = st.v;
+      if (k < 1 && numTw.get(el) === st) requestAnimationFrame(step); else { st.v = to; el.textContent = to; }
+    })(t0);
+  }
+  var enterId = "", doneId = "";
+  applyToggles();
 
   /* ---------- daily hello (once per day) ---------- */
   var QUOTES = [
@@ -2547,7 +2684,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     var isTT = v === "tt";
     $("#viewPlanner").hidden = isTT; $("#viewTT").hidden = !isTT;
     document.querySelector(".wrap").classList.toggle("wide", isTT);
-    $("#appTitle").textContent = isTT ? "PIXEL TIME TABLE" : "PIXEL PLANNER";
+    $("#titleTxt").textContent = isTT ? "PIXEL TIME TABLE" : "PIXEL PLANNER";
     document.querySelectorAll(".mainnav .tab").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.view === v)); });
     if (isTT) renderTT(); else { render(); buildWalker(); }
     if (isTT) setTimeout(syncExamBar, 50);
@@ -2950,7 +3087,8 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     e.preventDefault();
     var title = $("#newTitle").value.trim();
     if (!title) return;
-    state.tasks.push({ id: uid(), title: title, pri: +$("#newPri").value, due: $("#newDue").value || (view.day || ""), cat: $("#newCat").value, amt: +$("#newAmt").value || 0, rep: $("#newRep").value, done: false });
+    var nid = uid(); enterId = nid;
+    state.tasks.push({ id: nid, title: title, pri: +$("#newPri").value, due: $("#newDue").value || (view.day || ""), cat: $("#newCat").value, amt: +$("#newAmt").value || 0, rep: $("#newRep").value, done: false });
     $("#newAmt").value = ""; $("#newRep").value = "";
     $("#newTitle").value = "";
     commit(); toast("TASK ADDED", "");
@@ -3190,13 +3328,16 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       award(t, t.done ? 1 : -1);
       if (t.done) spawnNext(t); else unspawn(t);
       if (t.done) {
-        popSound(); burst(btn); toast("TASK DONE! NICE WORK", "gold");
+        doneId = id; popSound(); burst(btn); toast("TASK DONE! NICE WORK", "gold");
         linger[id] = true;
         setTimeout(function () { delete linger[id]; render(); }, 1400);
       } else { delete linger[id]; toast("TASK REOPENED", "blue"); }
       commit();
     }
-    else if (btn.dataset.act === "del") { state.tasks = state.tasks.filter(function (x) { return x.id !== id; }); commit(); toast("TASK DELETED", "red"); }
+    else if (btn.dataset.act === "del") {
+      var delIt = function () { state.tasks = state.tasks.filter(function (x) { return x.id !== id; }); commit(); toast("TASK DELETED", "red"); };
+      if (prof.fx !== 0) { li.classList.add("leaving"); setTimeout(delIt, 250); } else delIt();
+    }
     else if (btn.dataset.act === "focus") { setView("tt"); pomoFocusOn("t:" + t.id); }
     else if (btn.dataset.act === "tt") { setView("tt"); openBlock(null, { type: "task", task: t }); }
     else if (btn.dataset.act === "edit") { editing = id; render(); var i = document.querySelector('[data-edit="' + id + '"] input'); if (i) i.focus(); }
@@ -3421,7 +3562,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     if (saved && saved.tt && !dirty) { tt = normTT(saved.tt); plans = Array.isArray(saved.plans) ? saved.plans.map(normTT) : []; }
     store.save();
     render(); renderAvatar(); buildWalker();
-    initDone = true;
+    initDone = true; applyToggles();
     afterSplash(function () { if (!avatar) openPicker(); else if (!prof.toured) tourStart(); else maybeGreet(); });
   }).catch(function () { initDone = true; render(); });
 })();

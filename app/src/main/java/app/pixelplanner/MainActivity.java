@@ -96,11 +96,29 @@ public class MainActivity extends Activity {
             }
         });
 
+        handleIntent(getIntent());
         if (savedInstanceState != null) {
             web.restoreState(savedInstanceState);
         } else {
             web.loadUrl("file:///android_asset/index.html");
         }
+    }
+
+    private void handleIntent(Intent i) {
+        if (i == null) return;
+        String k = i.getStringExtra("act_k");
+        if (k != null) {
+            Reminders.queue(this, k, 0, null, i.getStringExtra("act_b"));
+            i.removeExtra("act_k");
+            if (web != null) web.evaluateJavascript("window.__syncReminders && window.__syncReminders();", null);
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIntent(intent);
     }
 
     @Override
@@ -173,6 +191,11 @@ public class MainActivity extends Activity {
             }
             writeAtomically(backupFile(), json);
             writeAtomically(new File(getFilesDir(), BACKUP_NAME), json);
+        }
+
+        @JavascriptInterface
+        public String takeActions() {
+            return Reminders.take(MainActivity.this);
         }
 
         @JavascriptInterface

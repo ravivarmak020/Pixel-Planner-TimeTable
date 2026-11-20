@@ -23,12 +23,13 @@ final class Reminders {
         c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY, json).apply();
     }
 
-    private static PendingIntent pending(Context c, int id, String title, String body) {
+    private static PendingIntent pending(Context c, int id, String title, String body, String actions) {
         Intent i = new Intent(c, ReminderReceiver.class);
         i.setAction("app.pixelplanner.REMIND." + id);
         i.putExtra("id", id);
         i.putExtra("title", title);
         i.putExtra("body", body);
+        if (actions != null) i.putExtra("actions", actions);
         return PendingIntent.getBroadcast(c, id, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
@@ -44,7 +45,7 @@ final class Reminders {
             JSONArray old = new JSONArray(read(c));
             for (int i = 0; i < old.length(); i++) {
                 JSONObject o = old.getJSONObject(i);
-                am.cancel(pending(c, o.optInt("id"), o.optString("title"), o.optString("body")));
+                am.cancel(pending(c, o.optInt("id"), o.optString("title"), o.optString("body"), null));
             }
         } catch (Exception ignored) { }
         long now = System.currentTimeMillis();
@@ -57,7 +58,8 @@ final class Reminders {
                 if (at <= now + 1000) continue;
                 int id = o.optInt("id");
                 String title = o.optString("title"), body = o.optString("body");
-                PendingIntent pi = pending(c, id, title, body);
+                JSONArray acts = o.optJSONArray("actions");
+                PendingIntent pi = pending(c, id, title, body, acts == null ? null : acts.toString());
                 try {
                     if (canExact(c)) am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi);
                     else am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi);
@@ -68,6 +70,32 @@ final class Reminders {
             }
         } catch (Exception ignored) { }
         write(c, keep.toString());
+    }
+
+    private static final String ACTIONS = "actions";
+
+    /** Remember a tapped notification button until the app is opened and can apply it. */
+    static synchronized void queue(Context c, String k, int n, String t, String b) {
+        try {
+            SharedPreferences sp = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+            JSONArray arr = new JSONArray(sp.getString(ACTIONS, "[]"));
+            JSONObject o = new JSONObject();
+            o.put("k", k == null ? "" : k);
+            o.put("n", n);
+            if (t != null) o.put("t", t);
+            if (b != null) o.put("b", b);
+            o.put("at", System.currentTimeMillis());
+            arr.put(o);
+            sp.edit().putString(ACTIONS, arr.toString()).apply();
+        } catch (Exception ignored) { }
+    }
+
+    /** Hand the queued actions to the app and clear them. */
+    static synchronized String take(Context c) {
+        SharedPreferences sp = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        String v = sp.getString(ACTIONS, "[]");
+        sp.edit().remove(ACTIONS).apply();
+        return v;
     }
 
     /** After a reboot: put the saved alarms back. */
