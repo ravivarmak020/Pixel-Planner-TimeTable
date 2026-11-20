@@ -176,6 +176,21 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
+        public void setIcon(String base64Png) {
+            if (base64Png == null || base64Png.length() < 20) {
+                return;
+            }
+            try {
+                byte[] data = android.util.Base64.decode(base64Png, android.util.Base64.DEFAULT);
+                File f = new File(getFilesDir(), "pixel-icon.png");
+                try (FileOutputStream out = new FileOutputStream(f)) {
+                    out.write(data);
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        @JavascriptInterface
         public void schedule(final String json) {
             try { Reminders.replaceAll(MainActivity.this, json == null ? "[]" : json); } catch (Exception ignored) { }
         }

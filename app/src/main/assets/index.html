@@ -2146,10 +2146,19 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       if (k !== 0 || hit < 4) add("eve-" + date, atMin(date, 1200), "Evening check-in", k === 0 ? name + ", " + hit + " of 4 goals done today. A little more?" : "How did today go, " + name + "? Log your goals before bed.");
       add("plan-" + date, atMin(date, 1260), "Plan tomorrow " + smile, "Take two minutes to plan tomorrow, " + name + ".");
       add("mot12-" + date, atMin(date, 720), "Focus " + name + "! " + smile, "I'll be right here in your app. Work hard " + smile);
+      var hy = stats.hydration, hg = stats.goals.hydration, pr = stats.protein, pg2 = stats.goals.protein;
+      [600, 750, 900, 1050, 1170].forEach(function (m) {
+        if (k === 0 && hy >= hg) return;
+        add("hyd-" + date + "-" + m, atMin(date, m), "Water time \uD83D\uDCA7", k === 0 ? name + ", you're at " + hy + " of " + hg + " ml. Have a glass of water." : "Have a glass of water, " + name + ". Aim for " + hg + " ml today.");
+      });
+      [570, 810, 990, 1140].forEach(function (m) {
+        if (k === 0 && pr >= pg2) return;
+        add("pro-" + date + "-" + m, atMin(date, m), "Protein check \uD83C\uDF57", k === 0 ? name + ", you're at " + pr + " of " + pg2 + " g protein. Add a protein-rich meal or snack." : "Include some protein in your meals today, " + name + ". Goal: " + pg2 + " g.");
+      });
       add("mot17-" + date, atMin(date, 1020), "Focus " + name + "! " + smile, "I'll be right here in your app. Work hard " + smile);
     }
     out.sort(function (a, b) { return a.at - b.at; });
-    return out.slice(0, 55);
+    return out.slice(0, 90);
   }
   function syncReminders(away, force) {
     var B = window.AndroidBridge; if (!B || !B.schedule || !stats) return;
@@ -2158,8 +2167,23 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       if (j !== lastRemJson || force) { lastRemJson = j; B.schedule(j); }
     } catch (e) {}
   }
-  window.__syncReminders = function (away) { if (away === true) { awayAt = Date.now(); syncReminders(true, true); } else { awayAt = 0; syncReminders(false, true); notifCheck(); } };
-  setInterval(function () { if (!awayAt) syncReminders(false); }, 15000);
+  window.__syncReminders = function (away) { pushIcon(); if (away === true) { awayAt = Date.now(); syncReminders(true, true); } else { awayAt = 0; syncReminders(false, true); notifCheck(); } };
+  var lastIconSig = "";
+  function pushIcon() {
+    var B = window.AndroidBridge; if (!B || !B.setIcon || !avatar) return;
+    var sig = avatar + "|" + sprSig() + "|" + JSON.stringify(custom[avatar] || {}); if (sig === lastIconSig) return; lastIconSig = sig;
+    var svg = spriteImg(avatar, "front").replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" '), img = new Image();
+    img.onload = function () {
+      try {
+        var c = document.createElement("canvas"); c.width = 192; c.height = 192;
+        var x = c.getContext("2d"); x.imageSmoothingEnabled = false; x.fillStyle = "#3b2f8f"; x.fillRect(0, 0, 192, 192); x.drawImage(img, 0, 0, 192, 192);
+        B.setIcon(c.toDataURL("image/png").split(",")[1]);
+      } catch (e) {}
+    };
+    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+  setInterval(function () { if (!awayAt) { syncReminders(false); pushIcon(); } }, 15000);
+  setTimeout(pushIcon, 2500);
   function notifCheck() {
     var B = window.AndroidBridge; if (!B || !B.notifStatus) return;
     var st = 0; try { st = B.notifStatus(); } catch (e) {}

@@ -51,7 +51,7 @@ final class Reminders {
         JSONArray keep = new JSONArray();
         try {
             JSONArray arr = new JSONArray(json);
-            for (int i = 0; i < arr.length() && i < 60; i++) {
+            for (int i = 0; i < arr.length() && i < 100; i++) {
                 JSONObject o = arr.getJSONObject(i);
                 long at = o.optLong("at");
                 if (at <= now + 1000) continue;

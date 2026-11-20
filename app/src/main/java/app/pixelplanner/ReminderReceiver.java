@@ -44,6 +44,13 @@ public class ReminderReceiver extends BroadcastReceiver {
                 .setContentIntent(pi)
                 .setAutoCancel(true)
                 .setColor(0xFF6B5BD6);
+        try {
+            java.io.File icon = new java.io.File(ctx.getFilesDir(), "pixel-icon.png");
+            if (icon.exists()) {
+                android.graphics.Bitmap bmp = android.graphics.BitmapFactory.decodeFile(icon.getAbsolutePath());
+                if (bmp != null) b.setLargeIcon(bmp);
+            }
+        } catch (Exception ignored) { }
         NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
         try { nm.notify(id, b.build()); } catch (Exception ignored) { }
         // forget it so a reboot does not fire it again
