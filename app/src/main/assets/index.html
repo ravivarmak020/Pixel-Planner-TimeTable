@@ -3815,7 +3815,8 @@ var PET = (function () {
     if (v.indexOf("b:") === 0) { var b = tt.blocks.find(function (x) { return x.id === v.slice(2); }); if (b && b.pomo) return b.pomo; }
     return tt.pomo;
   }
-  function pomoMs(ph) { var c = pcfg(); return (ph === "focus" ? c.focus : ph === "short" ? c.short : c.long) * 60000; }
+  var pomoDemo = false;
+  function pomoMs(ph) { if (pomoDemo && ph !== "focus") return 30000; var c = pcfg(); return (ph === "focus" ? c.focus : ph === "short" ? c.short : c.long) * 60000; }
   function pomoCount() { var d = todayIso(); if (tt.pomoDay.date !== d) tt.pomoDay = { date: d, count: 0 }; return tt.pomoDay.count; }
   function fmtMs(ms) { var t = Math.max(0, Math.ceil(ms / 1000)), m = Math.floor(t / 60), s = t % 60; return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s; }
   function pomoTargetLabel() {
@@ -4649,6 +4650,17 @@ var PET = (function () {
         }
         setTimeout(function () { evoDemo = { f: steps[i][0], s: steps[i][1] }; evoCheck(); next(); }, i === 1 ? 1800 : 3400);
       })();
+    });
+  })();
+  (function () {
+    var sk = document.querySelector("#pomoSkip"); if (!sk) return;
+    var ff = document.createElement("button"); ff.className = "btn alt testbtn"; ff.type = "button"; ff.id = "pomoFF"; ff.textContent = "FAST FORWARD";
+    ff.setAttribute("data-tip", "TEMPORARY: PLAYS A 30 SECOND BREAK SO YOU CAN WATCH THE BREAK ANIMATION");
+    sk.parentNode.appendChild(ff);
+    ff.addEventListener("click", function () {
+      pomoDemo = true; pomo.running = false; pomo.phase = "short"; pomo.left = 30000; psDone = false; renderPomo(); pomoStart();
+      toast("BREAK DEMO: 30 SECONDS", "gold");
+      setTimeout(function () { pomoDemo = false; }, 34000);
     });
   })();
   /* ===== TEST TOOLS END ===== */
