@@ -1028,6 +1028,15 @@ svg.talk .m2 { animation: mt2 .42s steps(1) infinite; }
 @keyframes mt1 { 0% { visibility: visible; } 25% { visibility: hidden; } 50% { visibility: visible; } 75% { visibility: hidden; } }
 @keyframes mt2 { 0% { visibility: hidden; } 25% { visibility: visible; } 50% { visibility: hidden; } }
 @media (prefers-reduced-motion: reduce) { body.fx .bk, svg.talk .m1, svg.talk .m2 { animation: none; } }
+
+.bubble { display: flex; align-items: center; gap: 8px; }
+.bubble[hidden] { display: none; }
+.bport { width: 52px; height: 52px; flex: none; background: #2d2d55; border-radius: 10px; box-shadow: 0 0 0 2px #000; overflow: hidden; }
+.bport svg, .psport svg { width: 100%; height: 100%; display: block; }
+.bport:empty { display: none; }
+.ps-say { display: flex; align-items: center; gap: 6px; }
+.psport { width: 30px; height: 30px; flex: none; background: #2d2d55; border-radius: 7px; box-shadow: 0 0 0 1px #000; overflow: hidden; }
+.psport:empty { display: none; }
 </style>
 </head>
 <body>
@@ -1067,7 +1076,7 @@ svg.talk .m2 { animation: mt2 .42s steps(1) infinite; }
     <div class="sun"></div><div class="clouds"></div><div class="hills"></div><div class="trees"></div><div class="ground"></div>
     <div class="house" id="house"></div><div class="pet" id="petDog" hidden></div><div class="pet" id="petCat" hidden></div>
     <button class="walker" id="walker" type="button" aria-label="Click your character to say hi"><div class="flip" id="flip"></div></button>
-    <div class="bubble" id="bubble" hidden></div>
+    <div class="bubble" id="bubble" hidden><div class="bport" id="bport"></div><span id="btxt"></span></div>
   </div>
 
   <section class="box" aria-label="Week">
@@ -1148,7 +1157,7 @@ svg.talk .m2 { animation: mt2 .42s steps(1) infinite; }
           <div class="ps-cone"></div><div class="ps-pool"></div>
           <div class="ps-lamp"><em></em><b></b></div>
           <i class="ps-mote m1"></i><i class="ps-mote m2"></i><i class="ps-mote m3"></i>
-          <div class="ps-say" id="psSay"></div>
+          <div class="ps-say" id="psSay"><div class="psport" id="psPort"></div><span id="psTxt"></span></div>
           <div class="ps-char" id="psChar"></div>
           <div class="ps-book"><span class="psl l1"></span><span class="psl l2"></span><i class="ps-flip"></i></div>
           <div class="ps-mach"><i class="mb"></i><i class="mt"></i><i class="mn"></i><i class="mr"></i><i class="ml"></i><i class="mk"></i><i class="my"></i></div>
@@ -1535,6 +1544,7 @@ svg.talk .m2 { animation: mt2 .42s steps(1) infinite; }
     return pre + fill;
   }
 /* HD pixel sprites: shaded + outlined 32x44, boy & girl, hair styles, blink + mouth overlays */
+/* HD pixel sprites: shaded + outlined 32x44, boy & girl, hair styles, blink + mouth overlays */
 var HD = (function () {
   var W = 32, H = 44;
   function hex(c) { c = String(c || "#888888").replace("#", ""); if (c.length === 3) c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2]; return [parseInt(c.substr(0, 2), 16) || 0, parseInt(c.substr(2, 2), 16) || 0, parseInt(c.substr(4, 2), 16) || 0]; }
@@ -1562,7 +1572,7 @@ var HD = (function () {
       shirt: { r: ramp(shirt) }, sleeve: { r: ramp(shirt) }, cuff: { r: ramp(css(mix(hex(shirt), [255, 255, 255], .35))) },
       pants: { r: ramp(o.pants || "#3b3b52") }, shoe: { r: ramp(o.shoe || "#e8e8f0") }, sole: { r: ramp("#5a5a70"), flat: 1 }, sock: { r: ramp("#f4f4fa") },
       eye: F(o.eyes || "#2b2350"), iris: F(css(mix(hex(o.eyes || "#2b2350"), [120, 160, 255], .45))), white: F("#ffffff"), lash: F("#2a1a30"),
-      mouth: F(girl ? "#c25560" : "#9c4038"), mouthD: F("#5a1f26"), tongue: F("#e0707a"), blush: F("#ff9a9a"), nose: F("#d9a077"),
+      tear: F("#8fd0ff"), mouth: F(girl ? "#c25560" : "#9c4038"), mouthD: F("#5a1f26"), tongue: F("#e0707a"), blush: F("#ff9a9a"), nose: F("#d9a077"),
       brow: F(css(mix(hex(hair), [20, 10, 30], .25))), neckSh: { r: ramp("#e0a47e", 1), flat: 1, feat: 1 },
       band: { r: ramp("#e63946") }, goldb: { r: ramp("#ffd23f") }, scarf: { r: ramp("#2a9d8f") }, cap: { r: ramp("#2a2a55") }, capd: { r: ramp("#171733") }, capg: { r: ramp("#ffd23f") }, tassel: { r: ramp("#ffcc33"), flat: 1 },
       glass: F("#222233"), belt: { r: ramp("#8a5a2b") }, ribbon: { r: ramp("#ff4d8d") },
@@ -1621,6 +1631,29 @@ var HD = (function () {
     else if (hat === "wizard") { g.rows(0, [[15, 16], [14, 17], [13, 18], [12, 19], [11, 20]], "hat3"); g.rect(6, 5, 20, 2, "hat3"); g.rect(11, 5, 10, 1, "hat2"); }
   }
 
+  function faceFront(g, o) {
+    var mood = o.mood || "", girl = o.girl, tk = o.mouth || 0, arc = mood === "happy" || mood === "cheer";
+    [11, 19].forEach(function (x, ix) {
+      if (arc || o.blink) {
+        if (arc) { g.px(x - 1, 15, "lash"); g.px(x, 14, "lash"); g.px(x + 1, 14, "lash"); g.px(x + 2, 15, "lash"); }
+        else g.rect(x - 1, 15, 4, 1, "lash");
+      } else if (mood === "wow") { g.rect(x, 13, 2, 3, "eye"); g.px(x, 13, "white"); g.px(x + 1, 15, "iris"); g.px(x, 15, "iris"); }
+      else { g.rect(x, 13, 2, 1, "lash"); g.rect(x, 14, 2, 2, "eye"); g.px(x, 15, "iris"); g.px(x + 1, 15, "iris"); g.px(x + 1, 14, "white"); if (girl) g.px(ix ? x + 2 : x - 1, 13, "lash"); }
+    });
+    if (mood === "sad") { g.px(10, 12, "brow"); g.px(11, 12, "brow"); g.px(12, 11, "brow"); g.px(21, 12, "brow"); g.px(20, 12, "brow"); g.px(19, 11, "brow"); g.px(10, 16, "tear"); }
+    else if (mood === "focus") { g.px(10, 11, "brow"); g.px(11, 11, "brow"); g.px(12, 12, "brow"); g.px(21, 11, "brow"); g.px(20, 11, "brow"); g.px(19, 12, "brow"); }
+    else if (arc || mood === "wow") { g.rect(10, 11, 3, 1, "brow"); g.rect(19, 11, 3, 1, "brow"); }
+    else { g.rect(10, 12, 3, 1, "brow"); g.rect(19, 12, 3, 1, "brow"); }
+    g.rect(15, 16, 2, 1, "nose");
+    if (tk) mouthF(g, tk);
+    else if (mood === "happy") { g.px(13, 17, "mouth"); g.px(18, 17, "mouth"); g.rect(14, 17, 4, 1, "mouthD"); g.rect(14, 18, 4, 1, "white"); }
+    else if (mood === "cheer") { g.px(13, 17, "mouth"); g.px(18, 17, "mouth"); g.rect(14, 17, 4, 1, "mouthD"); g.rect(14, 18, 4, 1, "mouthD"); g.rect(15, 18, 2, 1, "tongue"); }
+    else if (mood === "sad") { g.rect(15, 17, 2, 1, "mouth"); g.px(14, 18, "mouth"); g.px(17, 18, "mouth"); }
+    else if (mood === "wow") g.rect(15, 17, 2, 2, "mouthD");
+    else if (mood === "focus") g.rect(14, 18, 4, 1, "mouth");
+    else { g.px(14, 17, "mouth"); g.px(17, 17, "mouth"); g.rect(15, 18, 2, 1, "mouth"); }
+    if (arc) { g.rect(9, 17, 2, 1, "blush"); g.rect(21, 17, 2, 1, "blush"); } else { g.px(10, 17, "blush"); g.px(21, 17, "blush"); }
+  }
   function front(g, M, o) {
     var f = o.f || 0, big = f >= 3 ? 1 : 0, ar = f >= 2 ? 4 : 3, girl = o.girl, gi = girl ? 1 : 0, st = o.style || 0;
     if (girl) hairBackFront(g, o);
@@ -1641,13 +1674,7 @@ var HD = (function () {
     // head
     g.ell(8.6, 13, 1.6, 2.2, "skin"); g.ell(22.4, 13, 1.6, 2.2, "skin");
     g.ell(15.5, 10.6, 7.4, 7.6, "skin");
-    [11, 19].forEach(function (x, ix) {
-      if (o.blink) g.rect(x - 1, 15, 4, 1, "lash");
-      else { g.rect(x, 13, 2, 1, "lash"); g.rect(x, 14, 2, 2, "eye"); g.px(x, 15, "iris"); g.px(x + 1, 15, "iris"); g.px(x + 1, 14, "white"); if (girl) g.px(ix ? x + 2 : x - 1, 13, "lash"); }
-    });
-    g.rect(10, 12, 3, 1, "brow"); g.rect(19, 12, 3, 1, "brow");
-    g.rect(15, 16, 2, 1, "nose"); mouthF(g, o.mouth || 0);
-    g.px(10, 17, "blush"); g.px(21, 17, "blush");
+    faceFront(g, o);
     hairFront(g, o);
     if (girl && st === 0) { g.rect(7, 13, 3, 12, "hair"); g.rect(22, 13, 3, 12, "hair"); g.rows(25, [[8, 9], [22, 23]], "hair"); }
     gearFront(g, o);
@@ -1761,13 +1788,14 @@ var HD = (function () {
 })();
 
   var hdCache = {};
-  function hdOpts(key, plain) {
+  var moodNow = "";
+  function hdOpts(key, plain, mood) {
     var pal = palFor(key), c = custom[key] || {}, e = plain ? { f: 0, s: 0 } : evoNow();
-    return { girl: key === "girl" ? 1 : 0, hair: pal[key === "boy" ? "h" : "y"], shirt: pal.b, pants: pal.p, eyes: pal.e, style: c.style || 0, f: e.f, s: e.s, hat: plain ? "" : ((stats && stats.inv && stats.inv.hat) || "") };
+    return { girl: key === "girl" ? 1 : 0, hair: pal[key === "boy" ? "h" : "y"], shirt: pal.b, pants: pal.p, eyes: pal.e, style: c.style || 0, f: e.f, s: e.s, hat: plain ? "" : ((stats && stats.inv && stats.inv.hat) || ""), mood: plain ? "" : (mood == null ? moodNow : mood) };
   }
-  function spriteImg(key, frame, plain) {
+  function spriteImg(key, frame, plain, mood) {
     if (key === "boy" || key === "girl") {
-      var o = hdOpts(key, plain), ck = JSON.stringify(o) + "|" + frame + "|" + (plain ? 1 : 0), svg = hdCache[ck];
+      var o = hdOpts(key, plain, frame === "front" ? mood : ""), ck = JSON.stringify(o) + "|" + frame + "|" + (plain ? 1 : 0), svg = hdCache[ck];
       if (!svg) { svg = HD.sprite(o, frame, plain); var keys = Object.keys(hdCache); if (keys.length > 160) delete hdCache[keys[0]]; hdCache[ck] = svg; }
       return svg.replace(/__D__/g, "-" + (Math.random() * 5).toFixed(1) + "s").replace("<svg ", '<svg data-f="' + frame + '" ');
     }
@@ -1776,9 +1804,27 @@ var HD = (function () {
     var svg2 = svgOf(key, frame === "front" ? d.front : d.walk[frame]);
     return svg2.replace("<svg ", '<svg data-f="' + frame + '" ');
   }
-  var talkT = null;
+  function portraitSvg(mood) { return spriteImg(avatar, "front", false, mood).replace(/viewBox="[^"]*"/, 'viewBox="6 1 20 20"').replace(' data-f="front"', ""); }
+  var talkT = null, talkEnd = 0, moodT = null;
+  function moodFor(kind) { return kind === "cheer" ? "cheer" : kind === "nudge" ? "focus" : "happy"; }
+  var PSMOOD = { focus: "focus", idle: "", pause: "sad", brew: "happy", sip: "happy", rest0: "happy", done: "cheer" };
+  function repaintFront() {
+    if (!avatar || (avatar !== "boy" && avatar !== "girl")) return;
+    var f = document.querySelector("#flip svg[data-f='front']");
+    if (f) { var d = document.createElement("div"); d.innerHTML = spriteImg(avatar, "front"); var n = d.firstChild; n.style.display = f.style.display; f.replaceWith(n); }
+    var bp = $("#bport"); if (bp && !$("#bubble").hidden) bp.innerHTML = portraitSvg(moodNow);
+    if (talkEnd > Date.now()) talkFx(talkEnd - Date.now());
+  }
+  function setMood(m, ms) { moodNow = m || ""; clearTimeout(moodT); repaintFront(); if (m && ms) moodT = setTimeout(function () { moodNow = ""; repaintFront(); }, ms); }
+  function psFace() {
+    if (!avatar || (avatar !== "boy" && avatar !== "girl")) return;
+    var m = PSMOOD[psKey]; if (m == null) m = "happy";
+    var c = $("#psChar"); if (c) c.innerHTML = spriteImg(avatar, "front", false, m);
+    var pp = $("#psPort"); if (pp) pp.innerHTML = portraitSvg(m);
+  }
   function talkFx(ms) {
-    ["#flip svg", "#psChar svg"].forEach(function (q) { document.querySelectorAll(q).forEach(function (el) { el.classList.add("talk"); }); });
+    talkEnd = Date.now() + (ms || 2400);
+    ["#flip svg", "#psChar svg", ".bport svg", ".psport svg"].forEach(function (q) { document.querySelectorAll(q).forEach(function (el) { el.classList.add("talk"); }); });
     clearTimeout(talkT); talkT = setTimeout(function () { document.querySelectorAll("svg.talk").forEach(function (el) { el.classList.remove("talk"); }); }, ms || 2400);
   }
   var evoPrev = null;
@@ -2511,7 +2557,7 @@ var HD = (function () {
   });
   async function chiefSay() {
     if (talking || !avatar) return;
-    talking = true;
+    talking = true; setMood("happy");
     var token = walkToken, stage = $("#stage"), bubble = $("#bubble"), flip = $("#flip");
     flip.style.transform = "none"; showFrame("front"); placeWalker(0);
     flip.classList.remove("hop"); void flip.offsetWidth; flip.classList.add("hop");
@@ -2519,21 +2565,22 @@ var HD = (function () {
     var w = Math.min(280, stage.clientWidth - 16);
     bubble.style.width = w + "px";
     bubble.style.left = Math.min(Math.max(walkX + 24 - w / 2, 8), Math.max(8, stage.clientWidth - w - 8)) + "px";
-    bubble.textContent = "\u00a0"; bubble.hidden = false; talkFx(msg.length * 70 + 400);
+    $("#btxt").textContent = "\u00a0"; $("#bport").innerHTML = portraitSvg(moodNow); bubble.hidden = false; talkFx(msg.length * 70 + 400);
     for (var i = 1; i <= msg.length; i++) {
       if (token !== walkToken) return;
-      bubble.textContent = msg.slice(0, i);
+      $("#btxt").textContent = msg.slice(0, i);
       typeKey(msg[i - 1] === " ");
       await sleep(70);
     }
     typeDing();
     await sleep(2400);
+    setMood("");
     if (token !== walkToken) return;
     bubble.hidden = true;
     talking = false;
   }
   function buildWalker() {
-    walkToken++; talking = false;
+    walkToken++; talking = false; moodNow = "";
     var stage = $("#stage");
     $("#bubble").hidden = true;
     if (!avatar) { stage.hidden = true; return; }
@@ -2730,7 +2777,7 @@ var PET = (function () {
     var stage = $("#stage"), bubble = $("#bubble"), w = Math.min(260, stage.clientWidth - 16);
     bubble.style.width = w + "px";
     bubble.style.left = Math.min(Math.max(walkX + 24 - w / 2, 8), Math.max(8, stage.clientWidth - w - 8)) + "px";
-    bubble.textContent = msg; bubble.hidden = false;
+    $("#btxt").textContent = msg; $("#bport").innerHTML = portraitSvg(moodNow); bubble.hidden = false;
   }
   var ITEM_SVG = {
     drink: '<svg viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="1" y="1" width="6" height="6" fill="#000"/><rect x="2" y="2" width="4" height="5" fill="#8fd3ff"/><rect x="2" y="2" width="4" height="1" fill="#fff"/></svg>',
@@ -2745,8 +2792,9 @@ var PET = (function () {
     flip.style.transform = "none"; showFrame("front"); placeWalker(0); placePets(0);
     flip.classList.remove("hop"); void flip.offsetWidth; flip.classList.add("hop");
     if (kind === "drink" || kind === "eat") { item = document.createElement("i"); item.className = "fxitem " + kind; item.innerHTML = ITEM_SVG[kind]; walker.appendChild(item); }
-    bubbleShow(msg); talkFx(ms || 2600);
+    setMood(moodFor(kind)); bubbleShow(msg); talkFx(ms || 2600);
     await sleep(ms || 2600);
+    setMood("");
     if (item) item.remove();
     if (token !== walkToken) return;
     $("#bubble").hidden = true; talking = false;
@@ -3791,7 +3839,7 @@ var PET = (function () {
   function psSay(force) {
     var say = $("#psSay"); if (!say) return;
     var arr = psMsgs(psKey), t = arr[psIdx % arr.length];
-    if (say.textContent !== t || force) { say.textContent = t; say.classList.remove("pop"); void say.offsetWidth; say.classList.add("pop"); talkFx(2400); }
+    var pt = $("#psTxt"); if (pt.textContent !== t || force) { pt.textContent = t; say.classList.remove("pop"); void say.offsetWidth; say.classList.add("pop"); psFace(); talkFx(2400); }
   }
   function psSceneSync() {
     var sc = $("#pomoScene"); if (!sc) return;
@@ -3819,7 +3867,7 @@ var PET = (function () {
     if (sc) {
       psSceneSync();
       var sk = String(avatar || "") + "|" + (typeof sprSig === "function" ? sprSig() : "");
-      if (sc.dataset.k !== sk) { sc.dataset.k = sk; $("#psChar").innerHTML = avatar ? spriteImg(avatar, "front") : ""; }
+      if (sc.dataset.k !== sk) { sc.dataset.k = sk; if (avatar) psFace(); else $("#psChar").innerHTML = ""; }
     }
     $("#pomoGo").textContent = pomo.running ? "PAUSE" : (left < pomoMs(pomo.phase) ? "RESUME" : "START");
     var PC = pcfg(), n = pomoCount(), cyc = PC.every, dots = "";
