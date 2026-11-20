@@ -955,6 +955,34 @@ body.fx .stat.mv .spk::after { animation: spktw .5s ease-in-out infinite; }
 .chipbar { height: 10px; border-radius: 999px; background: #3a3320; overflow: hidden; }
 .chipbar i { border-radius: 999px; background: linear-gradient(180deg, #fff2a0 0 35%, #ffd23f 35% 70%, #e0a800 70%); }
 .pomo-dots i { border-radius: 50%; }
+
+/* ===== curves everywhere ===== */
+.box { border-radius: 16px; box-shadow: 0 0 0 var(--px) var(--ink), 0 calc(var(--px) * 2) 0 0 rgba(0,0,0,.45); }
+body.fx .box.lit { box-shadow: 0 0 0 var(--px) var(--ink), 0 calc(var(--px) * 2) 0 0 rgba(0,0,0,.45), 0 0 22px 2px rgba(255,226,122,.10); }
+body.fx .box::after { border-radius: calc(16px + var(--px)); }
+.btn, .tab, .qbtn, .focusbtn, .coinchip, .pick, .day, .hero-btn { border-radius: 12px; }
+.chip, .tag, .cat-tag, .badge { border-radius: 999px; }
+.icon { border-radius: 10px; }
+.check { border-radius: 9px; }
+.shop-prev { border-radius: 10px; overflow: hidden; }
+.field, select.field, textarea.field, input.field { border-radius: 12px; }
+li.task, .tl { border-radius: 12px; }
+.blk { border-radius: 8px; }
+.sic, .stat .sic { border-radius: 10px; }
+.gdot { border-radius: 50%; }
+.rep-tile { border-radius: 12px; }
+.pomo-main { border-radius: 14px; box-shadow: 0 0 0 3px #000, 0 0 0 6px var(--dim); }
+.pomo-scene { border-radius: 10px; }
+.bubble { border-radius: 12px; box-shadow: 0 0 0 3px #000; }
+.ps-say { border-radius: 9px; box-shadow: 0 0 0 2px #000; }
+.toast, .sysbanner, .floater { border-radius: 12px; }
+.sysbanner { border-radius: 16px; }
+.pxi { border-radius: 3px; }
+.coinrow .btn, .row-btns .btn { border-radius: 12px; }
+.tabs { border-radius: 14px; }
+.modal > .box { border-radius: 18px; }
+.walker { border-radius: 12px; }
+.exam, .stage { border-radius: 16px; }
 </style>
 </head>
 <body>
