@@ -910,6 +910,38 @@ body.fx .stat.mv .spk::before { opacity: 1; animation: spkmv .28s steps(3) infin
 .pomo-scene.rest.go:not(.sip) .ps-char { animation: psstretch 1.2s steps(3) infinite; }
 .ps-bulb { left: 60px; top: 46px; }
 @media (prefers-reduced-motion: reduce) { .stat .spk::before { animation: none !important; } }
+
+/* ===== curved bars and wand sparkle ===== */
+.stat .bar { height: 18px; border-radius: 999px; padding: 3px; }
+.stat .fill { border-radius: 999px; box-shadow: 0 0 10px var(--c), inset 0 -3px 0 rgba(0,0,0,.22); }
+.stat .fill::after { border-radius: 999px; background: linear-gradient(180deg, rgba(255,255,255,.5) 0 30%, transparent 30% 70%, rgba(0,0,0,.2) 70%); }
+body.fx .stat .fill::before { border-radius: 999px; }
+.stat .spk::before { left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: radial-gradient(circle, #fff 0 35%, var(--c) 36% 60%, transparent 62%); box-shadow: 0 0 10px 3px var(--c), 0 0 4px 1px #fff; clip-path: none; }
+.stat .spk::after { content: ""; position: absolute; left: 3px; top: -12px; width: 7px; height: 7px; background: #fff; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); opacity: 0; filter: drop-shadow(0 0 3px #fff); }
+body.fx .stat:not(.full) .spk.on::after { animation: spktw 2.2s ease-in-out infinite; }
+body.fx .stat.mv .spk::after { animation: spktw .5s ease-in-out infinite; }
+@keyframes spkidle { 0%, 100% { transform: scale(.7); opacity: .8; } 50% { transform: scale(1.15); opacity: 1; } }
+@keyframes spkmv { 0%, 100% { transform: scale(1.1); } 50% { transform: scale(1.7); } }
+@keyframes spktw { 0%, 60%, 100% { transform: scale(0) rotate(0); opacity: 0; } 75% { transform: scale(1) rotate(45deg); opacity: 1; } 90% { transform: scale(.4) rotate(90deg); opacity: .6; } }
+.sp2 { clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); width: 7px; height: 7px; filter: drop-shadow(0 0 3px currentColor); }
+
+/* ===== weekly report ===== */
+.rep-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin: 10px 0 16px; }
+.rep-tile { background: #000; padding: 10px 8px; text-align: center; box-shadow: 0 0 0 2px var(--dim); }
+.rep-tile b { display: block; font-family: var(--font-display); font-size: 16px; color: var(--c, var(--gold)); line-height: 1.5; font-weight: 400; }
+.rep-tile span { font-family: var(--font-display); font-size: 7px; color: var(--dim); line-height: 1.6; }
+.rep-tile small { display: block; font-family: var(--font-display); font-size: 7px; margin-top: 4px; }
+.rep-h { font-family: var(--font-display); font-size: 9px; letter-spacing: 1px; color: var(--ink); margin: 14px 0 8px; }
+.rep-sj { display: grid; grid-template-columns: minmax(70px, 120px) minmax(0, 1fr) auto; gap: 8px; align-items: center; margin-bottom: 8px; font-family: var(--font-display); font-size: 8px; }
+.rep-sj .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rep-sj .rb { height: 12px; background: #000; border-radius: 999px; padding: 2px; box-shadow: 0 0 0 2px var(--dim); }
+.rep-sj .rb i { display: block; height: 100%; border-radius: 999px; background: var(--c, var(--green)); }
+.rep-sj .rv { color: var(--gold); }
+.rep-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; align-items: end; height: 96px; margin-top: 6px; }
+.rep-days div { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; font-family: var(--font-display); font-size: 7px; color: var(--dim); gap: 4px; }
+.rep-days i { display: block; width: 100%; max-width: 30px; background: var(--blue); border-radius: 6px 6px 0 0; min-height: 3px; }
+.rep-days div.today i { background: var(--gold); }
+.rep-foot { font-family: var(--font-display); font-size: 8px; line-height: 1.8; color: var(--dim); margin-top: 12px; }
 </style>
 </head>
 <body>
@@ -932,7 +964,7 @@ body.fx .stat.mv .spk::before { opacity: 1; animation: spkmv .28s steps(3) infin
       <button class="hero-btn" id="avatarBtn" type="button" aria-label="Change character" data-tip="CHANGE CHARACTER"></button>
       <h1 id="appTitle"><span class="hlogo" id="hLogo" aria-hidden="true"></span><span id="titleTxt">PIXEL PLANNER</span></h1>
     </div>
-    <div class="head-actions"><button class="coinchip" id="coinChip" type="button" data-tip="YOUR COINS. OPEN THE SHOP"><span class="coinic"></span><b id="chipVal">0</b><span class="chipbar"><i id="chipFill"></i></span></button> <button class="btn alt tgl" id="sndBtn" type="button" aria-pressed="true" data-tip="MUTE OR UNMUTE ALL APP SOUNDS">SOUND ON</button> <button class="btn alt tgl" id="fxBtn" type="button" aria-pressed="true" data-tip="LIGHT AND MOTION EFFECTS ON OR OFF">FX ON</button> <button class="btn alt" id="shopBtn" type="button" data-tip="SPEND COINS ON A HOUSE, PETS AND LOOKS">SHOP</button> <button class="btn alt" id="goalsBtn" type="button" data-tip="GOALS AND BACKUP">GOALS</button> <button class="btn alt" id="tourBtn" type="button" aria-label="Show the guided tour" data-tip="TOUR WITH PIXEL">?</button> <button class="btn alt" id="customBtn" type="button" data-tip="COLORS FOR YOUR CHARACTER">CUSTOMIZE</button></div>
+    <div class="head-actions"><button class="coinchip" id="coinChip" type="button" data-tip="YOUR COINS. OPEN THE SHOP"><span class="coinic"></span><b id="chipVal">0</b><span class="chipbar"><i id="chipFill"></i></span></button> <button class="btn alt tgl" id="sndBtn" type="button" aria-pressed="true" data-tip="MUTE OR UNMUTE ALL APP SOUNDS">SOUND ON</button> <button class="btn alt tgl" id="fxBtn" type="button" aria-pressed="true" data-tip="LIGHT AND MOTION EFFECTS ON OR OFF">FX ON</button> <button class="btn alt" id="shopBtn" type="button" data-tip="SPEND COINS ON A HOUSE, PETS AND LOOKS">SHOP</button> <button class="btn alt" id="repBtn" type="button" data-tip="WEEKLY REPORT: HOURS, XP, STREAKS AND TASKS">REPORT</button> <button class="btn alt" id="goalsBtn" type="button" data-tip="GOALS AND BACKUP">GOALS</button> <button class="btn alt" id="tourBtn" type="button" aria-label="Show the guided tour" data-tip="TOUR WITH PIXEL">?</button> <button class="btn alt" id="customBtn" type="button" data-tip="COLORS FOR YOUR CHARACTER">CUSTOMIZE</button></div>
   </header>
   <div class="toasts" id="toasts" aria-live="polite"></div>
 
@@ -1234,13 +1266,25 @@ body.fx .stat.mv .spk::before { opacity: 1; animation: spkmv .28s steps(3) infin
       <label>PROTEIN GOAL (G / DAY)<input class="field" id="gPro" type="number" min="10" max="1000" step="5"></label>
       <label>XP PER LEVEL<input class="field" id="gLvl" type="number" min="20" max="5000" step="10"></label>
     </div>
+    <div class="lab" id="abRow">AUTO-BACKUP <div class="chips" id="abChips"></div></div>
+    <p class="hint" id="abNote"></p>
     <div class="row-btns"><button class="btn alt" id="goalsBackup" type="button">EXPORT / IMPORT</button><button class="btn" id="goalsSave" type="button">SAVE GOALS</button></div>
     <div id="backupBox" hidden>
       <p>EXPORT fills the box with your data to copy. To restore, paste a backup here and press IMPORT.</p>
       <textarea class="field" id="backupText" rows="6" spellcheck="false" aria-label="Backup data"></textarea>
       <div class="row-btns" style="margin-top:8px"><button class="btn alt" id="bkExport" type="button">EXPORT</button><button class="btn alt" id="bkImport" type="button">IMPORT</button></div>
+      <div class="row-btns" style="margin-top:8px"><button class="btn" id="bkFile" type="button"></button><button class="btn alt" id="bkLoad" type="button">LOAD FILE</button><input id="bkPick" type="file" accept=".json,application/json" hidden></div>
     </div>
     <div class="row-btns"><button class="btn alt" id="goalsClose" type="button">CLOSE</button></div>
+  </div>
+</div>
+
+<div class="modal" id="report" role="dialog" aria-modal="true" aria-labelledby="repTitle" hidden>
+  <div class="box wide">
+    <h2 id="repTitle">WEEKLY REPORT</h2>
+    <p class="hint" id="repRange"></p>
+    <div id="repBody"></div>
+    <div class="row-btns"><button class="btn alt" id="repClose" type="button">CLOSE</button></div>
   </div>
 </div>
 
@@ -1299,8 +1343,8 @@ body.fx .stat.mv .spk::before { opacity: 1; animation: spkmv .28s steps(3) infin
   var reduceMotion = false; // animation always on: it is the point of ticking a task
   var actx = null;
   var avatar = null;
-  var prof = { name: "", toured: 0, sound: 1, fx: 1, sky: "auto", season: "auto" };
-  function normProf(o) { return { name: o && typeof o.name === "string" ? o.name.replace(/[<>&"]/g, "").trim().slice(0, 20) : "", toured: o && o.toured ? 1 : 0, sound: o && o.sound === 0 ? 0 : 1, fx: o && o.fx === 0 ? 0 : 1, sky: o && ["dawn","day","sunset","night"].indexOf(o.sky) >= 0 ? o.sky : "auto", season: o && ["spring","summer","autumn","winter","off"].indexOf(o.season) >= 0 ? o.season : "auto" }; }
+  var prof = { name: "", toured: 0, sound: 1, fx: 1, sky: "auto", season: "auto", ab: 1, bk: 0 };
+  function normProf(o) { return { name: o && typeof o.name === "string" ? o.name.replace(/[<>&"]/g, "").trim().slice(0, 20) : "", toured: o && o.toured ? 1 : 0, sound: o && o.sound === 0 ? 0 : 1, fx: o && o.fx === 0 ? 0 : 1, sky: o && ["dawn","day","sunset","night"].indexOf(o.sky) >= 0 ? o.sky : "auto", season: o && ["spring","summer","autumn","winter","off"].indexOf(o.season) >= 0 ? o.season : "auto", ab: o && o.ab === 0 ? 0 : 1, bk: o && +o.bk > 0 ? +o.bk : 0 }; }
   var greeted = null; // local date (YYYY-MM-DD) the daily hello was last shown
   var SPRITES = { boy: { label: "BOY" }, girl: { label: "GIRL" } };
   // Clean 16x16 retro-style sprites: dark outline, three tones per color.
@@ -1512,11 +1556,24 @@ body.fx .stat.mv .spk::before { opacity: 1; animation: spkmv .28s steps(3) infin
   var SHOP_OUTS = { hoodie: { n: "GREY HOODIE", c: 60, col: "#8d8d99" }, sunset: { n: "SUNSET TEE", c: 70, col: "#ff8a3d" }, ninja: { n: "NINJA SUIT", c: 90, col: "#2a2a35" }, royal: { n: "ROYAL ROBE", c: 150, col: "#7b3fc4" } };
   var PET_COST = { dog: 120, cat: 100 };
   var COIN_TASK = 5, COIN_GOAL = 10, COIN_PERFECT = 15;
-  function newStats() { return { fitness: 0, study: 0, hydration: 0, protein: 0, day: null, today: { fitness: 0, study: 0 }, goals: { hydration: 3000, protein: 100, perLevel: 100 }, streak: 0, best: 0, lastPerfect: null, yday: null, lastQuick: {}, coins: 0, paid: {}, inv: newInv() }; }
+  function newStats() { return { log: {}, fitness: 0, study: 0, hydration: 0, protein: 0, day: null, today: { fitness: 0, study: 0 }, goals: { hydration: 3000, protein: 100, perLevel: 100 }, streak: 0, best: 0, lastPerfect: null, yday: null, lastQuick: {}, coins: 0, paid: {}, inv: newInv() }; }
   function newInv() { return { house: 0, dog: 0, cat: 0, hats: [], hat: "", outs: [], outfit: "" }; }
+  function normLog(o) {
+    var r = {}; if (!o || typeof o !== "object") return r;
+    var keys = Object.keys(o).filter(function (k) { return /^\d{4}-\d{2}-\d{2}$/.test(k); }).sort().slice(-120);
+    keys.forEach(function (k) {
+      var e = o[k] || {}, n = { f: Math.max(0, +e.f || 0), s: Math.max(0, +e.s || 0), h: Math.max(0, +e.h || 0), p: Math.max(0, +e.p || 0), c: Math.max(0, +e.c || 0), m: Math.max(0, +e.m || 0), t: Math.max(0, +e.t || 0), pf: e.pf ? 1 : 0, sj: {} };
+      if (e.sj && typeof e.sj === "object") Object.keys(e.sj).slice(0, 40).forEach(function (q) { n.sj[String(q).slice(0, 40)] = Math.max(0, +e.sj[q] || 0); });
+      r[k] = n;
+    });
+    return r;
+  }
+  function logDay() { if (!stats.log) stats.log = {}; var k = todayIso(); return stats.log[k] || (stats.log[k] = { f: 0, s: 0, h: 0, p: 0, c: 0, m: 0, t: 0, pf: 0, sj: {} }); }
+  function logAdd(f, n) { var d = logDay(); d[f] = Math.max(0, (d[f] || 0) + n); }
   function normStats(o) {
     var r = newStats();
     if (!o) return r;
+    r.log = normLog(o.log);
     CAT_KEYS.forEach(function (k) { r[k] = Math.max(0, +o[k] || 0); });
     r.day = o.day || null;
     if (o.today) { r.today.fitness = Math.max(0, +o.today.fitness || 0); r.today.study = Math.max(0, +o.today.study || 0); }
@@ -1549,7 +1606,7 @@ body.fx .stat.mv .spk::before { opacity: 1; animation: spkmv .28s steps(3) infin
   function checkPerfect() {
     if (goalsHit(stats).every(Boolean) && stats.lastPerfect !== todayIso()) {
       stats.streak = stats.lastPerfect === yesterdayIso() ? stats.streak + 1 : 1;
-      stats.lastPerfect = todayIso(); stats.best = Math.max(stats.best, stats.streak);
+      stats.lastPerfect = todayIso(); stats.best = Math.max(stats.best, stats.streak); logAdd("pf", 1);
       addCoins(COIN_PERFECT + 5 * Math.min(stats.streak, 10), true);
       setTimeout(function () { levelSound(); sysBanner("[ SYSTEM ]", "PERFECT DAY!<br>STREAK " + stats.streak); }, 900);
     }
@@ -1586,6 +1643,8 @@ body.fx .stat.mv .spk::before { opacity: 1; animation: spkmv .28s steps(3) infin
     PXI.sndoff = build([[2, 6, 3, 4, "#8b87b8"], [5, 5, 2, 6, "#8b87b8"], [7, 3, 2, 10, "#8b87b8"], [10, 6, 1, 1, "#ff5a5f"], [11, 7, 1, 1, "#ff5a5f"], [12, 8, 1, 1, "#ff5a5f"], [13, 9, 1, 1, "#ff5a5f"], [13, 6, 1, 1, "#ff5a5f"], [12, 7, 1, 1, "#ff5a5f"], [11, 8, 1, 1, "#ff5a5f"], [10, 9, 1, 1, "#ff5a5f"]]);
     function spark(c) { return build([[7, 1, 2, 2, c], [6, 3, 4, 2, c], [1, 7, 14, 2, c], [5, 5, 6, 2, c], [5, 9, 6, 2, c], [6, 11, 4, 2, c], [7, 13, 2, 2, c], [7, 7, 2, 2, "#ffffff"]]); }
     PXI.fxon = spark("#ffd23f"); PXI.fxoff = spark("#6f6aa0");
+    PXI.chart = build(cat(B(2, 2, 12, 12, "#f4f1ff", "#ffffff", "#b9b4e0"), [[4, 9, 2, 4, "#5cc8ff"], [7, 6, 2, 7, "#5fd068"], [10, 4, 2, 9, "#ffd23f"]]));
+    PXI.disk = build(cat(B(2, 2, 12, 12, "#5cc8ff", "#a8e4ff", "#2a82b8"), B(4, 2, 8, 5, "#f4f1ff", "#ffffff", "#b9b4e0"), B(5, 9, 6, 5, "#2a2a50", "#4a4a80", "#16162e"), [[9, 3, 1, 3, "#2a2a50"]]));
     PXI.help = build(cat(D(8, 8, 7, "#5cc8ff"), [[6, 4, 4, 2, "#ffffff"], [9, 6, 2, 2, "#ffffff"], [7, 8, 2, 2, "#ffffff"], [7, 11, 2, 2, "#ffffff"]]));
   })();
   function pxi(n, cls) { var s = PXI[n] || ""; return cls ? s.replace('class="pxi"', 'class="pxi ' + cls + '"') : s; }
@@ -1626,20 +1685,24 @@ body.fx .stat.mv .spk::before { opacity: 1; animation: spkmv .28s steps(3) infin
       }); });
     });
   }
+  var SPK_COLS = ["#ffffff", "#fff2a0", "#ffb8e8", "#b8e8ff", "#d8c0ff"];
+  function mkStar(bar, x, y, size, col, dx, dy, dur, spin) {
+    var p = document.createElement("i"); p.className = "sp2"; p.style.left = x - size / 2 + "px"; p.style.top = y - size / 2 + "px"; p.style.width = p.style.height = size + "px"; p.style.background = col; p.style.color = col; bar.appendChild(p);
+    var a = p.animate([{ transform: "translate(0,0) scale(.3) rotate(0deg)", opacity: 0 }, { transform: "translate(" + dx * 0.4 + "px," + dy * 0.4 + "px) scale(1) rotate(" + spin * 0.4 + "deg)", opacity: 1, offset: 0.3 }, { transform: "translate(" + dx + "px," + dy + "px) scale(.1) rotate(" + spin + "deg)", opacity: 0 }], { duration: dur, easing: "ease-out" });
+    a.onfinish = function () { p.remove(); };
+  }
   function barSparkle(el, sp, up) {
-    var bar = el.querySelector(".bar"), cols = ["#ffffff", "#ffe27a", "#ff9ad0", "#9fe0ff"], n = 0; if (!bar || !up) return;
+    var bar = el.querySelector(".bar"), n = 0; if (!bar || !up) return;
     el.classList.add("mv");
     var iv = setInterval(function () {
-      n++; var br = bar.getBoundingClientRect(), sr = sp.getBoundingClientRect(), x = sr.left - br.left, y = br.height / 2 + (Math.random() * 12 - 6);
-      for (var i = 0; i < 2; i++) { var p = document.createElement("i"); p.className = "sp2"; p.style.left = x + "px"; p.style.top = y + "px"; p.style.background = cols[(Math.random() * 4) | 0]; bar.appendChild(p);
-        var a = p.animate([{ transform: "translate(0,0) scale(1)", opacity: 1 }, { transform: "translate(" + (-6 - Math.random() * 14) + "px," + (Math.random() * 16 - 8) + "px) scale(.3)", opacity: 0 }], { duration: 520, easing: "steps(5)" }); a.onfinish = function (q) { return function () { q.remove(); }; }(p); }
-      if (n > 12) { clearInterval(iv); el.classList.remove("mv"); starBurst(bar, sp); }
-    }, 90);
+      n++; var br = bar.getBoundingClientRect(), sr = sp.getBoundingClientRect(), x = sr.left - br.left, y = br.height / 2;
+      for (var i = 0; i < 2; i++) mkStar(bar, x - Math.random() * 6, y + Math.random() * 8 - 4, 4 + Math.random() * 5, SPK_COLS[(Math.random() * 5) | 0], -4 - Math.random() * 16, -8 - Math.random() * 14, 650 + Math.random() * 300, 120 + Math.random() * 160);
+      if (n > 13) { clearInterval(iv); el.classList.remove("mv"); starBurst(bar, sp); }
+    }, 80);
   }
   function starBurst(bar, sp) {
-    var br = bar.getBoundingClientRect(), sr = sp.getBoundingClientRect(), x = sr.left - br.left, cols = ["#ffffff", "#ffe27a", "#ff9ad0", "#9fe0ff"];
-    for (var i = 0; i < 7; i++) { var p = document.createElement("i"); p.className = "sp2"; p.style.left = x + "px"; p.style.top = br.height / 2 + "px"; p.style.background = cols[i % 4]; p.style.width = p.style.height = (i % 2 ? 4 : 3) + "px"; bar.appendChild(p);
-      var ang = Math.PI * 2 * i / 7, d = 12 + (i % 3) * 5, a = p.animate([{ transform: "translate(0,0) scale(1)", opacity: 1 }, { transform: "translate(" + Math.cos(ang) * d + "px," + Math.sin(ang) * d + "px) scale(.2)", opacity: 0 }], { duration: 620, easing: "steps(6)" }); a.onfinish = function (q) { return function () { q.remove(); }; }(p); }
+    var br = bar.getBoundingClientRect(), sr = sp.getBoundingClientRect(), x = sr.left - br.left, y = br.height / 2;
+    for (var i = 0; i < 9; i++) { var ang = Math.PI * 2 * i / 9 + Math.random() * 0.3, d = 14 + Math.random() * 14; mkStar(bar, x, y, 5 + (i % 3) * 2, SPK_COLS[i % 5], Math.cos(ang) * d, Math.sin(ang) * d - 4, 800, 180); }
   }
   function renderStats() {
     rollDay();
@@ -1661,7 +1724,7 @@ body.fx .stat.mv .spk::before { opacity: 1; animation: spkmv .28s steps(3) infin
     renderCoins(); barGo();
   }
   function addCoins(n, pop) {
-    var b = stats.coins; stats.coins = Math.max(0, b + n);
+    var b = stats.coins; stats.coins = Math.max(0, b + n); if (n > 0) logAdd("c", n);
     renderCoins(); if (n > 0) coinFly(n);
     if (pop && n > 0) toast("+" + n + " COINS", "gold");
   }
@@ -1699,6 +1762,7 @@ body.fx .stat.mv .spk::before { opacity: 1; animation: spkmv .28s steps(3) infin
   function applyStat(k, n) {
     var c = CATS[k], before = stats[k];
     stats[k] = Math.max(0, before + n);
+    logAdd(k === "fitness" ? "f" : k === "study" ? "s" : k === "hydration" ? "h" : "p", n);
     renderStats();
     var el = document.querySelector('.stat[data-stat="' + k + '"]');
     if (el && n > 0) {
@@ -1727,6 +1791,7 @@ body.fx .stat.mv .spk::before { opacity: 1; animation: spkmv .28s steps(3) infin
   }
   // sign +1 on completing, -1 on reopening
   function award(t, sign) {
+    logAdd("t", sign > 0 ? 1 : -1);
     var k = t.cat; if (!k || !CATS[k]) return;
     rollDay();
     var c = CATS[k];
@@ -2666,7 +2731,7 @@ body.fx .stat.mv .spk::before { opacity: 1; animation: spkmv .28s steps(3) infin
     requestAnimationFrame(envFrame);
   })();
   (function hdrIcons() {
-    [["#shopBtn", "shop", "SHOP"], ["#goalsBtn", "goals", "GOALS"], ["#tourBtn", "help", ""], ["#customBtn", "paint", "CUSTOMIZE"]].forEach(function (a) { var b = $(a[0]); if (b) b.innerHTML = pxi(a[1]) + a[2]; });
+    [["#shopBtn", "shop", "SHOP"], ["#repBtn", "chart", "REPORT"], ["#goalsBtn", "goals", "GOALS"], ["#tourBtn", "help", ""], ["#customBtn", "paint", "CUSTOMIZE"]].forEach(function (a) { var b = $(a[0]); if (b) b.innerHTML = pxi(a[1]) + a[2]; });
     var t1 = document.querySelector('.tab.big[data-view="planner"]'), t2 = document.querySelector('.tab.big[data-view="tt"]');
     if (t1) t1.innerHTML = pxi("check") + "PLANNER"; if (t2) t2.innerHTML = pxi("cal") + "TIME TABLE";
   })();
@@ -3308,6 +3373,7 @@ body.fx .stat.mv .spk::before { opacity: 1; animation: spkmv .28s steps(3) infin
       }
       if (tb && tb.link) { var lt = state.tasks.find(function (x) { return x.id === tb.link; }); if (lt) lt.focus = (+lt.focus || 0) + mins; }
       var xp = Math.max(1, Math.round(mins / 5));
+      (function () { var d = logDay(), nm = tb ? ((subjOf(tb.subj) || {}).name || tb.title || "BLOCK") : tk ? tk.title : "FREE FOCUS"; nm = String(nm).slice(0, 30); d.m += mins; d.sj[nm] = (d.sj[nm] || 0) + mins; })();
       if (tt.features.xp && cat) { rollDay(); stats.today[cat] = (stats.today[cat] || 0) + xp; uEntry = { n: xp, tm: 1, b: tb ? tb.id : "", tk: tk ? tk.id : "", mins: mins, auto: 0, d: todayIso() }; var lgt = (stats.lastQuick[cat] = stats.lastQuick[cat] || []); lgt.push(uEntry); if (lgt.length > 50) lgt.shift(); applyStat(cat, xp); xpTxt = " +" + xp + " " + CATS[cat].label + " XP"; }
       if (tb || xpTxtBlock || tk) xpTxt += " / +" + mins + " MIN LOGGED";
       pomo.phase = n % pcfg().every === 0 ? "long" : "short";
@@ -3494,7 +3560,7 @@ body.fx .stat.mv .spk::before { opacity: 1; animation: spkmv .28s steps(3) infin
     var q = e.target.closest("[data-q]"); if (q) { quickAdd(q.dataset.q, +q.dataset.n); return; }
     var u = e.target.closest("[data-qundo]"); if (u && !u.disabled) quickUndo(u.dataset.qundo);
   });
-  function openGoals() { $("#gHyd").value = stats.goals.hydration; $("#gPro").value = stats.goals.protein; $("#gLvl").value = stats.goals.perLevel; $("#backupBox").hidden = true; $("#goals").hidden = false; $("#gHyd").focus(); }
+  function openGoals() { $("#gHyd").value = stats.goals.hydration; $("#gPro").value = stats.goals.protein; $("#gLvl").value = stats.goals.perLevel; $("#backupBox").hidden = true; abNote(); $("#goals").hidden = false; $("#gHyd").focus(); }
   function closeGoals() { $("#goals").hidden = true; $("#goalsBtn").focus(); }
   $("#goalsBtn").addEventListener("click", openGoals);
   $("#goalsClose").addEventListener("click", closeGoals);
@@ -3508,7 +3574,7 @@ body.fx .stat.mv .spk::before { opacity: 1; animation: spkmv .28s steps(3) infin
   $("#goalsBackup").addEventListener("click", function () { $("#backupBox").hidden = false; $("#backupText").focus(); });
   $("#bkExport").addEventListener("click", function () {
     var t = $("#backupText");
-    t.value = JSON.stringify({ app: "pixel-planner", v: 1, tasks: state.tasks, prof: prof, avatar: avatar, greeted: greeted, custom: custom, stats: stats, tt: tt, plans: plans });
+    t.value = backupJson();
     t.select();
     try { if (navigator.clipboard) navigator.clipboard.writeText(t.value).then(function () { toast("COPIED TO CLIPBOARD", "blue"); }, function () { toast("SELECT AND COPY THE TEXT", "gold"); }); else toast("SELECT AND COPY THE TEXT", "gold"); } catch (e) { toast("SELECT AND COPY THE TEXT", "gold"); }
   });
@@ -3524,6 +3590,79 @@ body.fx .stat.mv .spk::before { opacity: 1; animation: spkmv .28s steps(3) infin
       dirty = true; store.save(); closeGoals(); render(); renderAvatar(); buildWalker(); toast("BACKUP IMPORTED", "");
     } catch (e) { toast("NOT A VALID BACKUP", "red"); }
   });
+
+
+  /* ---------- weekly report ---------- */
+  function repData(offWeeks) {
+    var end = new Date(); end = new Date(end.getFullYear(), end.getMonth(), end.getDate() - 7 * offWeeks);
+    var days = [], i; for (i = 6; i >= 0; i--) days.push(iso(new Date(end.getFullYear(), end.getMonth(), end.getDate() - i)));
+    var L = stats.log || {}, r = { days: days, f: 0, s: 0, h: 0, p: 0, c: 0, m: 0, pf: 0, tasks: 0, sj: {}, perDay: [], hydDays: 0, proDays: 0 };
+    days.forEach(function (k) {
+      var e = L[k]; r.perDay.push(e ? e.m : 0); if (!e) return;
+      r.tasks += e.t || 0; r.f += e.f; r.s += e.s; r.h += e.h; r.p += e.p; r.c += e.c; r.m += e.m; r.pf += e.pf;
+      if (e.h >= stats.goals.hydration) r.hydDays++; if (e.p >= stats.goals.protein) r.proDays++;
+      Object.keys(e.sj).forEach(function (q) { r.sj[q] = (r.sj[q] || 0) + e.sj[q]; });
+    });
+    return r;
+  }
+  function fmtH(m) { return m >= 60 ? (Math.round(m / 6) / 10) + "H" : m + "M"; }
+  function trend(a, b) { if (!b) return a ? '<small style="color:var(--green)">NEW</small>' : ""; var d = Math.round((a - b) / b * 100); return '<small style="color:' + (d >= 0 ? "var(--green)" : "var(--red)") + '">' + (d >= 0 ? "+" : "") + d + "% VS LAST WEEK</small>"; }
+  function renderReport() {
+    var a = repData(0), b = repData(1), nm = prof.name || "friend";
+    $("#repRange").textContent = fmt(a.days[0]) + " TO " + fmt(a.days[6]) + ". THE LAST 7 DAYS.";
+    var tiles = [["FOCUS TIME", fmtH(a.m), "var(--green)", trend(a.m, b.m)], ["STUDY XP", a.s, "var(--blue)", trend(a.s, b.s)], ["FITNESS XP", a.f, "var(--orange, #ff7a45)", trend(a.f, b.f)], ["TASKS DONE", a.tasks, "var(--gold)", trend(a.tasks, b.tasks)], ["COINS EARNED", a.c, "var(--gold)", ""], ["PERFECT DAYS", a.pf + " / 7", "var(--pink, #ff6fae)", ""]];
+    var html = '<div class="rep-tiles">' + tiles.map(function (t) { return '<div class="rep-tile" style="--c:' + t[2] + '"><b>' + t[1] + "</b><span>" + t[0] + "</span>" + t[3] + "</div>"; }).join("") + "</div>";
+    var sj = Object.keys(a.sj).map(function (k) { return [k, a.sj[k]]; }).sort(function (x, y) { return y[1] - x[1]; }).slice(0, 8), mx = sj.length ? sj[0][1] : 1;
+    html += '<div class="rep-h">FOCUSED HOURS PER SUBJECT</div>' + (sj.length ? sj.map(function (x, i) { return '<div class="rep-sj"><span class="nm">' + esc(x[0]) + '</span><div class="rb"><i style="width:' + Math.max(4, Math.round(x[1] / mx * 100)) + "%;--c:" + ["#5cc8ff", "#5fd068", "#ffd23f", "#ff6fae", "#b08cff", "#ff7a45", "#7ef0d0", "#f4f1ff"][i % 8] + '"></i></div><span class="rv">' + fmtH(x[1]) + "</span></div>"; }).join("") : '<p class="hint">No finished focus sessions yet. Start one in the Time Table and it shows up here.</p>');
+    var dm = Math.max.apply(null, a.perDay.concat([30]));
+    html += '<div class="rep-h">FOCUS BY DAY</div><div class="rep-days">' + a.days.map(function (k, i) { var d = new Date(k + "T00:00:00"); return '<div class="' + (k === todayIso() ? "today" : "") + '"><i style="height:' + Math.max(3, Math.round(a.perDay[i] / dm * 70)) + 'px"></i>' + ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"][d.getDay()] + "</div>"; }).join("") + "</div>";
+    html += '<div class="rep-foot">STREAK ' + curStreak() + " DAY" + (curStreak() === 1 ? "" : "S") + " / BEST " + stats.best + ". WATER GOAL HIT " + a.hydDays + " OF 7 DAYS, PROTEIN GOAL HIT " + a.proDays + " OF 7 DAYS.<br>" + (a.m >= b.m && a.m > 0 ? "NICE WORK, " + esc(nm.toUpperCase()) + ". YOU FOCUSED AT LEAST AS MUCH AS LAST WEEK." : "A NEW WEEK IS A NEW START, " + esc(nm.toUpperCase()) + ". ONE SESSION AT A TIME.") + "</div>";
+    $("#repBody").innerHTML = html;
+  }
+  function openReport() { renderReport(); $("#report").hidden = false; $("#repClose").focus(); }
+  function closeReport() { $("#report").hidden = true; $("#repBtn").focus(); }
+  $("#repBtn").addEventListener("click", openReport);
+  $("#repClose").addEventListener("click", closeReport);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("#report").hidden) closeReport(); });
+
+  /* ---------- backup files and auto-backup ---------- */
+  function backupJson() { return JSON.stringify({ app: "pixel-planner", v: 1, tasks: state.tasks, prof: prof, avatar: avatar, greeted: greeted, custom: custom, stats: stats, tt: tt, plans: plans }); }
+  function abSave(manual) {
+    var json = backupJson(), name = "PixelPlanner-backup.json";
+    if (window.AndroidBridge && window.AndroidBridge.saveBackup) {
+      var ok = false; try { ok = !!window.AndroidBridge.saveBackup(json); } catch (e) {}
+      prof.bk = Date.now(); dirty = true; store.save(); abNote();
+      if (manual) toast(ok ? "SAVED TO DOWNLOADS: " + name : "COULD NOT SAVE THE BACKUP", ok ? "blue" : "red");
+      return ok;
+    }
+    if (!manual) return false;
+    var a = document.createElement("a"), bl = new Blob([json], { type: "application/json" });
+    a.href = URL.createObjectURL(bl); a.download = "PixelPlanner-backup-" + todayIso() + ".json"; document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    prof.bk = Date.now(); dirty = true; store.save(); abNote(); toast("BACKUP FILE DOWNLOADED", "blue"); return true;
+  }
+  function abNote() {
+    var android = !!(window.AndroidBridge && window.AndroidBridge.saveBackup), on = prof.ab !== 0, when = prof.bk ? new Date(prof.bk) : null;
+    $("#abNote").textContent = (android ? (on ? "A COPY IS SAVED TO YOUR DOWNLOADS FOLDER (PixelPlanner-backup.json) ABOUT ONCE A DAY." : "AUTO-BACKUP IS OFF.") : "AUTO-BACKUP FILES NEED THE ANDROID APP. HERE, USE SAVE BACKUP FILE.") + (when ? " LAST BACKUP: " + when.toLocaleDateString() + " " + when.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + "." : "");
+    $("#bkFile").innerHTML = pxi("disk") + (android ? "SAVE TO DOWNLOADS" : "DOWNLOAD BACKUP");
+    $("#abChips").innerHTML = ["on", "off"].map(function (v) { return '<button class="chip" type="button" data-ab="' + v + '" aria-pressed="' + ((v === "on") === on) + '">' + v.toUpperCase() + "</button>"; }).join("");
+    $("#abRow").hidden = !android;
+  }
+  function abAuto() {
+    if (!(window.AndroidBridge && window.AndroidBridge.saveBackup) || prof.ab === 0 || !initDone) return;
+    if (!prof.bk || Date.now() - prof.bk > 20 * 3600000) abSave(false);
+  }
+  document.addEventListener("visibilitychange", function () { if (document.hidden) abAuto(); });
+  setTimeout(abAuto, 20000);
+  $("#abChips").addEventListener("click", function (e) { var b = e.target.closest("[data-ab]"); if (!b) return; prof.ab = b.dataset.ab === "on" ? 1 : 0; dirty = true; store.save(); abNote(); });
+  $("#bkFile").addEventListener("click", function () { abSave(true); });
+  $("#bkLoad").addEventListener("click", function () { $("#bkPick").click(); });
+  $("#bkPick").addEventListener("change", function () {
+    var f = this.files && this.files[0]; if (!f) return; var rd = new FileReader();
+    rd.onload = function () { $("#backupText").value = String(rd.result || ""); $("#backupBox").hidden = false; toast("FILE LOADED. PRESS IMPORT TO RESTORE", "gold"); };
+    rd.readAsText(f); this.value = "";
+  });
+  abNote();
 
   $("#pomoGo").addEventListener("click", function () { if (pomo.running) pomoPause(); else pomoStart(); });
   $("#pomoReset").addEventListener("click", function () { pomo.running = false; pomo.left = pomoMs(pomo.phase); renderPomo(); });

@@ -194,6 +194,60 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
+        public boolean saveBackup(String json) {
+            if (json == null || json.length() < 2) {
+                return false;
+            }
+            try {
+                byte[] data = json.getBytes(StandardCharsets.UTF_8);
+                String name = "PixelPlanner-backup.json";
+                if (Build.VERSION.SDK_INT >= 29) {
+                    android.content.ContentResolver cr = getContentResolver();
+                    Uri coll = android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+                    Uri found = null;
+                    android.database.Cursor c = cr.query(coll,
+                            new String[]{android.provider.MediaStore.MediaColumns._ID},
+                            android.provider.MediaStore.MediaColumns.DISPLAY_NAME + "=? AND "
+                                    + android.provider.MediaStore.MediaColumns.RELATIVE_PATH + " LIKE ?",
+                            new String[]{name, "Download/%"}, null);
+                    if (c != null) {
+                        if (c.moveToFirst()) {
+                            found = android.content.ContentUris.withAppendedId(coll, c.getLong(0));
+                        }
+                        c.close();
+                    }
+                    if (found == null) {
+                        android.content.ContentValues v = new android.content.ContentValues();
+                        v.put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, name);
+                        v.put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "application/json");
+                        v.put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, android.os.Environment.DIRECTORY_DOWNLOADS);
+                        found = cr.insert(coll, v);
+                    }
+                    if (found == null) {
+                        return false;
+                    }
+                    java.io.OutputStream os = cr.openOutputStream(found, "wt");
+                    if (os == null) {
+                        return false;
+                    }
+                    os.write(data);
+                    os.close();
+                    return true;
+                }
+                File dir = getExternalFilesDir(null);
+                if (dir == null) {
+                    return false;
+                }
+                FileOutputStream fo = new FileOutputStream(new File(dir, name));
+                fo.write(data);
+                fo.close();
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        @JavascriptInterface
         public String takeActions() {
             return Reminders.take(MainActivity.this);
         }
