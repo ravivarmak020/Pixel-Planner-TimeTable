@@ -1441,8 +1441,16 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     var t = e.target;
     if (!t || t.tagName !== "INPUT" || t.type !== "text" || e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.key === "Enter") typeDing();
-    else if (e.key === "Backspace" || e.key === "Delete" || e.key === " ") typeKey(true);
-    else if (e.key.length === 1) typeKey(false);
+  });
+  // phone keyboards do not report real keys on keydown, so the click sounds follow the input event instead
+  document.addEventListener("input", function (e) {
+    var t = e.target;
+    if (!t || t.tagName !== "INPUT" || t.type !== "text") return;
+    var it = e.inputType || "";
+    if (it.indexOf("delete") === 0) typeKey(true);
+    else if (it === "insertLineBreak") typeDing();
+    else if (it.indexOf("insert") === 0) typeKey(e.data === " ");
+    else typeKey(false);
   });
   async function chiefSay() {
     if (talking || !avatar) return;
