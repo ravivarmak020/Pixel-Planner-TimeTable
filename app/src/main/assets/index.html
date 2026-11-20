@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Pixel Planner</title>
 <script>
 /* Android app bridge: mirror saved data to a file on the phone and restore it if browser storage was cleared */
 (function () {
@@ -30,6 +29,7 @@
 })();
 </script>
 
+<title>Pixel Planner</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
@@ -422,21 +422,28 @@ h2 { line-height: 1.5; }
 #tourBlock { position: absolute; inset: 0; }
 #tourSpot { position: fixed; left: 50%; top: 50%; width: 0; height: 0; border: 3px solid var(--gold); box-shadow: 0 0 0 100vmax rgba(8,7,20,.78); pointer-events: none; transition: left .35s steps(7), top .35s steps(7), width .35s steps(7), height .35s steps(7); }
 #tourSpot.none { border-color: transparent; }
-#tourBox { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); width: min(560px, calc(100vw - 20px)); background: #000; border: 4px solid var(--gold); box-shadow: 0 0 0 4px #000, 6px 8px 0 4px rgba(0,0,0,.5); padding: 10px 12px 12px; display: grid; gap: 8px; }
+#tourBox { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); width: min(580px, calc(100vw - 20px)); display: grid; gap: 8px; }
 #tourBox.top { top: 14px; bottom: auto; }
-.tour-top { display: flex; align-items: center; gap: 12px; }
-.tour-sprite { width: 48px; height: 48px; flex: none; }
+.board { position: relative; background: #2c5b3a; border: 7px solid #8a5a2b; box-shadow: 0 0 0 3px #000, inset 0 0 0 3px #1d3f28, 6px 8px 0 4px rgba(0,0,0,.5); padding: 10px 12px 14px; display: grid; gap: 8px; }
+.board-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.board-head b { font-family: var(--font-display); font-size: 9px; line-height: 1.5; color: #ffe27a; }
+.board-head span { font-family: var(--font-display); font-size: 8px; line-height: 1.5; color: #a9d6b4; }
+.board-tray { position: absolute; left: 10px; right: 10px; bottom: -11px; height: 6px; background: #5a3a18; box-shadow: 0 2px 0 #000; }
+.teach { display: flex; align-items: flex-end; gap: 10px; background: #000; border: 4px solid var(--gold); padding: 8px 10px 8px 8px; box-shadow: 0 0 0 3px #000, 6px 8px 0 4px rgba(0,0,0,.5); }
+.teacher { position: relative; width: 78px; height: 64px; flex: none; }
+.tour-sprite { position: absolute; left: 0; bottom: 0; width: 56px; height: 56px; }
 .tour-sprite svg { width: 100%; height: 100%; display: block; }
 .tour-sprite.talk { animation: tbob .5s steps(2) infinite; }
-@keyframes tbob { 50% { transform: translateY(-4px); } }
-.tour-who { display: grid; gap: 4px; }
-.tour-who b { font-family: var(--font-display); font-size: 11px; color: var(--gold); line-height: 1.4; }
-.tour-who span { font-family: var(--font-display); font-size: 8px; color: var(--dim); line-height: 1.5; }
-.tour-text { margin: 0; font-size: 19px; line-height: 1.3; color: var(--ink); overflow-wrap: anywhere; }
-.tour-q { margin: 0; font-family: var(--font-display); font-size: 10px; line-height: 1.6; color: var(--green); }
-.tour-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+@keyframes tbob { 50% { transform: translateY(-3px); } }
+.tstick { position: absolute; left: 44px; bottom: 26px; width: 58px; height: 4px; background: #d9a066; box-shadow: 0 0 0 2px #000; transform-origin: left center; transform: rotate(-52deg); z-index: 2; }
+.tstick::after { content: ""; position: absolute; right: -2px; top: -1px; width: 6px; height: 6px; background: #fff; box-shadow: 0 0 0 2px #000; }
+.tour-sprite.talk + .tstick { animation: ttap .4s steps(2) infinite; }
+@keyframes ttap { 0% { transform: rotate(-52deg); } 50% { transform: rotate(-60deg); } 100% { transform: rotate(-52deg); } }
+.tour-text { margin: 0; font-size: 19px; line-height: 1.3; color: #f4f1ff; text-shadow: 1px 1px 0 #1d3f28; overflow-wrap: anywhere; }
+.tour-q { margin: 0; font-family: var(--font-display); font-size: 9px; line-height: 1.6; color: #ffe27a; }
+.tour-btns { flex: 1; display: flex; flex-wrap: wrap; gap: 8px; }
 .tour-btns .btn { font-size: 8px; padding: 8px 9px; }
-.tour-name .field { width: 100%; box-sizing: border-box; }
+.tour-name .field { width: 100%; box-sizing: border-box; background: #000; }
 /* planning animation */
 #planAnim { position: fixed; inset: 0; z-index: 380; background: rgba(10,9,24,.88); display: flex; align-items: center; justify-content: center; padding: 16px; cursor: pointer; }
 .pa-card { background: #000; border: 4px solid var(--gold); padding: 14px; box-shadow: 0 0 0 4px #000, 6px 8px 0 4px rgba(0,0,0,.5); max-width: 94vw; }
@@ -465,6 +472,53 @@ h2 { line-height: 1.5; }
 @keyframes padots { 0% { width: 0; } 100% { width: 3ch; } }
 @media (prefers-reduced-motion: reduce) { #tourSpot { transition: none; } .tour-sprite.talk { animation: none; } }
 
+/* study scene on the focus timer */
+.pomo-scene { position: relative; height: 104px; margin: -4px -4px 8px; background: linear-gradient(#26254a 0 72%, #1a1936 72%); overflow: hidden; }
+.ps-desk { position: absolute; left: 0; right: 0; bottom: 0; height: 22px; background: #8a5a2b; border-top: 4px solid #5a3a18; }
+.ps-char { position: absolute; left: 10px; bottom: 16px; width: 58px; height: 58px; }
+.ps-char svg { width: 100%; height: 100%; display: block; }
+.ps-book { position: absolute; left: 78px; bottom: 20px; width: 70px; height: 24px; background: #f4f1ff; border: 3px solid #000; box-shadow: 3px 3px 0 #000; }
+.ps-book::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #44407a; }
+.psl { position: absolute; height: 2px; background: #44407a; } .psl.l1 { left: 4px; top: 5px; width: 24px; } .psl.l2 { left: 4px; top: 12px; width: 18px; }
+.ps-flip { position: absolute; left: 50%; top: 0; width: 50%; height: 100%; background: #f4f1ff; transform-origin: left center; border-left: 2px solid #44407a; }
+.ps-pencil { position: absolute; left: 140px; bottom: 36px; width: 14px; height: 4px; background: #ffcc33; border-right: 3px solid #ff6fae; transform: rotate(-35deg); }
+.ps-lamp { position: absolute; right: 14px; top: 8px; width: 34px; height: 40px; }
+.ps-lamp::before { content: ""; position: absolute; right: 6px; top: 0; width: 22px; height: 10px; background: #ffcc33; box-shadow: 0 0 0 2px #000; }
+.ps-lamp::after { content: ""; position: absolute; right: 16px; top: 10px; width: 4px; height: 30px; background: #6a6a8a; box-shadow: 0 0 0 2px #000; }
+.ps-lamp i { position: absolute; right: -4px; top: 12px; width: 34px; height: 30px; background: rgba(255,204,51,.0); }
+.ps-cup { position: absolute; left: 96px; bottom: 22px; width: 18px; height: 16px; background: #5cc8ff; border: 3px solid #000; display: none; }
+.steam { position: absolute; left: 4px; top: -16px; width: 4px; height: 8px; background: rgba(255,255,255,.7); animation: pssteam 1.2s steps(4) infinite; }
+@keyframes pssteam { 0% { transform: translateY(6px); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-8px); opacity: 0; } }
+.ps-bulb { position: absolute; left: 26px; top: 6px; width: 18px; height: 22px; display: none; }
+.ps-bulb i { position: absolute; left: 2px; top: 0; width: 14px; height: 14px; background: #ffe27a; box-shadow: 0 0 0 2px #000, 0 0 14px 4px rgba(255,226,122,.8); }
+.ps-bulb i::after { content: ""; position: absolute; left: 3px; top: 14px; width: 8px; height: 6px; background: #8b87b8; box-shadow: 0 0 0 2px #000; }
+.sp { position: absolute; width: 4px; height: 4px; background: #fff; left: 8px; top: 6px; }
+.pomo-scene.read .ps-flip { animation: psflip 1.6s steps(4) infinite; }
+@keyframes psflip { 0%, 55% { transform: scaleX(1); } 75% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
+.pomo-scene.read .ps-pencil { animation: pspen .3s steps(2) infinite alternate; }
+@keyframes pspen { from { transform: rotate(-35deg) translateX(0); } to { transform: rotate(-35deg) translateX(3px) translateY(2px); } }
+.pomo-scene.read .ps-lamp i { background: rgba(255,204,51,.28); animation: pslamp 1.4s steps(3) infinite; }
+@keyframes pslamp { 50% { background: rgba(255,204,51,.14); } }
+.pomo-scene.read .ps-char { animation: psread 1.6s steps(2) infinite; }
+@keyframes psread { 50% { transform: translateY(-2px); } }
+.pomo-scene.rest .ps-book, .pomo-scene.rest .ps-pencil { display: none; }
+.pomo-scene.rest .ps-cup { display: block; }
+.pomo-scene.rest .ps-char { animation: psstretch 1.2s steps(3) infinite; }
+@keyframes psstretch { 0%, 100% { transform: scale(1,1); } 50% { transform: scale(.94,1.1); } }
+.pomo-scene.done .ps-bulb { display: block; animation: psbulb .7s steps(5) both; }
+@keyframes psbulb { 0% { transform: scale(0); } 60% { transform: scale(1.4); } 100% { transform: scale(1); } }
+.pomo-scene.done .sp { animation: pssp 1s steps(5) infinite; }
+.sp.s1 { --x: -16px; --y: -10px; } .sp.s2 { --x: 22px; --y: -8px; } .sp.s3 { --x: -10px; --y: 14px; } .sp.s4 { --x: 22px; --y: 12px; }
+@keyframes pssp { 0% { transform: translate(0,0); opacity: 1; } 100% { transform: translate(var(--x), var(--y)); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .pomo-scene * { animation: none !important; } }
+
+.flex { animation: flexpop 1.4s steps(7) both; }
+@keyframes flexpop { 0% { transform: scale(1); filter: brightness(1); } 20% { transform: scale(1.35) rotate(-6deg); filter: brightness(2); } 40% { transform: scale(1.2) rotate(6deg); } 60% { transform: scale(1.35) rotate(-4deg); filter: brightness(1.6); } 100% { transform: scale(1); filter: brightness(1); } }
+.bookrain { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; }
+.bookrain i { position: absolute; top: -30px; width: 18px; height: 24px; border: 3px solid #000; box-shadow: 3px 3px 0 #000; animation: bookfall 1.6s steps(12) both; }
+.bookrain i::after { content: ""; position: absolute; left: 3px; top: 3px; width: 8px; height: 3px; background: #fff; }
+@keyframes bookfall { 0% { transform: translateY(0) rotate(0); } 100% { transform: translateY(110vh) rotate(260deg); } }
+@media (prefers-reduced-motion: reduce) { .flex, .bookrain i { animation: none !important; } }
 .modal { position: fixed; inset: 0; z-index: 100; background: rgba(10,9,24,.85); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .modal[hidden] { display: none; }
 .modal .box { max-height: 92vh; overflow: auto; width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 16px; }
@@ -711,7 +765,16 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     <section class="box" aria-label="Focus timer" id="secPomo">
       <h2 style="margin-bottom:12px">FOCUS TIMER</h2>
       <div class="pomo">
-        <div class="pomo-main"><div class="pomo-phase" id="pomoPhase">FOCUS</div><div class="pomo-time" id="pomoTime">25:00</div><div class="pomo-dots" id="pomoDots"></div></div>
+        <div class="pomo-main"><div class="pomo-scene idle" id="pomoScene" aria-hidden="true">
+          <div class="ps-lamp"><i></i></div>
+          <div class="ps-char" id="psChar"></div>
+          <div class="ps-book"><span class="psl l1"></span><span class="psl l2"></span><i class="ps-flip"></i></div>
+          <div class="ps-cup"><i class="steam"></i></div>
+          <i class="ps-pencil"></i>
+          <div class="ps-bulb"><i></i><b class="sp s1"></b><b class="sp s2"></b><b class="sp s3"></b><b class="sp s4"></b></div>
+          <div class="ps-desk"></div>
+        </div>
+        <div class="pomo-phase" id="pomoPhase">FOCUS</div><div class="pomo-time" id="pomoTime">25:00</div><div class="pomo-dots" id="pomoDots"></div></div>
         <div class="pomo-ctl">
           <label class="lab">WORKING ON<select class="field" id="pomoTarget" aria-label="What are you focusing on"></select></label>
           <div class="row-btns"><button class="btn" id="pomoGo" type="button">START</button><button class="btn alt" id="pomoReset" type="button">RESET</button><button class="btn alt" id="pomoSkip" type="button">SKIP</button><button class="btn alt" id="pomoFF" type="button" data-tip="TEST ONLY: FINISH THE CURRENT SESSION RIGHT NOW">&gt;&gt; FAST FORWARD</button></div>
@@ -903,12 +966,19 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   <div id="tourBlock"></div>
   <div id="tourSpot"></div>
   <div id="tourBox" role="dialog" aria-modal="true" aria-label="Pixel, your guide">
-    <div class="tour-top"><div class="tour-sprite" id="tourSprite"></div><div class="tour-who"><b>PIXEL</b><span id="tourProg"></span></div></div>
-    <p class="tour-text" id="tourText" aria-live="polite"></p>
-    <p class="tour-q" id="tourQ" hidden></p>
-    <div class="tour-name" id="tourNameRow" hidden><input class="field" id="tourName" type="text" maxlength="20" placeholder="Your name" autocomplete="off" aria-label="Your name"></div>
-    <div class="row-btns tour-btns" id="tourBtns"></div>
+    <div class="board">
+      <div class="board-head"><b>PIXEL'S CLASS</b><span id="tourProg"></span></div>
+      <p class="tour-text" id="tourText" aria-live="polite"></p>
+      <p class="tour-q" id="tourQ" hidden></p>
+      <div class="tour-name" id="tourNameRow" hidden><input class="field" id="tourName" type="text" maxlength="20" placeholder="Your name" autocomplete="off" aria-label="Your name"></div>
+      <div class="board-tray"></div>
+    </div>
+    <div class="teach">
+      <div class="teacher"><div class="tour-sprite" id="tourSprite"></div><i class="tstick"></i></div>
+      <div class="row-btns tour-btns" id="tourBtns"></div>
+    </div>
   </div>
+</div>
 </div>
 
 <div id="planAnim" hidden aria-hidden="true">
@@ -1001,16 +1071,80 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     var n = (custom[key] && custom[key].style) || 0;
     return d.styles[n] || d.styles[0];
   }
-  function spriteImg(key, frame) {
+  /* ---------- evolution: tiers from Fitness / Study level ---------- */
+  function tierOf(lv) { return lv >= 6 ? 2 : lv >= 3 ? 1 : 0; }
+  function evoNow() { return stats ? { f: tierOf(lvOf("fitness")), s: tierOf(lvOf("study")) } : { f: 0, s: 0 }; }
+  function sprSig() { var e = evoNow(); return e.f + "" + e.s; }
+  function block(x, y, w, h, fill) {
+    return '<rect x="' + (x - 1) + '" y="' + (y - 1) + '" width="' + (w + 2) + '" height="' + (h + 2) + '" fill="#000"/>';
+  }
+  function evoSvg(key, frame, e) {
+    if (key !== "boy" && key !== "girl") return "";
+    var pal = palFor(key), skin = pal.s, shirt = pal.b, hi = pal.L || shirt, front = frame === "front", o = "", fill = "";
+    function R(x, y, w, h, c) { return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + c + '"/>'; }
+    if (front && e.f > 0) {
+      var tall = e.f === 2 && key === "boy" ? 4 : 3, top = tall === 4 ? 8 : 9;
+      [1, 13].forEach(function (x) {
+        o += block(x, top, 2, tall + (tall === 4 ? 0 : 0));
+        fill += R(x, top, 2, tall - 2 + (tall === 4 ? 0 : 0), shirt) + R(x, top + tall - 2, 2, 2, skin);
+      });
+      if (key === "boy" && e.f === 2) fill += R(5, 9, 2, 1, hi) + R(9, 9, 2, 1, hi);
+      if (key === "girl") { fill += R(3, 2, 10, 1, "#ff4d6d"); if (e.f === 2) fill += R(0, 1, 1, 1, "#fff") + R(15, 3, 1, 1, "#fff") + R(14, 0, 1, 1, "#ffe27a"); }
+      if (key === "boy" && e.f === 1) fill += R(3, 2, 10, 1, "#e63946");
+    } else if (!front && e.f > 0) {
+      if (key === "girl") fill += R(3, 2, 8, 1, "#ff4d6d"); else if (e.f === 1) fill += R(3, 2, 8, 1, "#e63946");
+    }
+    if (e.s >= 1 && front) {
+      fill += '<rect x="4.5" y="3.8" width="3" height="2.4" fill="none" stroke="#111" stroke-width=".6"/><rect x="8.5" y="3.8" width="3" height="2.4" fill="none" stroke="#111" stroke-width=".6"/><rect x="7.5" y="4.4" width="1" height=".6" fill="#111"/>';
+    }
+    if (e.s >= 2) {
+      fill += R(1, 0, 14, 1, "#15152b") + R(3, 1, 10, 1, "#15152b") + R(1, 0, 14, .5, "#3a3a6a") + R(14, 1, 1, 3, "#ffcc33") + R(14, 4, 1, 1, "#ffcc33");
+    }
+    return o + fill;
+  }
+  function spriteImg(key, frame, plain) {
     var d = ART[key]; if (!d) return "";
     d = styleOf(key);
     var svg = svgOf(key, frame === "front" ? d.front : d.walk[frame]);
+    if (!plain) { var ex = evoSvg(key, frame, evoNow()); if (ex) svg = svg.replace("</svg>", ex + "</svg>"); }
     return svg.replace("<svg ", '<svg data-f="' + frame + '" ');
+  }
+  var evoPrev = null;
+  function evoDesc(e) {
+    var g = avatar === "girl", out = [];
+    if (e.f === 1) out.push(g ? "FIT LOOK UNLOCKED" : "ATHLETIC BUILD");
+    if (e.f === 2) out.push(g ? "PEAK FIT" : "MUSCULAR BUILD");
+    if (e.s === 1) out.push("STUDY GLASSES");
+    if (e.s === 2) out.push("GRADUATION CAP");
+    return out;
+  }
+  function evoFlex() {
+    ["#avatarBtn svg", "#psChar svg", "#walker svg"].forEach(function (q) { var el = $(q); if (el) { el.classList.remove("flex"); void el.offsetWidth; el.classList.add("flex"); setTimeout(function () { el.classList.remove("flex"); }, 1500); } });
+  }
+  function evoCheck() {
+    if (!stats || !avatar || (avatar !== "boy" && avatar !== "girl")) { evoPrev = null; return; }
+    var e = evoNow();
+    if (!evoPrev) { evoPrev = e; return; }
+    var upF = e.f > evoPrev.f, upS = e.s > evoPrev.s, dn = e.f < evoPrev.f || e.s < evoPrev.s, ch = e.f !== evoPrev.f || e.s !== evoPrev.s;
+    evoPrev = e;
+    if (!ch) return;
+    renderAvatar(); try { buildWalker(); } catch (x) {} var sc = $("#pomoScene"); if (sc) sc.dataset.k = "";
+    if (upF || upS) {
+      var d = evoDesc(e), t = upF ? d[0] : d[d.length - 1];
+      setTimeout(function () { levelSound(); sysBanner("[ SYSTEM ]", "PIXEL EVOLVED!<br>" + t); evoFlex(); if (upS) booksFx(); }, 1500);
+    } else if (dn) { toast("PIXEL'S LOOK CHANGED BACK", ""); evoFlex(); }
+    if (!$("#viewTT").hidden) renderPomo();
+  }
+  function booksFx() {
+    var w = document.createElement("div"); w.className = "bookrain";
+    var cols = ["#e63946", "#3a86ff", "#2dd36f", "#ffcc33", "#ff6fae", "#8338ec"];
+    for (var i = 0; i < 12; i++) { var b = document.createElement("i"); b.style.left = (4 + i * 8) + "%"; b.style.background = cols[i % 6]; b.style.animationDelay = (i * 0.09) + "s"; w.appendChild(b); }
+    document.body.appendChild(w); setTimeout(function () { w.remove(); }, 2600);
   }
   function renderAvatar() { $("#avatarBtn").innerHTML = avatar ? spriteImg(avatar, "front") : "?"; }
   function openPicker() {
     $("#picks").innerHTML = Object.keys(SPRITES).map(function (k) {
-      return '<button class="pick" type="button" data-pick="' + k + '" aria-pressed="' + (k === avatar) + '">' + spriteImg(k, "front") + "<span>" + SPRITES[k].label + "</span></button>";
+      return '<button class="pick" type="button" data-pick="' + k + '" aria-pressed="' + (k === avatar) + '">' + spriteImg(k, "front", true) + "<span>" + SPRITES[k].label + "</span></button>";
     }).join("");
     $("#pickClose").hidden = !avatar;
     $("#picker").hidden = false;
@@ -1087,7 +1221,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     r.streak = Math.max(0, +o.streak || 0); r.best = Math.max(r.streak, +o.best || 0);
     r.lastPerfect = o.lastPerfect || null; r.yday = o.yday || null; r.lastQuick = {};
     if (o.lastQuick && typeof o.lastQuick === "object") ["hydration", "protein", "fitness", "study"].forEach(function (k) {
-      var v = o.lastQuick[k]; r.lastQuick[k] = Array.isArray(v) ? v.map(function (n) { return n && typeof n === "object" ? { n: +n.n, t: String(n.t || ""), b: String(n.b || ""), tk: String(n.tk || ""), tm: n.tm ? 1 : 0, mins: +n.mins || 0, auto: n.auto ? 1 : 0 } : +n; }).filter(function (n) { return (typeof n === "object" ? n.n : n) > 0; }).slice(-50) : (+v > 0 ? [+v] : []);
+      var v = o.lastQuick[k]; r.lastQuick[k] = Array.isArray(v) ? v.map(function (n) { return n && typeof n === "object" ? { n: +n.n, t: String(n.t || ""), b: String(n.b || ""), tk: String(n.tk || ""), tm: n.tm ? 1 : 0, mins: +n.mins || 0, auto: n.auto ? 1 : 0, d: /^\d{4}-\d{2}-\d{2}$/.test(n.d || "") ? n.d : "" } : +n; }).filter(function (n) { return (typeof n === "object" ? n.n : n) > 0; }).slice(-50) : (+v > 0 ? [+v] : []);
     });
     return r;
   }
@@ -1099,7 +1233,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     var t = todayIso();
     if (stats.day === t) return;
     if (stats.day) stats.yday = { date: stats.day, n: goalsHit(stats).filter(Boolean).length };
-    stats.day = t; stats.hydration = 0; stats.protein = 0; stats.today = { fitness: 0, study: 0 }; stats.lastQuick = {};
+    stats.day = t; stats.hydration = 0; stats.protein = 0; stats.today = { fitness: 0, study: 0 }; stats.lastQuick = { fitness: (stats.lastQuick && stats.lastQuick.fitness) || [], study: (stats.lastQuick && stats.lastQuick.study) || [] };
   }
   function yesterdayIso() { var d = new Date(); return iso(new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1)); }
   function curStreak() { return (stats.lastPerfect === todayIso() || stats.lastPerfect === yesterdayIso()) ? stats.streak : 0; }
@@ -1138,7 +1272,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     var bars = CAT_KEYS.map(function (k) {
       var c = CATS[k], sv = statView(k);
       var lgq = stats.lastQuick[k] || [], canUndo = c.quick ? stats[k] > 0 : lgq.length > 0;
-      var undoBtn = '<button class="qbtn undo" type="button" data-qundo="' + k + '" data-tip="UNDO THE LAST ' + (c.quick ? "QUICK ADD" : "PROGRESS ADDED TODAY") + ' (AS MANY TIMES AS YOU LIKE)"' + (canUndo ? "" : " disabled") + ">UNDO" + (lgq.length > 1 ? " " + lgq.length : "") + "</button>";
+      var undoBtn = '<button class="qbtn undo" type="button" data-qundo="' + k + '" data-tip="UNDO THE LAST ' + (c.quick ? "QUICK ADD" : "PROGRESS STEP") + ' (AS MANY TIMES AS YOU LIKE)"' + (canUndo ? "" : " disabled") + ">UNDO" + (lgq.length > 1 ? " " + lgq.length : "") + "</button>";
       var quick = '<div class="quick">' + (c.quick ? c.quick.map(function (q) { return '<button class="qbtn" type="button" data-q="' + k + '" data-n="' + q + '" data-tip="ADD ' + q + " " + c.unit + '">+' + q + "</button>"; }).join("") : "") + undoBtn + "</div>";
       return '<div class="stat' + (sv.full ? " full" : "") + '" data-stat="' + k + '" style="--c:' + c.color + '"><div class="sic">' + iconSvg(k) + '</div>' +
         '<div class="shead"><span class="sname">' + c.label + '</span><span class="slv">' + sv.lv + '</span></div>' +
@@ -1202,7 +1336,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       applyStat(k, -pts); return;
     }
     if (!c.daily) stats.today[k] = (stats.today[k] || 0) + pts;
-    { var lg2 = (stats.lastQuick[k] = stats.lastQuick[k] || []); lg2.push({ n: pts, t: t.id }); if (lg2.length > 50) lg2.shift(); }
+    { var lg2 = (stats.lastQuick[k] = stats.lastQuick[k] || []); lg2.push({ n: pts, t: t.id, d: todayIso() }); if (lg2.length > 50) lg2.shift(); }
     applyStat(k, pts);
   }
   function quickAdd(k, n) {
@@ -1213,20 +1347,20 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     rollDay();
     if (!(stats[k] > 0)) return;
     var log = stats.lastQuick[k] || (stats.lastQuick[k] = []), e = log.pop();
-    if (!CATS[k].quick && !e) { toast("NOTHING TO UNDO TODAY", "gold"); renderStats(); return; }
+    if (!CATS[k].quick && !e) { toast("NOTHING LEFT TO UNDO", "gold"); renderStats(); return; }
     if (e && typeof e === "object" && e.tm) {
-      var tdy = todayIso(), ub = e.b && tt.blocks.find(function (x) { return x.id === e.b; }), ut = e.tk && state.tasks.find(function (x) { return x.id === e.tk; });
+      var tdy = e.d || todayIso(), ub = e.b && tt.blocks.find(function (x) { return x.id === e.b; }), ut = e.tk && state.tasks.find(function (x) { return x.id === e.tk; });
       var mn = +e.mins || 0;
       if (ub) { ub.focus = ub.focus || {}; ub.focus[tdy] = Math.max(0, (+ub.focus[tdy] || 0) - mn); if (e.auto && isDone(ub, tdy)) setBlockDone(ub, tdy, false, true); if (ub.link) { var ult = state.tasks.find(function (x) { return x.id === ub.link; }); if (ult) ult.focus = Math.max(0, (+ult.focus || 0) - mn); } }
       if (ut) ut.focus = Math.max(0, (+ut.focus || 0) - mn);
       var un = Math.min(stats[k], e.n);
-      stats.today[k] = Math.max(0, (stats.today[k] || 0) - un); applyStat(k, -un);
+      if (tdy === stats.day) stats.today[k] = Math.max(0, (stats.today[k] || 0) - un); applyStat(k, -un);
       dirty = true; store.save(); render(); if ($("#viewTT").hidden) renderPomo(); else renderTT();
       toast("UNDID " + un + " " + CATS[k].label + " XP / " + mn + " MIN", "gold"); return;
     }
     if (e && typeof e === "object" && e.b) {
       var bk = tt.blocks.find(function (x) { return x.id === e.b; });
-      if (bk && bk.xp && bk.xp[todayIso()]) { setBlockDone(bk, todayIso(), false, true); toast("REOPENED: " + blockName(bk).slice(0, 24).toUpperCase(), "gold"); return; }
+      var bdt = e.d || todayIso(); if (bk && bk.xp && bk.xp[bdt]) { setBlockDone(bk, bdt, false, true); toast("REOPENED: " + blockName(bk).slice(0, 24).toUpperCase(), "gold"); return; }
       e = e.n;
     }
     if (e && typeof e === "object") {
@@ -1376,6 +1510,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   }
   function render() {
     renderWeek(); renderList(); renderFoot(); renderStats(); if (!$("#viewTT").hidden) renderTT();
+    evoCheck();
     document.querySelectorAll(".tab[data-filter]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.filter === view.filter)); });
   }
   function commit() { dirty = true; store.save(); render(); }
@@ -1740,7 +1875,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       var pts = Math.max(5, Math.round((b.end - b.start) / 30) * 5);
       b.xp[date] = pts;
       if (date === stats.day) stats.today[cat] = (stats.today[cat] || 0) + pts;
-      if (date === stats.day) { var lgb = (stats.lastQuick[cat] = stats.lastQuick[cat] || []); lgb.push({ n: pts, b: b.id }); if (lgb.length > 50) lgb.shift(); }
+      if (date === stats.day) { var lgb = (stats.lastQuick[cat] = stats.lastQuick[cat] || []); lgb.push({ n: pts, b: b.id, d: date }); if (lgb.length > 50) lgb.shift(); }
       applyStat(cat, pts);
     } else {
       var p = b.xp[date]; if (!p) return;
@@ -2132,11 +2267,18 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     if (v.indexOf("t:") === 0) { var t = state.tasks.find(function (x) { return x.id === v.slice(2); }); return t ? t.title : ""; }
     return "";
   }
+  var psDone = false;
   function renderPomo() {
     var left = pomo.running ? pomo.endAt - Date.now() : pomo.left;
     $("#pomoTime").textContent = fmtMs(left);
     $("#pomoPhase").textContent = pomo.phase === "focus" ? "FOCUS" : pomo.phase === "short" ? "SHORT BREAK" : "LONG BREAK";
     var box = $("#pomoTime").parentElement; box.classList.toggle("brk", pomo.phase !== "focus"); box.classList.toggle("run", pomo.running);
+    var sc = $("#pomoScene");
+    if (sc) {
+      sc.className = "pomo-scene " + (pomo.phase !== "focus" ? "rest" : pomo.running ? "read" : "idle") + (psDone ? " done" : "");
+      var sk = String(avatar || "") + "|" + (typeof sprSig === "function" ? sprSig() : "");
+      if (sc.dataset.k !== sk) { sc.dataset.k = sk; $("#psChar").innerHTML = avatar ? spriteImg(avatar, "front") : ""; }
+    }
     $("#pomoGo").textContent = pomo.running ? "PAUSE" : (left < pomoMs(pomo.phase) ? "RESUME" : "START");
     var PC = pcfg(), n = pomoCount(), cyc = PC.every, dots = "";
     var filled = n > 0 && n % cyc === 0 ? cyc : n % cyc;
@@ -2184,10 +2326,10 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       }
       if (tb && tb.link) { var lt = state.tasks.find(function (x) { return x.id === tb.link; }); if (lt) lt.focus = (+lt.focus || 0) + mins; }
       var xp = Math.max(1, Math.round(mins / 5));
-      if (tt.features.xp && cat) { rollDay(); stats.today[cat] = (stats.today[cat] || 0) + xp; uEntry = { n: xp, tm: 1, b: tb ? tb.id : "", tk: tk ? tk.id : "", mins: mins, auto: 0 }; var lgt = (stats.lastQuick[cat] = stats.lastQuick[cat] || []); lgt.push(uEntry); if (lgt.length > 50) lgt.shift(); applyStat(cat, xp); xpTxt = " +" + xp + " " + CATS[cat].label + " XP"; }
+      if (tt.features.xp && cat) { rollDay(); stats.today[cat] = (stats.today[cat] || 0) + xp; uEntry = { n: xp, tm: 1, b: tb ? tb.id : "", tk: tk ? tk.id : "", mins: mins, auto: 0, d: todayIso() }; var lgt = (stats.lastQuick[cat] = stats.lastQuick[cat] || []); lgt.push(uEntry); if (lgt.length > 50) lgt.shift(); applyStat(cat, xp); xpTxt = " +" + xp + " " + CATS[cat].label + " XP"; }
       if (tb || xpTxtBlock || tk) xpTxt += " / +" + mins + " MIN LOGGED";
       pomo.phase = n % pcfg().every === 0 ? "long" : "short";
-      toast("FOCUS DONE! TAKE A BREAK." + xpTxt, "gold"); sysBanner("[ TIMER ]", "FOCUS COMPLETE<br>" + (pomo.phase === "long" ? "LONG" : "SHORT") + " BREAK");
+      toast("FOCUS DONE! TAKE A BREAK." + xpTxt, "gold"); psDone = true; setTimeout(function () { psDone = false; renderPomo(); }, 2800); sysBanner("[ TIMER ]", "FOCUS COMPLETE<br>" + (pomo.phase === "long" ? "LONG" : "SHORT") + " BREAK");
       if (tb && tb.type !== "break") {
         var tdy = todayIso(), occursToday = tb.date ? tb.date === tdy : tb.day === dayIdx(new Date());
         var needMin = tb.pomo && tb.pomo.need ? tb.pomo.need : (tb.end - tb.start);
@@ -2657,6 +2799,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     { view: "planner", sel: "#addForm", text: "This is where tasks begin. Type what needs doing, then set a priority and a due date. Choose a stat to feed one of your progress bars, and a repeat if it happens regularly. Press ADD when you're ready.", again: "In short: write the task, pick how important it is, choose a date and press ADD. The stat you choose decides which bar grows when you finish it." },
     { view: "planner", sel: "#stats", text: "These four bars are your progress. Fitness and Study level up as you finish tasks and focus sessions. Hydration and Protein track your daily intake against your goals and start fresh each day. Hit all four goals and you get a perfect day.", again: "Each bar belongs to one habit. Finish a task with that stat and the bar fills. Fill all four in one day and you earn a perfect day." },
     { view: "planner", sel: ".stat[data-stat=hydration] .quick", text: "Water and protein don't need a task. Tap a quick-add button such as +250 and the bar moves straight away. Made a mistake? UNDO steps back one action at a time, as many times as you like. Fitness and Study have UNDO too.", again: "Tap a plus button to log what you drank or ate. Tap UNDO to take back the last entry, and keep tapping to go back further." },
+    { view: "planner", sel: "#stage", text: "Your Fitness level changes how I look. Reach Fitness level 3 and I get athletic. At level 6 I'm {strong}. If you undo your way back below a level, I change back. Keep your habits up and I'll keep getting stronger.", again: "Level 3 gets me athletic, level 6 gets me {strong}. Undo takes levels back, and my look follows." },
     { view: "planner", sel: "section[aria-label=Week]", text: "This strip shows the next seven days. Tap a day to see only that day's tasks. The arrows move between weeks, and TODAY brings you straight back.", again: "Tap any day to focus on it. Use the arrows to browse other weeks and TODAY to come back." },
     { view: "planner", sel: "section[aria-label=Tasks]", text: "Your tasks appear here. Tick a task to complete it and earn progress. The tabs filter what you see, and you can filter by stat too. START TIMER begins a focus session on a task, and TT adds it to your time table.", again: "Tick to complete. Use the tabs and the stat filter to find things. START TIMER opens the focus timer on that task, and TT puts it on your time table." },
     { view: "planner", sel: "#stage", text: "That's me, walking around. Tap me to chat. Tap my picture at the top to change character, or CUSTOMIZE to change my colours and hairstyle.", again: "Tap me to say hi. Use the picture at the top to switch character and CUSTOMIZE for colours and hair." },
@@ -2664,9 +2807,12 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     { view: "tt", sel: "#viewTT .exam", text: "Welcome to the Time Table. This bar at the bottom is your exam bar. It shows the countdown to your exam, your plan and your syllabus progress, and it stays put while you scroll.", again: "The bottom bar always shows your exam countdown and plan, so you never lose track of the date." },
     { view: "tt", sel: "#planEdit", text: "Start here. PLAN AN EXAM opens a short setup: your exam and date, subjects and topics, study hours, and the features you want, such as automatic revision, rest days and the timer. I'll build your first week from your answers.", again: "Tap PLAN AN EXAM, fill in your exam, subjects and hours, and your week is built for you." },
     { view: "tt", sel: "section[aria-label=Today]", text: "TODAY lists the blocks planned for today. Tap FOCUS on a block to start the timer, and tick it off when you're done.", again: "This is today's list. FOCUS starts the timer on a block, and the tick marks it done." },
-    { view: "tt", sel: "#secPomo", text: "This is the focus timer. You work in focused sessions with short breaks between them. Study XP and hours only count when a session runs all the way to the end, so there are no shortcuts. You can set session and break lengths for each block.", again: "Work in sessions, rest in breaks. Only finished sessions count towards your study XP and hours." },
+    { view: "tt", sel: "#secPomo", text: "Let's start a focus timer. There are three ways. Press START on this card. Or tap START TIMER on any task in the Planner. Or tap FOCUS on a block in your Today list, or START TIMER inside a block's panel. Choose what you're working on in the box labelled WORKING ON, so your minutes are logged to it.", again: "Three ways to start: START on this card, START TIMER on a planner task, or FOCUS on a time-table block. Pick your task in the box so the minutes count towards it." },
+    { view: "tt", sel: "#secPomo", text: "To complete a session, let the countdown run all the way to zero. You'll hear a beep and see a popup, you earn Study XP, and the minutes count as focused hours. Then a short break starts. When a block's focus time is done, it ticks itself off with a strike-through. PAUSE and RESET are there if you're interrupted. The fast-forward button is only for testing, so skip it for real progress.", again: "Run the timer to zero and the session counts: XP, focused hours and a break. Finish enough sessions on a block and it ticks off by itself." },
+    { view: "tt", sel: "#pomoScene", text: "Watch this little scene. While you focus, I sit at the desk and read, with the lamp on and the pencil scribbling. During breaks I stretch and have a drink. When a session finishes, a lightbulb pops up. Reach Study level 3 and I wear glasses, and at level 6 a graduation cap.", again: "Focus means I read at the desk, breaks mean I stretch, and a finished session gives a lightbulb. Study levels 3 and 6 add glasses and a graduation cap." },
     { view: "tt", sel: "section[aria-label='Weekly time table']", text: "The weekly grid is your plan. Tap an empty slot to add a block, drag a block to move it, and pull its bottom edge to resize. Blocks can be subjects, tasks, breaks or automatic revision.", again: "Tap empty space to add, drag to move, and pull the bottom edge to change the length." },
     { view: "tt", sel: "#secSubj", text: "Add your subjects here, then list their topics in the syllabus below. Tick topics as you finish them and the coverage bar fills. With automatic revision on, I schedule revisions after 1, 3 and 7 days.", again: "Subjects first, then topics. Tick topics off as you learn them, and revisions get scheduled for you." },
+    { view: "planner", sel: null, explore: true, text: "There's a lot more you can do, {n}. Customise my colours and hairstyle, set your own goals and XP per level, plan several exams, add revision slots, link planner tasks to time-table blocks, and back up your data. Explore it in your free time. I'll be around whenever you need me." },
     { view: "planner", sel: null, finish: true, text: "That's everything, {n}. You can replay this tour any time with the question mark button. Want to start by adding your first task?" }
   ];
   function curView() { return $("#viewTT").hidden ? "planner" : "tt"; }
@@ -2705,6 +2851,10 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     if (st.ask === "name") {
       btns.push({ t: "THAT'S ME", fn: tourSaveName });
       btns.push({ t: "SKIP TOUR", alt: true, fn: function () { tourEnd(false); } });
+    } else if (st.explore) {
+      btns.push({ t: "NEXT", fn: tourNext });
+      btns.push({ t: "BACK", alt: true, fn: tourBack });
+      btns.push({ t: "SKIP TOUR", alt: true, fn: function () { tourEnd(false); } });
     } else if (st.finish) {
       btns.push({ t: "ADD MY FIRST TASK", fn: function () { tourEnd(true); } });
       btns.push({ t: "I'M GOOD", alt: true, fn: function () { tourEnd(false); } });
@@ -2721,9 +2871,9 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     var st = TOUR[tour.i], token = ++tour.token, box = $("#tourBox"), txt = $("#tourText");
     $("#tourProg").textContent = "STEP " + (tour.i + 1) + " OF " + TOUR.length;
     if (st.view && curView() !== st.view) setView(st.view);
-    var text = (again && st.again ? "Let me say it another way. " + st.again : st.text).replace(/\{n\}/g, tourName());
+    var text = (again && st.again ? "Let me say it another way. " + st.again : st.text).replace(/\{n\}/g, tourName()).replace(/\{strong\}/g, avatar === "girl" ? "strong and fit" : "muscular");
     // lay the whole box out first (final text, buttons hidden) so its size is known and never jumps
-    var isName = st.ask === "name", showQ = !st.ask && !st.finish;
+    var isName = st.ask === "name", showQ = !st.ask && !st.finish && !st.explore;
     $("#tourNameRow").hidden = !isName; if (isName) $("#tourName").value = prof.name || "";
     var q = $("#tourQ"); q.hidden = !showQ; q.style.visibility = "hidden";
     q.textContent = tour.again > 1 ? "Tap the highlighted part to see it, then press YES when you're ready." : "DOES THAT MAKE SENSE?";
