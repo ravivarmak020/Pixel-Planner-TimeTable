@@ -1005,6 +1005,23 @@ body.fx .cbar .spk.on::after, body.fx .chipbar .spk.on::after { animation: spktw
 .cbar .sp2, .chipbar .sp2 { position: absolute; }
 /* ===== TEST TOOLS (temporary) ===== */
 .testbtn { border-style: dashed !important; }
+
+/* ===== HD sprites: size + blink + talk ===== */
+.walker { width: 32px; height: 44px; }
+.walker::after { display: none; }
+.flip { width: 32px; height: 44px; }
+.flip svg { width: 32px; height: 44px; }
+.ps-char { width: 36px; height: 50px; }
+.ps-char svg { width: 100%; height: 100%; }
+.pick svg { width: 46px; height: 63px; margin: 0 auto; }
+.bk, .m1, .m2 { visibility: hidden; }
+body.fx .bk { animation: blk 5.2s steps(1) infinite; }
+@keyframes blk { 0%, 92% { visibility: hidden; } 92.01%, 96.5% { visibility: visible; } 96.51%, 100% { visibility: hidden; } }
+svg.talk .m1 { animation: mt1 .42s steps(1) infinite; }
+svg.talk .m2 { animation: mt2 .42s steps(1) infinite; }
+@keyframes mt1 { 0% { visibility: visible; } 25% { visibility: hidden; } 50% { visibility: visible; } 75% { visibility: hidden; } }
+@keyframes mt2 { 0% { visibility: hidden; } 25% { visibility: visible; } 50% { visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) { body.fx .bk, svg.talk .m1, svg.talk .m2 { animation: none; } }
 </style>
 </head>
 <body>
@@ -1511,12 +1528,252 @@ body.fx .cbar .spk.on::after, body.fx .chipbar .spk.on::after { animation: spktw
     else if (hat === "wizard") fill += R(3, 0, 10, 1, "#4b2c8a") + R(2, 1, 12, 2, "#4b2c8a") + R(7, 0, 2, 1, "#ffd23f");
     return pre + fill;
   }
+/* HD pixel sprites: shaded + outlined 32x44, boy & girl, hair styles, blink + mouth overlays */
+var HD = (function () {
+  var W = 32, H = 44;
+  function hex(c) { c = String(c || "#888888").replace("#", ""); if (c.length === 3) c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2]; return [parseInt(c.substr(0, 2), 16) || 0, parseInt(c.substr(2, 2), 16) || 0, parseInt(c.substr(4, 2), 16) || 0]; }
+  function mix(a, b, t) { return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]; }
+  function css(c) { return "#" + c.map(function (v) { v = Math.max(0, Math.min(255, Math.round(v))); return (v < 16 ? "0" : "") + v.toString(16); }).join(""); }
+  function ramp(base, warm) {
+    var b = hex(base);
+    return [css(mix(b, [24, 12, 48], .72)), css(mix(b, warm ? [170, 70, 60] : [60, 30, 110], warm ? .3 : .38)), css(b), css(mix(b, [255, 238, 190], .26)), css(mix(b, [255, 255, 240], .6))];
+  }
+  function Grid() { this.m = []; this.z = []; this.n = 0; for (var i = 0; i < W * H; i++) { this.m[i] = null; this.z[i] = 0; } }
+  Grid.prototype.set = function (x, y, mat) { x = Math.round(x); y = Math.round(y); if (x < 0 || y < 0 || x >= W || y >= H) return; this.m[y * W + x] = mat; this.z[y * W + x] = this.n; };
+  Grid.prototype.get = function (x, y) { return x < 0 || y < 0 || x >= W || y >= H ? null : this.m[y * W + x]; };
+  Grid.prototype.rect = function (x, y, w, h, mat) { this.n++; for (var j = 0; j < h; j++) for (var i = 0; i < w; i++) this.set(x + i, y + j, mat); };
+  Grid.prototype.rows = function (y, list, mat) { this.n++; for (var j = 0; j < list.length; j++) for (var x = list[j][0]; x <= list[j][1]; x++) this.set(x, y + j, mat); };
+  Grid.prototype.ell = function (cx, cy, rx, ry, mat, clip) { this.n++; for (var y = Math.floor(cy - ry); y <= Math.ceil(cy + ry); y++) for (var x = Math.floor(cx - rx); x <= Math.ceil(cx + rx); x++) { var dx = (x - cx) / rx, dy = (y - cy) / ry; if (dx * dx + dy * dy <= 1 && (!clip || clip(x, y))) this.set(x, y, mat); } };
+  Grid.prototype.limb = function (x0, y0, x1, y1, w, mat) { this.n++; var s = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) * 2 + 1; for (var i = 0; i <= s; i++) { var t = i / s, x = x0 + (x1 - x0) * t, y = y0 + (y1 - y0) * t; for (var j = 0; j < w; j++) for (var k = 0; k < w; k++) this.set(x - (w - 1) / 2 + k, y - (w - 1) / 2 + j, mat); } };
+  Grid.prototype.px = function (x, y, mat) { this.n++; this.set(x, y, mat); };
+  Grid.prototype.tri = function (cx, tipY, h, mat) { this.n++; for (var r = 0; r < h; r++) { var w = Math.min(5, 1 + r), x0 = cx - Math.floor((w - 1) / 2); for (var i = 0; i < w; i++) this.set(x0 + i, tipY + r, mat); } };
+
+  function mats(o) {
+    var girl = o.girl, shirt = o.shirt || "#3a8ee8", hair = o.hair || "#6b4020";
+    var F = function (c, warm) { return { r: ramp(c, warm), feat: 1, flat: 1 }; };
+    return {
+      skin: { r: ramp(o.skin || "#f6cfa8", 1) }, hair: { r: ramp(hair), tex: 1 }, hairb: { r: ramp(css(mix(hex(hair), [20, 10, 30], .22))), tex: 1 },
+      shirt: { r: ramp(shirt) }, sleeve: { r: ramp(shirt) }, cuff: { r: ramp(css(mix(hex(shirt), [255, 255, 255], .35))) },
+      pants: { r: ramp(o.pants || "#3b3b52") }, shoe: { r: ramp(o.shoe || "#e8e8f0") }, sole: { r: ramp("#5a5a70"), flat: 1 }, sock: { r: ramp("#f4f4fa") },
+      eye: F(o.eyes || "#2b2350"), iris: F(css(mix(hex(o.eyes || "#2b2350"), [120, 160, 255], .45))), white: F("#ffffff"), lash: F("#2a1a30"),
+      mouth: F(girl ? "#c25560" : "#9c4038"), mouthD: F("#5a1f26"), tongue: F("#e0707a"), blush: F("#ff9a9a"), nose: F("#d9a077"),
+      brow: F(css(mix(hex(hair), [20, 10, 30], .25))), neckSh: { r: ramp("#e0a47e", 1), flat: 1, feat: 1 },
+      band: { r: ramp("#e63946") }, goldb: { r: ramp("#ffd23f") }, scarf: { r: ramp("#2a9d8f") }, cap: { r: ramp("#2a2a55") }, capd: { r: ramp("#171733") }, capg: { r: ramp("#ffd23f") }, tassel: { r: ramp("#ffcc33"), flat: 1 },
+      glass: F("#222233"), belt: { r: ramp("#8a5a2b") }, ribbon: { r: ramp("#ff4d8d") },
+      hat1: { r: ramp("#e63946") }, hat2: { r: ramp("#ffd23f") }, hat3: { r: ramp("#4b2c8a") }, hat4: { r: ramp("#a9743a") }, hat5: { r: ramp("#ff6fae") }, wh: { r: ramp("#f4f4fa") }
+    };
+  }
+  function mouthF(g, k) {
+    if (k === 0) g.rect(15, 18, 2, 1, "mouth");
+    else if (k === 1) { g.rect(15, 17, 2, 1, "mouthD"); g.rect(15, 18, 2, 1, "tongue"); }
+    else { g.rect(14, 17, 4, 1, "mouthD"); g.rect(14, 18, 4, 1, "mouthD"); g.rect(15, 18, 2, 1, "tongue"); }
+  }
+
+  /* ---------- hair (front) ---------- */
+  function hairFront(g, o) {
+    var girl = o.girl, st = o.style || 0;
+    var clip = function (x, y) { return y <= 9 || (y <= 13 && (x <= 9 || x >= 22)); };
+    if (!girl && st === 3) { g.ell(15.5, 9, 7.9, 6.8, "hair", function (x, y) { return y <= 8 || (y <= 10 && (x <= 8 || x >= 23)); }); g.rows(8, [[9, 22]], "hair"); }
+    else {
+      g.ell(15.5, 9.2, 8.1, 7.4, "hair", clip); g.rows(9, [[8, 23]], "hair");
+      var fd = [3, 3, 2, 2, 2, 1, 1, 0];
+      if (!girl && st === 1) fd = [2, 2, 1, 1, 1, 1, 0, 0]; if (!girl && st === 2) fd = [3, 4, 3, 3, 2, 2, 1, 1]; if (girl) fd = st === 3 ? [2, 3, 2, 2, 2, 1, 1, 1] : [3, 3, 3, 2, 2, 2, 1, 1];
+      g.n++; for (var x = 8; x <= 15; x++) for (var y = 9; y < 9 + fd[x - 8]; y++) { g.set(x, y, "hair"); g.set(31 - x, y, "hair"); }
+    }
+    if (!girl) {
+      if (st === 0) { g.rect(8, 11, 2, 3, "hair"); g.rect(22, 11, 2, 3, "hair"); }
+      if (st === 1) { g.rect(8, 11, 2, 2, "hair"); g.rect(22, 11, 2, 2, "hair"); [10, 13, 16, 19, 22].forEach(function (cx, i) { g.tri(cx, [2, 0, -1, 0, 2][i], [4, 6, 7, 6, 4][i], "hair"); }); }
+      if (st === 2) { g.rect(8, 11, 2, 6, "hair"); g.rect(22, 11, 2, 6, "hair"); g.px(7, 15, "hair"); g.px(24, 16, "hair"); g.px(8, 17, "hair"); g.px(23, 17, "hair"); g.px(12, 12, "hair"); g.px(19, 12, "hair"); }
+    } else {
+      if (st === 0) { /* long locks over the shoulders (drawn later too) */ g.rect(8, 11, 2, 4, "hair"); g.rect(22, 11, 2, 4, "hair"); }
+      if (st === 1) { g.rect(8, 11, 2, 3, "hair"); g.rect(22, 11, 2, 3, "hair"); g.rect(22, 7, 3, 2, "ribbon"); }
+      if (st === 2) { g.rect(7, 10, 3, 8, "hair"); g.rect(22, 10, 3, 8, "hair"); g.rect(8, 18, 2, 1, "hair"); g.rect(22, 18, 2, 1, "hair"); }
+      if (st === 3) { g.rect(8, 11, 2, 3, "hair"); g.rect(22, 11, 2, 3, "hair"); g.ell(8.5, 4.5, 2.7, 2.7, "hair"); g.ell(22.5, 4.5, 2.7, 2.7, "hair"); g.px(10, 6, "ribbon"); g.px(21, 6, "ribbon"); }
+    }
+  }
+  function hairBackFront(g, o) { // drawn before body
+    if (!o.girl) return; var st = o.style || 0;
+    if (st === 0) g.rows(9, [[8, 23], [7, 24], [7, 24], [7, 24], [7, 24], [7, 24], [7, 24], [7, 24], [7, 24], [8, 23], [8, 23], [8, 23], [9, 22], [9, 22], [10, 21], [11, 20]], "hairb");
+    if (st === 1) { g.rect(24, 9, 3, 4, "hairb"); g.rect(24, 13, 3, 5, "hairb"); g.rect(25, 18, 2, 3, "hairb"); }
+    if (st === 2) g.rows(9, [[8, 23], [7, 24], [7, 24], [7, 24], [7, 24], [7, 24], [8, 23], [8, 23], [9, 22]], "hairb");
+  }
+
+  /* ---------- gear ---------- */
+  function gearFront(g, o) {
+    var s = o.s || 0, f = o.f || 0;
+    if (f >= 1) { g.rect(8, 8, 16, 2, f >= 4 ? "goldb" : "band"); g.rect(22, 10, 2, 3, f >= 4 ? "goldb" : "band"); }
+    if (s >= 1) { [10, 17].forEach(function (x0) { g.rect(x0, 13, 5, 1, "glass"); g.rect(x0, 16, 5, 1, "glass"); g.rect(x0, 14, 1, 2, "glass"); g.rect(x0 + 4, 14, 1, 2, "glass"); }); g.rect(15, 14, 2, 1, "glass"); }
+    if (s >= 2) { g.rect(11, 19, 10, 3, "scarf"); g.rect(19, 22, 3, 5, "scarf"); }
+    if (s >= 3) { var gold = s >= 4, m = gold ? "capg" : "cap"; g.rows(5, [[9, 22], [9, 22]], "capd"); g.rows(2, [[11, 20], [8, 23], [5, 26]], m); g.rows(5, [[10, 21]], "capd"); g.rect(15, 2, 2, 1, "tassel"); g.rect(25, 5, 1, 7, "tassel"); g.rect(24, 12, 3, 3, "tassel"); }
+    else hatFront(g, o);
+  }
+  function hatFront(g, o) {
+    var hat = o.hat; if (!hat) return;
+    if (hat === "beanie") { g.rows(3, [[11, 20], [9, 22], [9, 22]], "hat1"); g.rect(8, 6, 16, 2, "wh"); }
+    else if (hat === "party") { g.rows(0, [[15, 16], [14, 17], [13, 18], [12, 19], [11, 20], [10, 21]], "hat5"); g.rect(10, 6, 12, 1, "hat2"); }
+    else if (hat === "cowboy") { g.rect(5, 6, 22, 2, "hat4"); g.rows(1, [[10, 21], [9, 22], [9, 22], [9, 22], [9, 22]], "hat4"); g.rect(9, 5, 14, 1, "belt"); }
+    else if (hat === "wizard") { g.rows(0, [[15, 16], [14, 17], [13, 18], [12, 19], [11, 20]], "hat3"); g.rect(6, 5, 20, 2, "hat3"); g.rect(11, 5, 10, 1, "hat2"); }
+  }
+
+  function front(g, M, o) {
+    var f = o.f || 0, big = f >= 3 ? 1 : 0, ar = f >= 2 ? 4 : 3, girl = o.girl, gi = girl ? 1 : 0, st = o.style || 0;
+    if (girl) hairBackFront(g, o);
+    // legs + shoes
+    if (girl) { g.rect(12, 36, 3, 4, "skin"); g.rect(17, 36, 3, 4, "skin"); g.rect(12, 39, 3, 1, "sock"); g.rect(17, 39, 3, 1, "sock"); }
+    else { g.rect(11, 33, 5, 7, "pants"); g.rect(17, 33, 5, 7, "pants"); g.rect(11, 31, 11, 3, "pants"); }
+    g.rect(girl ? 11 : 10, 40, girl ? 5 : 6, 3, "shoe"); g.rect(girl ? 16 : 17, 40, girl ? 5 : 6, 3, "shoe"); g.rect(girl ? 11 : 10, 42, girl ? 5 : 6, 1, "sole"); g.rect(girl ? 16 : 17, 42, girl ? 5 : 6, 1, "sole");
+    var sx = big ? 1 : 0;
+    g.limb(9 + gi - sx, 22, 8 + gi - sx, 26, ar, "sleeve"); g.rect(7 + gi - sx, 27, 3, 1, "cuff"); g.limb(8 + gi - sx, 28, 8 + gi - sx, 30, 3, "skin"); g.px(8 + gi - sx, 31, "skin"); g.px(7 + gi - sx, 31, "skin");
+    g.limb(22 - gi + sx, 22, 23 - gi + sx, 26, ar, "sleeve"); g.rect(22 - gi + sx, 27, 3, 1, "cuff"); g.limb(23 - gi + sx, 28, 23 - gi + sx, 30, 3, "skin"); g.px(23 - gi + sx, 31, "skin"); g.px(24 - gi + sx, 31, "skin");
+    var t0 = (big ? 9 : 10) + gi, t1 = (big ? 22 : 21) - gi;
+    var tr = []; for (var r = 0; r < 12; r++) tr.push(r < 5 ? [t0, t1] : [t0 + 1, t1 - 1]);
+    g.rows(20, tr, "shirt");
+    if (girl) { g.rows(31, [[11, 20], [10, 21], [9, 22], [9, 22], [8, 23], [8, 23]], "pants"); g.rect(11, 31, 10, 1, "ribbon"); }
+    else g.rect(11, 31, 10, 1, "belt");
+    g.rect(14, 18, 4, 2, "skin"); g.rect(14, 18, 4, 1, "neckSh"); g.rows(20, [[14, 17], [15, 16]], "skin"); g.px(14, 20, "shirt"); g.px(17, 20, "shirt");
+    if (f >= 2) { g.rect(8 + gi - sx, 28, 3, 1, "band"); g.rect(22 - gi + sx, 28, 3, 1, "band"); }
+    // head
+    g.ell(8.6, 13, 1.6, 2.2, "skin"); g.ell(22.4, 13, 1.6, 2.2, "skin");
+    g.ell(15.5, 10.6, 7.4, 7.6, "skin");
+    [11, 19].forEach(function (x, ix) {
+      if (o.blink) g.rect(x - 1, 15, 4, 1, "lash");
+      else { g.rect(x, 13, 2, 1, "lash"); g.rect(x, 14, 2, 2, "eye"); g.px(x, 15, "iris"); g.px(x + 1, 15, "iris"); g.px(x + 1, 14, "white"); if (girl) g.px(ix ? x + 2 : x - 1, 13, "lash"); }
+    });
+    g.rect(10, 12, 3, 1, "brow"); g.rect(19, 12, 3, 1, "brow");
+    g.rect(15, 16, 2, 1, "nose"); mouthF(g, o.mouth || 0);
+    g.px(10, 17, "blush"); g.px(21, 17, "blush");
+    hairFront(g, o);
+    if (girl && st === 0) { g.rect(7, 13, 3, 12, "hair"); g.rect(22, 13, 3, 12, "hair"); g.rows(25, [[8, 9], [22, 23]], "hair"); }
+    gearFront(g, o);
+  }
+
+  function side(g, M, o, i) {
+    var f = o.f || 0, ph = i * Math.PI * 2 / 6, big = f >= 3 ? 1 : 0, girl = o.girl, st = o.style || 0;
+    var by = (i === 0 || i === 3) ? 1 : 0, hy0 = by, hx = 15, hy = 33 + by;
+    function leg(sg) {
+      var a = Math.sin(ph + (sg ? 0 : Math.PI)), c = Math.cos(ph + (sg ? 0 : Math.PI)), lift = Math.max(0, c) * 3;
+      var kx = hx + a * 3.2 + 0.5, ky = 37 + by - lift * 0.6, ax = hx + a * 6, ay = Math.min(40 - lift, 40), lm = girl ? "skin" : "pants";
+      g.limb(hx, hy, kx, ky, girl ? 3 : 4, lm); g.limb(kx, ky, ax, ay, 3, lm);
+      if (girl) g.limb(ax, ay - 1, ax, ay, 3, "sock");
+      var sh = Math.round(ax) - 2, sy = Math.round(ay);
+      g.rect(sh, sy, 6, 2, "shoe"); g.rect(sh, sy + 2, 6, 1, "sole"); if (lift > 1.2) g.rect(sh, sy, 2, 3, "shoe");
+    }
+    function arm(sg) {
+      var a = Math.sin(ph + (sg ? Math.PI : 0)), sx = 15, sy = 22 + by, ex = sx + a * 3.5, ey = 27 + by, hx2 = sx + a * 6.5, hy2 = 31 + by - Math.abs(a) * 1.2;
+      g.limb(sx, sy, ex, ey, big ? 4 : 3, "sleeve"); g.limb(ex, ey + 0.5, hx2, hy2 - 1, 3, "skin"); g.limb(ex, ey, ex, ey, 3, "sleeve");
+      g.rect(Math.round(ex) - 1, Math.round(ey) + 1, 3, 1, "cuff"); g.rect(Math.round(hx2) - 1, Math.round(hy2) - 1, 3, 3, "skin");
+      if (f >= 2) g.rect(Math.round((ex + hx2) / 2) - 1, Math.round((ey + hy2) / 2), 3, 1, "band");
+    }
+    function skirt() { g.rows(31 + by, [[11, 20], [10, 21], [9, 22], [9, 22], [8, 23], [8, 23]], "pants"); g.rect(11, 31 + by, 10, 1, "ribbon"); }
+    leg(0); arm(0);
+    // hair behind body
+    if (girl) {
+      if (st === 0) g.rows(10 + by, [[5, 13], [4, 13], [4, 13], [4, 13], [4, 13], [4, 13], [4, 13], [4, 13], [4, 12], [4, 12], [5, 12], [5, 12], [5, 11], [6, 11], [6, 10], [6, 10]], "hairb");
+      if (st === 1) { var sw = Math.sin(ph) * 1.5; g.limb(6, 9 + by, 3 + sw, 14 + by, 3, "hairb"); g.limb(3 + sw, 14 + by, 3 + sw * 1.6, 21 + by, 3, "hairb"); }
+      if (st === 2) g.rows(10 + by, [[6, 13], [5, 13], [5, 13], [5, 13], [5, 13], [5, 13], [6, 12], [7, 11]], "hairb");
+    }
+    var tx0 = 11, tx1 = big ? 20 : 19, rows = []; for (var r = 0; r < 12; r++) rows.push([tx0 + (r > 8 ? 1 : 0), tx1 - (r > 7 ? 1 : 0)]);
+    g.rows(20 + by, rows, "shirt"); if (!girl) g.rect(12, 31 + by, 7, 1, "belt");
+    g.rect(14, 18 + by, 4, 3, "skin"); g.rect(14, 18 + by, 4, 1, "neckSh");
+    // head
+    g.ell(14.5, 10.8 + hy0, 7, 7.4, "skin"); g.px(22, 14 + hy0, "skin"); g.rect(13, 13 + hy0, 2, 3, "neckSh");
+    if (o.blink) g.rect(18, 15 + hy0, 3, 1, "lash"); else { g.rect(18, 13 + hy0, 2, 3, "eye"); g.rect(18, 12 + hy0, 3, 1, "lash"); g.px(18, 13 + hy0, "white"); if (girl) g.px(20, 12 + hy0, "lash"); g.px(19, 15 + hy0, "iris"); }
+    g.rect(17, 11 + hy0, 3, 1, "brow");
+    var mk = o.mouth || 0; if (mk === 0) { g.px(19, 17 + hy0, "mouth"); g.px(20, 17 + hy0, "mouth"); } else { g.rect(19, 17 + hy0, 2, 1, "mouthD"); if (mk === 2) g.rect(19, 18 + hy0, 2, 1, "mouthD"); g.px(19, 18 + hy0, "tongue"); }
+    g.px(17, 16 + hy0, "blush"); g.px(16, 16 + hy0, "blush");
+    // hair
+    var buzz = !girl && st === 3;
+    var clip = buzz ? function (x, y) { return y <= 8 + hy0 || (y <= 11 + hy0 && x <= 10); } : function (x, y) { return y <= 9 + hy0 || x <= 12; };
+    g.ell(13.5, 9.2 + hy0, buzz ? 7.4 : 8, buzz ? 6.8 : 7.8, "hair", clip);
+    var fdS = [0, 0, 0, 0, 0, 1, 2, 3, 3, 3, 2, 2, 1, 0];
+    if (!girl && st === 1) fdS = [0, 0, 0, 0, 0, 1, 1, 2, 2, 2, 1, 1, 1, 0]; if (!girl && st === 2) fdS = [0, 0, 0, 0, 0, 1, 2, 3, 4, 4, 3, 3, 2, 1]; if (buzz) fdS = [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0];
+    g.n++; for (var x = 13; x <= 21; x++) { var d = fdS[x - 8]; for (var y = 8 + hy0; y < 9 + hy0 + d; y++) g.set(x, y, "hair"); }
+    if (!buzz) { g.rect(7, 10 + hy0, 6, 6, "hair"); g.rect(7, 15 + hy0, 4, 2, "hair"); }
+    else g.rect(8, 10 + hy0, 4, 3, "hair");
+    if (!girl && st === 1) [8, 11, 14, 17].forEach(function (cx, k) { g.tri(cx, hy0 + [2, 0, -1, 1][k], [4, 6, 7, 5][k], "hair"); });
+    if (!girl && st === 2) { g.rect(7, 16 + hy0, 5, 3, "hair"); g.px(6, 18 + hy0, "hair"); }
+    if (girl && st === 3) { g.ell(10, 4.5 + hy0, 2.7, 2.7, "hair"); g.px(12, 6 + hy0, "ribbon"); }
+    if (girl && st === 1) g.rect(5, 8 + hy0, 3, 3, "ribbon");
+    if (girl && st === 2) g.rect(6, 16 + hy0, 6, 3, "hair");
+    if (girl && st === 0) g.rect(6, 16 + hy0, 6, 4, "hair");
+    // gear
+    var s = o.s || 0;
+    if (f >= 1) { g.rect(8, 8 + hy0, 14, 2, f >= 4 ? "goldb" : "band"); g.rect(6, 9 + hy0, 3, 3, f >= 4 ? "goldb" : "band"); }
+    if (s >= 1) { g.rect(17, 12 + hy0, 5, 1, "glass"); g.rect(17, 15 + hy0, 5, 1, "glass"); g.rect(21, 13 + hy0, 1, 2, "glass"); g.rect(17, 13 + hy0, 1, 2, "glass"); g.rect(12, 13 + hy0, 5, 1, "glass"); }
+    if (s >= 2) { g.rect(11, 19 + by, 9, 3, "scarf"); g.rect(8, 20 + by, 4, 6, "scarf"); }
+    if (s >= 3) { var gold = s >= 4, m = gold ? "capg" : "cap"; g.rows(5 + hy0, [[8, 21], [8, 21]], "capd"); g.rows(2 + hy0, [[10, 19], [7, 22], [4, 24]], m); g.rows(5 + hy0, [[8, 20]], "capd"); g.rect(5, 5 + hy0, 1, 7, "tassel"); g.rect(4, 12 + hy0, 3, 3, "tassel"); }
+    else if (o.hat) { var h = o.hat; if (h === "beanie") { g.rows(3 + hy0, [[10, 19], [8, 21], [8, 21]], "hat1"); g.rect(7, 6 + hy0, 16, 2, "wh"); } else if (h === "party") { g.rows(0 + hy0, [[13, 14], [12, 15], [11, 16], [10, 17], [9, 18], [8, 19]], "hat5"); g.rect(8, 6 + hy0, 12, 1, "hat2"); } else if (h === "cowboy") { g.rect(4, 6 + hy0, 22, 2, "hat4"); g.rows(1 + hy0, [[9, 19], [8, 20], [8, 20], [8, 20], [8, 20]], "hat4"); } else if (h === "wizard") { g.rows(0 + hy0, [[13, 15], [12, 16], [11, 17], [10, 18], [9, 19]], "hat3"); g.rect(5, 5 + hy0, 20, 2, "hat3"); g.rect(9, 5 + hy0, 10, 1, "hat2"); } }
+    leg(1); if (girl) skirt(); arm(1);
+  }
+
+  function finish(g, M) {
+    var out = []; for (var i = 0; i < W * H; i++) out[i] = null;
+    function same(x, y, m) { var n = g.get(x, y); return n === m || (n && M[n].feat && !M[m].feat); }
+    for (var y = 0; y < H; y++) for (var x = 0; x < W; x++) {
+      var m = g.get(x, y); if (!m) continue; var mt = M[m], r = mt.r, t = 2;
+      if (!mt.flat) {
+        var brE = 0; if (!same(x, y + 1, m) || !same(x + 1, y, m)) brE = 1;
+        var tlE = !same(x, y - 1, m) || !same(x - 1, y, m);
+        if (brE === 1) t = 1; else if (tlE) t = 3;
+        if (tlE && !same(x, y - 1, m) && !same(x - 1, y, m)) t = 4;
+        if (brE === 1 && !same(x, y + 1, m) && !same(x + 1, y, m)) t = 1;
+        if (mt.tex && t === 2 && (x + y * 2) % 7 === 0) t = 3;
+        if (!mt.feat) { var z = g.z[y * W + x]; (m === "skin" ? [[0, -1]] : [[1, 0], [-1, 0], [0, 1], [0, -1]]).forEach(function (d) { var n = g.get(x + d[0], y + d[1]); if (n && n !== m && !M[n].feat && g.z[(y + d[1]) * W + x + d[0]] > z && t > 1) t = 1; }); }
+      }
+      out[y * W + x] = r[t];
+    }
+    for (var y = 0; y < H; y++) for (var x = 0; x < W; x++) {
+      if (g.get(x, y)) continue; var c = null, best = -1;
+      [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (d) { var n = g.get(x + d[0], y + d[1]); if (n && M[n].r) { var zz = g.z[(y + d[1]) * W + x + d[0]]; if (zz > best) { best = zz; c = M[n].r[0]; } } });
+      if (c) out[y * W + x] = c;
+    }
+    return out;
+  }
+  function render(o, frame) {
+    var g = new Grid(), M = mats(o);
+    if (frame === "front") front(g, M, o); else side(g, M, o, frame);
+    var out = finish(g, M);
+    for (var y = 41; y < 44; y++) for (var x = 6; x < 26; x++) { if (out[y * W + x]) continue; var dx = (x - 15.5) / 10, dy = (y - 42.6) / 1.6; if (dx * dx + dy * dy <= 1) out[y * W + x] = "#0000002e"; }
+    return out;
+  }
+  function rects(out, base) {
+    var s = "";
+    for (var y = 0; y < H; y++) { var x = 0; while (x < W) { var c = out[y * W + x]; if (!c || (base && base[y * W + x] === c)) { x++; continue; } var x2 = x; while (x2 + 1 < W && out[y * W + x2 + 1] === c && !(base && base[y * W + x2 + 1] === c)) x2++; s += '<rect x="' + x + '" y="' + y + '" width="' + (x2 - x + 1) + '" height="1" fill="' + c + '"/>'; x = x2 + 1; } }
+    return s;
+  }
+  function sprite(o, frame, plain) {
+    var A = render(o, frame), svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + " " + H + '" shape-rendering="crispEdges" aria-hidden="true">' + rects(A);
+    if (!plain) {
+      var oo = function (k, v) { var c = {}; for (var a in o) c[a] = o[a]; c[k] = v; return c; };
+      svg += '<g class="bk" style="animation-delay:__D__">' + rects(render(oo("blink", 1), frame), A) + "</g>";
+      svg += '<g class="m1">' + rects(render(oo("mouth", 1), frame), A) + "</g>";
+      svg += '<g class="m2">' + rects(render(oo("mouth", 2), frame), A) + "</g>";
+    }
+    return svg + "</svg>";
+  }
+  return { sprite: sprite, W: W, H: H };
+})();
+
+  var hdCache = {};
+  function hdOpts(key, plain) {
+    var pal = palFor(key), c = custom[key] || {}, e = plain ? { f: 0, s: 0 } : evoNow();
+    return { girl: key === "girl" ? 1 : 0, hair: pal[key === "boy" ? "h" : "y"], shirt: pal.b, pants: pal.p, eyes: pal.e, style: c.style || 0, f: e.f, s: e.s, hat: plain ? "" : ((stats && stats.inv && stats.inv.hat) || "") };
+  }
   function spriteImg(key, frame, plain) {
+    if (key === "boy" || key === "girl") {
+      var o = hdOpts(key, plain), ck = JSON.stringify(o) + "|" + frame + "|" + (plain ? 1 : 0), svg = hdCache[ck];
+      if (!svg) { svg = HD.sprite(o, frame, plain); var keys = Object.keys(hdCache); if (keys.length > 160) delete hdCache[keys[0]]; hdCache[ck] = svg; }
+      return svg.replace(/__D__/g, "-" + (Math.random() * 5).toFixed(1) + "s").replace("<svg ", '<svg data-f="' + frame + '" ');
+    }
     var d = ART[key]; if (!d) return "";
     d = styleOf(key);
-    var svg = svgOf(key, frame === "front" ? d.front : d.walk[frame]);
-    if (!plain) { var ex = evoSvg(key, frame, evoNow()); if (ex) svg = svg.replace("</svg>", ex + "</svg>"); }
-    return svg.replace("<svg ", '<svg data-f="' + frame + '" ');
+    var svg2 = svgOf(key, frame === "front" ? d.front : d.walk[frame]);
+    return svg2.replace("<svg ", '<svg data-f="' + frame + '" ');
+  }
+  var talkT = null;
+  function talkFx(ms) {
+    ["#flip svg", "#psChar svg"].forEach(function (q) { document.querySelectorAll(q).forEach(function (el) { el.classList.add("talk"); }); });
+    clearTimeout(talkT); talkT = setTimeout(function () { document.querySelectorAll("svg.talk").forEach(function (el) { el.classList.remove("talk"); }); }, ms || 2400);
   }
   var evoPrev = null;
   var FIT_N = { boy: ["", "ATHLETE", "STRONG", "MUSCULAR", "LEGEND"], girl: ["", "SPORTY", "TONED", "PEAK FIT", "LEGEND"] }, STU_N = ["", "STUDY GLASSES", "SCHOLAR SCARF", "GRADUATE CAP", "GOLDEN SCHOLAR"];
@@ -2121,7 +2378,7 @@ body.fx .cbar .spk.on::after, body.fx .chipbar .spk.on::after { animation: spktw
     var imgs = $("#flip").querySelectorAll("[data-f]");
     for (var i = 0; i < imgs.length; i++) imgs[i].style.display = imgs[i].dataset.f === String(k) ? "block" : "none";
   }
-  function placeWalker(step) { $("#walker").style.transform = "translate(" + Math.round(walkX) + "px," + (step % 2 ? -3 : 0) + "px)"; placePets(step); }
+  function placeWalker(step) { $("#walker").style.transform = "translate(" + Math.round(walkX) + "px,0px)"; placePets(step); }
   async function walkLoop(token) {
     var stage = $("#stage"), flip = $("#flip");
     var dir = 1, step = 0, sinceRest = 0;
@@ -2130,10 +2387,10 @@ body.fx .cbar .spk.on::after, body.fx .chipbar .spk.on::after { animation: spktw
       if (!(await alive(token))) return;
       if (talking) { await sleep(120); continue; }
       var max = Math.max(60, stage.clientWidth - 48 - 8);
-      walkX += dir * 5;
+      walkX += dir * 4;
       if (walkX >= max) { walkX = max; dir = -1; }
       if (walkX <= 8) { walkX = 8; dir = 1; }
-      step = (step + 1) % 4;
+      step = (step + 1) % 6;
       flip.style.transform = dir < 0 ? "scaleX(-1)" : "none";
       showFrame(step); placeWalker(step);
       sinceRest++;
@@ -2255,7 +2512,7 @@ body.fx .cbar .spk.on::after, body.fx .chipbar .spk.on::after { animation: spktw
     var w = Math.min(280, stage.clientWidth - 16);
     bubble.style.width = w + "px";
     bubble.style.left = Math.min(Math.max(walkX + 24 - w / 2, 8), Math.max(8, stage.clientWidth - w - 8)) + "px";
-    bubble.textContent = "\u00a0"; bubble.hidden = false;
+    bubble.textContent = "\u00a0"; bubble.hidden = false; talkFx(msg.length * 70 + 400);
     for (var i = 1; i <= msg.length; i++) {
       if (token !== walkToken) return;
       bubble.textContent = msg.slice(0, i);
@@ -2274,7 +2531,7 @@ body.fx .cbar .spk.on::after, body.fx .chipbar .spk.on::after { animation: spktw
     $("#bubble").hidden = true;
     if (!avatar) { stage.hidden = true; return; }
     stage.hidden = false; renderScenery();
-    $("#flip").innerHTML = spriteImg(avatar, "front") + [0, 1, 2, 3].map(function (n) { return spriteImg(avatar, n); }).join("");
+    $("#flip").innerHTML = spriteImg(avatar, "front") + [0, 1, 2, 3, 4, 5].map(function (n) { return spriteImg(avatar, n); }).join("");
     walkLoop(walkToken);
   }
 
@@ -2345,7 +2602,7 @@ body.fx .cbar .spk.on::after, body.fx .chipbar .spk.on::after { animation: spktw
     flip.style.transform = "none"; showFrame("front"); placeWalker(0); placePets(0);
     flip.classList.remove("hop"); void flip.offsetWidth; flip.classList.add("hop");
     if (kind === "drink" || kind === "eat") { item = document.createElement("i"); item.className = "fxitem " + kind; item.innerHTML = ITEM_SVG[kind]; walker.appendChild(item); }
-    bubbleShow(msg);
+    bubbleShow(msg); talkFx(ms || 2600);
     await sleep(ms || 2600);
     if (item) item.remove();
     if (token !== walkToken) return;
@@ -3391,7 +3648,7 @@ body.fx .cbar .spk.on::after, body.fx .chipbar .spk.on::after { animation: spktw
   function psSay(force) {
     var say = $("#psSay"); if (!say) return;
     var arr = psMsgs(psKey), t = arr[psIdx % arr.length];
-    if (say.textContent !== t || force) { say.textContent = t; say.classList.remove("pop"); void say.offsetWidth; say.classList.add("pop"); }
+    if (say.textContent !== t || force) { say.textContent = t; say.classList.remove("pop"); void say.offsetWidth; say.classList.add("pop"); talkFx(2400); }
   }
   function psSceneSync() {
     var sc = $("#pomoScene"); if (!sc) return;
