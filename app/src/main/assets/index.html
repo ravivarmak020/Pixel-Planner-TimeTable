@@ -1273,7 +1273,7 @@ body.fx .stat.mv .spk::after { animation: spktw .5s ease-in-out infinite; }
       <p>EXPORT fills the box with your data to copy. To restore, paste a backup here and press IMPORT.</p>
       <textarea class="field" id="backupText" rows="6" spellcheck="false" aria-label="Backup data"></textarea>
       <div class="row-btns" style="margin-top:8px"><button class="btn alt" id="bkExport" type="button">EXPORT</button><button class="btn alt" id="bkImport" type="button">IMPORT</button></div>
-      <div class="row-btns" style="margin-top:8px"><button class="btn" id="bkFile" type="button"></button><button class="btn alt" id="bkLoad" type="button">LOAD FILE</button><input id="bkPick" type="file" accept=".json,application/json" hidden></div>
+      <div class="row-btns" style="margin-top:8px"><button class="btn" id="bkFile" type="button"></button><button class="btn alt" id="bkLoad" type="button">LOAD FROM DOWNLOADS</button></div>
     </div>
     <div class="row-btns"><button class="btn alt" id="goalsClose" type="button">CLOSE</button></div>
   </div>
@@ -3631,20 +3631,16 @@ body.fx .stat.mv .spk::after { animation: spktw .5s ease-in-out infinite; }
     var json = backupJson(), name = "PixelPlanner-backup.json";
     if (window.AndroidBridge && window.AndroidBridge.saveBackup) {
       var ok = false; try { ok = !!window.AndroidBridge.saveBackup(json); } catch (e) {}
-      prof.bk = Date.now(); dirty = true; store.save(); abNote();
+      if (ok) { prof.bk = Date.now(); dirty = true; store.save(); } abNote();
       if (manual) toast(ok ? "SAVED TO DOWNLOADS: " + name : "COULD NOT SAVE THE BACKUP", ok ? "blue" : "red");
       return ok;
     }
-    if (!manual) return false;
-    var a = document.createElement("a"), bl = new Blob([json], { type: "application/json" });
-    a.href = URL.createObjectURL(bl); a.download = "PixelPlanner-backup-" + todayIso() + ".json"; document.body.appendChild(a); a.click();
-    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
-    prof.bk = Date.now(); dirty = true; store.save(); abNote(); toast("BACKUP FILE DOWNLOADED", "blue"); return true;
+    return false;
   }
   function abNote() {
     var android = !!(window.AndroidBridge && window.AndroidBridge.saveBackup), on = prof.ab !== 0, when = prof.bk ? new Date(prof.bk) : null;
-    $("#abNote").textContent = (android ? (on ? "A COPY IS SAVED TO YOUR DOWNLOADS FOLDER (PixelPlanner-backup.json) ABOUT ONCE A DAY." : "AUTO-BACKUP IS OFF.") : "AUTO-BACKUP FILES NEED THE ANDROID APP. HERE, USE SAVE BACKUP FILE.") + (when ? " LAST BACKUP: " + when.toLocaleDateString() + " " + when.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + "." : "");
-    $("#bkFile").innerHTML = pxi("disk") + (android ? "SAVE TO DOWNLOADS" : "DOWNLOAD BACKUP");
+    $("#abNote").textContent = (android ? (on ? "A COPY IS SAVED TO YOUR DOWNLOADS FOLDER (PixelPlanner-backup.json) ABOUT ONCE A DAY." : "AUTO-BACKUP IS OFF.") : "BACKUP FILES NEED THE ANDROID APP. HERE, USE EXPORT AND COPY THE TEXT.") + (when ? " LAST BACKUP: " + when.toLocaleDateString() + " " + when.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + "." : "");
+    $("#bkFile").innerHTML = pxi("disk") + "SAVE TO DOWNLOADS"; $("#bkFile").hidden = !android; $("#bkLoad").hidden = !android;
     $("#abChips").innerHTML = ["on", "off"].map(function (v) { return '<button class="chip" type="button" data-ab="' + v + '" aria-pressed="' + ((v === "on") === on) + '">' + v.toUpperCase() + "</button>"; }).join("");
     $("#abRow").hidden = !android;
   }
@@ -3656,11 +3652,10 @@ body.fx .stat.mv .spk::after { animation: spktw .5s ease-in-out infinite; }
   setTimeout(abAuto, 20000);
   $("#abChips").addEventListener("click", function (e) { var b = e.target.closest("[data-ab]"); if (!b) return; prof.ab = b.dataset.ab === "on" ? 1 : 0; dirty = true; store.save(); abNote(); });
   $("#bkFile").addEventListener("click", function () { abSave(true); });
-  $("#bkLoad").addEventListener("click", function () { $("#bkPick").click(); });
-  $("#bkPick").addEventListener("change", function () {
-    var f = this.files && this.files[0]; if (!f) return; var rd = new FileReader();
-    rd.onload = function () { $("#backupText").value = String(rd.result || ""); $("#backupBox").hidden = false; toast("FILE LOADED. PRESS IMPORT TO RESTORE", "gold"); };
-    rd.readAsText(f); this.value = "";
+  $("#bkLoad").addEventListener("click", function () {
+    var t = ""; try { t = window.AndroidBridge.readBackup(); } catch (e) {}
+    if (!t) { toast("NO BACKUP FILE FOUND IN DOWNLOADS", "red"); return; }
+    $("#backupText").value = t; $("#backupBox").hidden = false; toast("BACKUP LOADED. PRESS IMPORT TO RESTORE", "gold");
   });
   abNote();
 

@@ -194,6 +194,47 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
+        public String readBackup() {
+            try {
+                String name = "PixelPlanner-backup.json";
+                InputStream in = null;
+                if (Build.VERSION.SDK_INT >= 29) {
+                    android.content.ContentResolver cr = getContentResolver();
+                    Uri coll = android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+                    android.database.Cursor c = cr.query(coll,
+                            new String[]{android.provider.MediaStore.MediaColumns._ID},
+                            android.provider.MediaStore.MediaColumns.DISPLAY_NAME + "=? AND "
+                                    + android.provider.MediaStore.MediaColumns.RELATIVE_PATH + " LIKE ?",
+                            new String[]{name, "Download/%"}, null);
+                    if (c != null) {
+                        if (c.moveToFirst()) {
+                            in = cr.openInputStream(android.content.ContentUris.withAppendedId(coll, c.getLong(0)));
+                        }
+                        c.close();
+                    }
+                } else {
+                    File f = new File(getExternalFilesDir(null), name);
+                    if (f.exists()) {
+                        in = new FileInputStream(f);
+                    }
+                }
+                if (in == null) {
+                    return "";
+                }
+                ByteArrayOutputStream bo = new ByteArrayOutputStream();
+                byte[] buf = new byte[8192];
+                int n;
+                while ((n = in.read(buf)) > 0) {
+                    bo.write(buf, 0, n);
+                }
+                in.close();
+                return new String(bo.toByteArray(), StandardCharsets.UTF_8);
+            } catch (Exception e) {
+                return "";
+            }
+        }
+
+        @JavascriptInterface
         public boolean saveBackup(String json) {
             if (json == null || json.length() < 2) {
                 return false;
