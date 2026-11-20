@@ -942,6 +942,19 @@ body.fx .stat.mv .spk::after { animation: spktw .5s ease-in-out infinite; }
 .rep-days i { display: block; width: 100%; max-width: 30px; background: var(--blue); border-radius: 6px 6px 0 0; min-height: 3px; }
 .rep-days div.today i { background: var(--gold); }
 .rep-foot { font-family: var(--font-display); font-size: 8px; line-height: 1.8; color: var(--dim); margin-top: 12px; }
+
+/* ===== curved bars everywhere ===== */
+.cover .cb { height: 18px; border-radius: 999px; padding: 3px; }
+.cover .cb::after { display: none; }
+.cover .cb i { border-radius: 999px; transition: width 1.1s cubic-bezier(.22,.9,.28,1); box-shadow: 0 0 10px var(--green), inset 0 -3px 0 rgba(0,0,0,.22); }
+.cover .cb i::after { border-radius: 999px; background: linear-gradient(180deg, rgba(255,255,255,.5) 0 30%, transparent 30% 70%, rgba(0,0,0,.2) 70%); }
+.cover .cb i::before { content: ""; position: absolute; right: -3px; top: 50%; width: 7px; height: 7px; margin-top: -3.5px; border-radius: 50%; background: radial-gradient(circle, #fff 0 35%, var(--green) 36% 60%, transparent 62%); box-shadow: 0 0 8px 2px var(--green); z-index: 2; }
+.cover .cb i[style*="width:0%"]::before, .cover .cb i[style*="width: 0%"]::before { display: none; }
+.cbar { height: 18px; border-radius: 999px; border: 3px solid #000; box-shadow: 0 0 0 2px var(--gold); overflow: hidden; }
+.cbar i, .cbar .cfill { border-radius: 999px; background: linear-gradient(180deg, #fff2a0 0 30%, #ffd23f 30% 70%, #e0a800 70%) !important; transition: width 1s cubic-bezier(.22,.9,.28,1); box-shadow: 0 0 8px #ffd23f; }
+.chipbar { height: 10px; border-radius: 999px; background: #3a3320; overflow: hidden; }
+.chipbar i { border-radius: 999px; background: linear-gradient(180deg, #fff2a0 0 35%, #ffd23f 35% 70%, #e0a800 70%); }
+.pomo-dots i { border-radius: 50%; }
 </style>
 </head>
 <body>
