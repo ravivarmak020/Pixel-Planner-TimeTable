@@ -407,6 +407,64 @@ h2 { line-height: 1.5; }
 .hello-sprite svg { width: 100%; height: 100%; display: block; }
 .big { color: var(--ink) !important; font-size: 28px; }
 .quote { background: #000; color: var(--gold) !important; padding: 12px; min-height: 84px; font-size: 26px; }
+.wrap.wide #viewTT .exam { position: fixed; left: 0; right: 0; bottom: 0; max-width: 1100px; margin: 0 auto; z-index: 40; padding: 8px 12px; gap: 6px 12px; flex-wrap: wrap; justify-content: space-between; align-items: center; box-shadow: 0 -4px 0 #000; }
+.wrap.wide #viewTT .exam .exam-edit { display: none; }
+.wrap.wide #viewTT .exam .exam-days { font-size: 13px; line-height: 1.5; }
+.wrap.wide #viewTT .exam .exam-days small { font-size: 8px; margin-top: 2px; }
+.wrap.wide #viewTT .exam .planbar { flex: 1 1 100%; margin-top: 0; padding-top: 6px; border-top-width: 2px; }
+.wrap.wide #viewTT .exam .cover { flex: 1 1 100%; }
+#viewTT { padding-bottom: calc(var(--examBar, 150px) + 14px); }
+.wrap.wide .toasts { bottom: calc(var(--examBar, 150px) + 12px); }
+
+/* guided tour with Pixel */
+#tour { position: fixed; inset: 0; z-index: 400; }
+#tour[hidden], #planAnim[hidden] { display: none; }
+#tourBlock { position: absolute; inset: 0; }
+#tourSpot { position: fixed; left: 50%; top: 50%; width: 0; height: 0; border: 3px solid var(--gold); box-shadow: 0 0 0 100vmax rgba(8,7,20,.78); pointer-events: none; transition: left .35s steps(7), top .35s steps(7), width .35s steps(7), height .35s steps(7); }
+#tourSpot.none { border-color: transparent; }
+#tourBox { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); width: min(560px, calc(100vw - 20px)); background: #000; border: 4px solid var(--gold); box-shadow: 0 0 0 4px #000, 6px 8px 0 4px rgba(0,0,0,.5); padding: 10px 12px 12px; display: grid; gap: 8px; }
+#tourBox.top { top: 14px; bottom: auto; }
+.tour-top { display: flex; align-items: center; gap: 12px; }
+.tour-sprite { width: 48px; height: 48px; flex: none; }
+.tour-sprite svg { width: 100%; height: 100%; display: block; }
+.tour-sprite.talk { animation: tbob .5s steps(2) infinite; }
+@keyframes tbob { 50% { transform: translateY(-4px); } }
+.tour-who { display: grid; gap: 4px; }
+.tour-who b { font-family: var(--font-display); font-size: 11px; color: var(--gold); line-height: 1.4; }
+.tour-who span { font-family: var(--font-display); font-size: 8px; color: var(--dim); line-height: 1.5; }
+.tour-text { margin: 0; font-size: 19px; line-height: 1.3; color: var(--ink); overflow-wrap: anywhere; }
+.tour-q { margin: 0; font-family: var(--font-display); font-size: 10px; line-height: 1.6; color: var(--green); }
+.tour-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.tour-btns .btn { font-size: 8px; padding: 8px 9px; }
+.tour-name .field { width: 100%; box-sizing: border-box; }
+/* planning animation */
+#planAnim { position: fixed; inset: 0; z-index: 380; background: rgba(10,9,24,.88); display: flex; align-items: center; justify-content: center; padding: 16px; cursor: pointer; }
+.pa-card { background: #000; border: 4px solid var(--gold); padding: 14px; box-shadow: 0 0 0 4px #000, 6px 8px 0 4px rgba(0,0,0,.5); max-width: 94vw; }
+.pa-scene { position: relative; width: 250px; height: 140px; max-width: 100%; background: linear-gradient(#2b2a52 0 70%, #1a1936 70%); overflow: hidden; }
+.pa-desk { position: absolute; left: 0; right: 0; bottom: 0; height: 28px; background: #8a5a2b; border-top: 4px solid #5a3a18; }
+.pa-char { position: absolute; left: 16px; bottom: 22px; width: 64px; height: 64px; }
+.pa-char svg { width: 100%; height: 100%; display: block; }
+.pa-book { position: absolute; left: 96px; bottom: 26px; width: 116px; height: 38px; background: #f4f1ff; border: 3px solid #000; box-shadow: 3px 3px 0 #000; }
+.pa-book span { position: absolute; left: 8px; height: 3px; width: 0; background: #44407a; }
+.pa-book .l1 { top: 6px; } .pa-book .l2 { top: 15px; } .pa-book .l3 { top: 24px; }
+#planAnim.go .pa-book .l1 { animation: paline 1.5s steps(8) 0s forwards; --w: 96px; }
+#planAnim.go .pa-book .l2 { animation: paline 1.5s steps(8) .4s forwards; --w: 78px; }
+#planAnim.go .pa-book .l3 { animation: paline 1.5s steps(8) .8s forwards; --w: 60px; }
+@keyframes paline { 0% { width: 0; } 45% { width: var(--w); } 100% { width: var(--w); } }
+.pa-pencil { position: absolute; left: 8px; top: 2px; width: 18px; height: 5px; background: #ffcc33; border-right: 4px solid #ff6fae; transform: rotate(-35deg); transform-origin: right center; }
+#planAnim.go .pa-pencil { animation: papencil 1.5s steps(1) 1 forwards, pawig .24s steps(2) infinite alternate; }
+@keyframes papencil { 0% { top: 2px; } 27% { top: 11px; } 53% { top: 20px; } 100% { top: 20px; } }
+@keyframes pawig { from { left: 8px; } to { left: 22px; } }
+.pa-cal { position: absolute; right: 12px; top: 12px; width: 52px; height: 46px; background: #f4f1ff; border: 3px solid #000; box-shadow: 3px 3px 0 #000; }
+.pa-cal b { display: block; background: #ff5d5d; color: #fff; font-family: var(--font-display); font-size: 7px; text-align: center; padding: 3px 0; line-height: 1.3; }
+.pa-page { position: absolute; left: 0; right: 0; top: 17px; bottom: 0; background: #f4f1ff; transform-origin: top; background-image: linear-gradient(#44407a,#44407a), linear-gradient(#44407a,#44407a); background-size: 60% 3px, 40% 3px; background-position: 8px 6px, 8px 16px; background-repeat: no-repeat; }
+#planAnim.go .pa-page { animation: paflip .75s steps(4) 2 forwards; }
+@keyframes paflip { 0% { transform: scaleY(1); } 60% { transform: scaleY(0); } 100% { transform: scaleY(1); } }
+.pa-cap { margin: 12px 0 0; text-align: center; font-family: var(--font-display); font-size: 10px; line-height: 1.6; color: var(--gold); }
+.pa-dots::after { content: "..."; display: inline-block; width: 3ch; text-align: left; animation: padots 1s steps(4) infinite; overflow: hidden; vertical-align: bottom; }
+@keyframes padots { 0% { width: 0; } 100% { width: 3ch; } }
+@media (prefers-reduced-motion: reduce) { #tourSpot { transition: none; } .tour-sprite.talk { animation: none; } }
+
 .modal { position: fixed; inset: 0; z-index: 100; background: rgba(10,9,24,.85); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .modal[hidden] { display: none; }
 .modal .box { max-height: 92vh; overflow: auto; width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 16px; }
@@ -561,7 +619,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       <button class="hero-btn" id="avatarBtn" type="button" aria-label="Change character" data-tip="CHANGE CHARACTER"></button>
       <h1 id="appTitle">PIXEL PLANNER</h1>
     </div>
-    <div class="head-actions"><button class="btn alt" id="goalsBtn" type="button" data-tip="GOALS AND BACKUP">GOALS</button> <button class="btn alt" id="customBtn" type="button" data-tip="COLORS FOR YOUR CHARACTER">CUSTOMIZE</button></div>
+    <div class="head-actions"><button class="btn alt" id="goalsBtn" type="button" data-tip="GOALS AND BACKUP">GOALS</button> <button class="btn alt" id="tourBtn" type="button" aria-label="Show the guided tour" data-tip="TOUR WITH PIXEL">?</button> <button class="btn alt" id="customBtn" type="button" data-tip="COLORS FOR YOUR CHARACTER">CUSTOMIZE</button></div>
   </header>
   <div class="toasts" id="toasts" aria-live="polite"></div>
 
@@ -635,6 +693,9 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
         <button class="btn alt" id="planNew" type="button" data-tip="START A NEW EXAM PLAN">+ NEW EXAM</button>
         <button class="btn alt" id="planDel" type="button" data-tip="DELETE THIS PLAN">DELETE</button>
       </div>
+    </section>
+
+    <section class="box" aria-label="Set up">
       <div class="prompt" id="planPrompt" hidden>
         <b>SET UP YOUR EXAM IN ONE MINUTE</b>
         <span>Type your exam, subjects and topics, choose your study hours and which features to use. I will build your time table.</span>
@@ -829,12 +890,36 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
 
 <div class="modal" id="hello" role="dialog" aria-modal="true" aria-labelledby="helloTitle" hidden>
   <div class="box">
-    <div class="hello-top"><div class="hello-sprite" id="helloSprite"></div><h2 id="helloTitle">HI DUDE!</h2></div>
+    <div class="hello-top"><div class="hello-sprite" id="helloSprite"></div><h2 id="helloTitle">HI THERE!</h2></div>
     <p class="big">It's a good day. You got this!</p>
     <p class="quote" id="quote" aria-live="polite"></p>
     <p id="helloTasks"></p>
     <p id="helloRecap"></p>
     <button class="btn" id="helloGo" type="button">LET'S GO</button>
+  </div>
+</div>
+
+<div id="tour" hidden>
+  <div id="tourBlock"></div>
+  <div id="tourSpot"></div>
+  <div id="tourBox" role="dialog" aria-modal="true" aria-label="Pixel, your guide">
+    <div class="tour-top"><div class="tour-sprite" id="tourSprite"></div><div class="tour-who"><b>PIXEL</b><span id="tourProg"></span></div></div>
+    <p class="tour-text" id="tourText" aria-live="polite"></p>
+    <p class="tour-q" id="tourQ" hidden></p>
+    <div class="tour-name" id="tourNameRow" hidden><input class="field" id="tourName" type="text" maxlength="20" placeholder="Your name" autocomplete="off" aria-label="Your name"></div>
+    <div class="row-btns tour-btns" id="tourBtns"></div>
+  </div>
+</div>
+
+<div id="planAnim" hidden aria-hidden="true">
+  <div class="pa-card">
+    <div class="pa-scene">
+      <div class="pa-cal"><b>PLAN</b><i class="pa-page"></i></div>
+      <div class="pa-char" id="paChar"></div>
+      <div class="pa-book"><span class="l1"></span><span class="l2"></span><span class="l3"></span><i class="pa-pencil"></i></div>
+      <div class="pa-desk"></div>
+    </div>
+    <p class="pa-cap">PIXEL IS PLANNING<span class="pa-dots"></span></p>
   </div>
 </div>
 
@@ -851,6 +936,8 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   var reduceMotion = false; // animation always on: it is the point of ticking a task
   var actx = null;
   var avatar = null;
+  var prof = { name: "", toured: 0 };
+  function normProf(o) { return { name: o && typeof o.name === "string" ? o.name.replace(/[<>&"]/g, "").trim().slice(0, 20) : "", toured: o && o.toured ? 1 : 0 }; }
   var greeted = null; // local date (YYYY-MM-DD) the daily hello was last shown
   var SPRITES = { boy: { label: "BOY" }, girl: { label: "GIRL" } };
   // Clean 16x16 retro-style sprites: dark outline, three tones per color.
@@ -960,7 +1047,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   function closePicker() { $("#picker").hidden = true; $("#avatarBtn").focus(); }
   var dirty = false; // true once the person has changed anything
   function localStore() {
-    return { mode: "local", save: function () { try { localStorage.setItem("pixel-planner", JSON.stringify(state.tasks)); if (avatar) localStorage.setItem("pixel-planner-avatar", avatar); if (greeted) localStorage.setItem("pixel-planner-greeted", greeted); localStorage.setItem("pixel-planner-custom", JSON.stringify(custom)); localStorage.setItem("pixel-planner-stats", JSON.stringify(stats)); localStorage.setItem("pixel-planner-tt", JSON.stringify(tt)); localStorage.setItem("pixel-planner-plans", JSON.stringify(plans)); } catch (e) {} } };
+    return { mode: "local", save: function () { try { localStorage.setItem("pixel-planner", JSON.stringify(state.tasks)); if (avatar) localStorage.setItem("pixel-planner-avatar", avatar); if (greeted) localStorage.setItem("pixel-planner-greeted", greeted); localStorage.setItem("pixel-planner-prof", JSON.stringify(prof)); localStorage.setItem("pixel-planner-custom", JSON.stringify(custom)); localStorage.setItem("pixel-planner-stats", JSON.stringify(stats)); localStorage.setItem("pixel-planner-tt", JSON.stringify(tt)); localStorage.setItem("pixel-planner-plans", JSON.stringify(plans)); } catch (e) {} } };
   }
   var store = localStore();
 
@@ -974,11 +1061,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     var d0 = new Date(), t = todayIso();
     var d1 = iso(new Date(d0.getFullYear(), d0.getMonth(), d0.getDate() + 1));
     var d3 = iso(new Date(d0.getFullYear(), d0.getMonth(), d0.getDate() + 3));
-    return [
-      { id: uid(), title: "Example: plan the week", pri: 3, due: t, done: false },
-      { id: uid(), title: "Example: study block, 2 hours", pri: 2, due: d1, done: false },
-      { id: uid(), title: "Example: tidy desk", pri: 1, due: d3, done: false }
-    ];
+    return [];
   }
 
 
@@ -1205,10 +1288,10 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
             mode: "cloud",
             save: function () {
               clearTimeout(timer);
-              timer = setTimeout(function () { ref.set({ tasks: state.tasks, avatar: avatar, greeted: greeted, custom: custom, stats: stats, tt: tt, plans: plans }).catch(function () {}); }, 400);
+              timer = setTimeout(function () { ref.set({ tasks: state.tasks, avatar: avatar, greeted: greeted, prof: prof, custom: custom, stats: stats, tt: tt, plans: plans }).catch(function () {}); }, 400);
             }
           };
-          return d ? { tasks: JSON.parse(JSON.stringify(d.tasks)), avatar: d.avatar || null, greeted: d.greeted || null, custom: d.custom ? JSON.parse(JSON.stringify(d.custom)) : null, stats: d.stats ? JSON.parse(JSON.stringify(d.stats)) : null, tt: d.tt ? JSON.parse(JSON.stringify(d.tt)) : null, plans: Array.isArray(d.plans) ? JSON.parse(JSON.stringify(d.plans)) : null } : null; // db results are frozen; copy so edits work
+          return d ? { tasks: JSON.parse(JSON.stringify(d.tasks)), prof: d.prof ? JSON.parse(JSON.stringify(d.prof)) : null, avatar: d.avatar || null, greeted: d.greeted || null, custom: d.custom ? JSON.parse(JSON.stringify(d.custom)) : null, stats: d.stats ? JSON.parse(JSON.stringify(d.stats)) : null, tt: d.tt ? JSON.parse(JSON.stringify(d.tt)) : null, plans: Array.isArray(d.plans) ? JSON.parse(JSON.stringify(d.plans)) : null } : null; // db results are frozen; copy so edits work
         }
       }
     } catch (e) {}
@@ -1220,7 +1303,8 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       var st = null; try { st = JSON.parse(localStorage.getItem("pixel-planner-stats") || "null"); } catch (e) {}
       var ttl = null; try { ttl = JSON.parse(localStorage.getItem("pixel-planner-tt") || "null"); } catch (e) {}
       var pls = null; try { pls = JSON.parse(localStorage.getItem("pixel-planner-plans") || "null"); } catch (e) {}
-      return (raw || av || gr || cu || st || ttl) ? { tasks: raw ? JSON.parse(raw) : null, avatar: av, greeted: gr, custom: cu, stats: st, tt: ttl, plans: pls } : null;
+      var pf = null; try { pf = JSON.parse(localStorage.getItem("pixel-planner-prof") || "null"); } catch (e) {}
+      return (raw || av || gr || cu || st || ttl) ? { tasks: raw ? JSON.parse(raw) : null, prof: pf, avatar: av, greeted: gr, custom: cu, stats: st, tt: ttl, plans: pls } : null;
     } catch (e) {}
     return null;
   }
@@ -1401,13 +1485,13 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       }
       var src = actx.createBufferSource(); src.buffer = noiseBuf;
       var hp = actx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = (space ? 1800 : 3200) * r;
-      var cg = actx.createGain(); cg.gain.value = space ? 0.3 : 0.55;
+      var cg = actx.createGain(); cg.gain.value = (space ? 0.3 : 0.55) * 0.32;
       src.connect(hp); hp.connect(cg); cg.connect(actx.destination); src.start(t);
       var o = actx.createOscillator(), g = actx.createGain();
       o.type = "triangle";
       o.frequency.setValueAtTime((space ? 130 : 220) * r, t);
       o.frequency.exponentialRampToValueAtTime(70 * r, t + 0.06);
-      g.gain.setValueAtTime(space ? 0.3 : 0.24, t);
+      g.gain.setValueAtTime((space ? 0.3 : 0.24) * 0.32, t);
       g.gain.exponentialRampToValueAtTime(0.001, t + 0.075);
       o.connect(g); g.connect(actx.destination);
       o.start(t); o.stop(t + 0.09);
@@ -1436,7 +1520,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   }
   function playSlice(sl, vol, rate) {
     var src = actx.createBufferSource(); src.buffer = twBuf; src.playbackRate.value = rate;
-    var g = actx.createGain(); g.gain.value = vol;
+    var g = actx.createGain(); g.gain.value = vol * 0.32;
     src.connect(g); g.connect(actx.destination);
     src.start(0, sl[0], sl[1]);
   }
@@ -1478,7 +1562,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     var token = walkToken, stage = $("#stage"), bubble = $("#bubble"), flip = $("#flip");
     flip.style.transform = "none"; showFrame("front"); placeWalker(0);
     flip.classList.remove("hop"); void flip.offsetWidth; flip.classList.add("hop");
-    var msg = avatar === "dog" ? "Bow bow! Bow!" : avatar === "cat" ? "Meow! Meow!" : "Hey, what's up chief? How's your day going?";
+    var msg = avatar === "dog" ? "Bow bow! Bow!" : avatar === "cat" ? "Meow! Meow!" : "Hey " + (prof.name || "there") + ", what's up? How's your day going?";
     var w = Math.min(280, stage.clientWidth - 16);
     bubble.style.width = w + "px";
     bubble.style.left = Math.min(Math.max(walkX + 24 - w / 2, 8), Math.max(8, stage.clientWidth - w - 8)) + "px";
@@ -1536,6 +1620,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     greeted = t; store.save();
     var n = state.tasks.filter(function (x) { return !x.done && x.due === t; }).length;
     $("#helloSprite").innerHTML = spriteImg(avatar, "front");
+    $("#helloTitle").textContent = prof.name ? "HI " + prof.name.toUpperCase() + "!" : "HI THERE!";
     $("#helloTasks").textContent = n ? n + " task" + (n === 1 ? "" : "s") + " due today. Let's clear " + (n === 1 ? "it." : "them.") : "No tasks due today. Plan one and own the day.";
     rollDay();
     var y = stats.yday && stats.yday.date === yesterdayIso() ? stats.yday : null;
@@ -1563,13 +1648,10 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   var tt = newTT(), plans = [], ttOff = 0, sylOpen = {};
   function newTT(blank) {
     return {
-      id: uid(), exam: { name: blank ? "" : "SSC CGL 2027", date: "" }, startHour: 6, endHour: 22, rest: -1, planned: false,
+      id: uid(), exam: { name: "", date: "" }, startHour: 6, endHour: 22, rest: -1, planned: false,
       features: { autoRev: true, rest: true, xp: true, syllabus: true }, revDays: [1, 3, 7],
       pomo: { focus: 25, short: 5, long: 15, every: 4 }, pomoDay: { date: "", count: 0 },
-      subjects: blank ? [] : [
-        { id: "s1", name: "Quant", color: "#ff7a45", topics: [] }, { id: "s2", name: "Reasoning", color: "#5cc8ff", topics: [] },
-        { id: "s3", name: "English", color: "#5fd068", topics: [] }, { id: "s4", name: "General Awareness", color: "#ffcc33", topics: [] }
-      ],
+      subjects: [],
       blocks: []
     };
   }
@@ -1608,6 +1690,11 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
         done: b.done && typeof b.done === "object" ? b.done : {}, xp: b.xp && typeof b.xp === "object" ? b.xp : {}, focus: b.focus && typeof b.focus === "object" ? b.focus : {},
         pomo: b.pomo && +b.pomo.focus > 0 ? { focus: Math.min(120, Math.max(1, Math.round(+b.pomo.focus))), short: Math.min(60, Math.max(1, Math.round(+b.pomo.short) || 5)), long: Math.min(90, Math.max(1, Math.round(+b.pomo.long) || 15)), every: Math.min(10, Math.max(2, Math.round(+b.pomo.every) || 4)), need: +b.pomo.need > 0 ? Math.min(600, Math.round(+b.pomo.need)) : 0 } : null };
     });
+    if (!r.planned && !r.blocks.length && !r.exam.date && (r.exam.name === "SSC CGL 2027" || !r.exam.name)) {
+      var dn = r.subjects.map(function (x) { return x.name; }).join("|");
+      if (dn === "Quant|Reasoning|English|General Awareness" && r.subjects.every(function (x) { return !x.topics.length; })) r.subjects = [];
+      if (r.exam.name === "SSC CGL 2027") r.exam.name = "";
+    }
     return r;
   }
   function subjOf(id) { return tt.subjects.find(function (x) { return x.id === id; }); }
@@ -1719,7 +1806,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
 
   function renderExam() {
     var d = tt.exam.date, el = $("#examDays");
-    if (!d) { el.innerHTML = "SET YOUR EXAM DATE<small>" + esc(tt.exam.name || "EXAM") + "</small>"; return; }
+    if (!d) { el.innerHTML = (tt.exam.name ? "SET YOUR EXAM DATE" : "NO EXAM YET") + "<small>" + esc(tt.exam.name || "TAP PLAN AN EXAM TO BEGIN") + "</small>"; return; }
     var target = parseIso(d), now = new Date();
     var days = Math.round((target - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 86400000);
     var big = days > 0 ? days + " DAY" + (days === 1 ? "" : "S") + " LEFT" : days === 0 ? "EXAM DAY!" : "EXAM PASSED";
@@ -1743,8 +1830,10 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   }
   function renderPlanSel() {
     var all = [tt].concat(plans);
-    $("#planSel").innerHTML = all.map(function (p) { return '<option value="' + p.id + '">' + esc((p.exam.name || "UNNAMED EXAM").toUpperCase()) + "</option>"; }).join("");
+    $("#planSel").innerHTML = all.map(function (p) { return '<option value="' + p.id + '">' + esc((p.exam.name || "NO EXAM YET").toUpperCase()) + "</option>"; }).join("");
     $("#planSel").value = tt.id; $("#planDel").textContent = "DELETE";
+    var blank = all.length === 1 && !tt.exam.name && !tt.planned && !tt.subjects.length && !tt.blocks.length;
+    $("#planSel").parentElement.hidden = blank; $("#planDel").hidden = blank; $("#planNew").hidden = blank;
   }
   function renderToday() {
     var di = dayIdx(new Date()), dk = todayIso(), now = nowMin();
@@ -1832,7 +1921,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     }).join("");
   }
   function renderTT() {
-    renderExam(); renderToday(); renderSubjects(); renderSyllabus(); renderGrid(); renderHours(); applyFeatures(); renderPlanSel(); renderPomo();
+    renderExam(); renderToday(); renderSubjects(); renderSyllabus(); renderGrid(); renderHours(); applyFeatures(); renderPlanSel(); renderPomo(); syncExamBar();
     var a = $("#ttStart"), b = $("#ttEnd");
     if (!a.options.length) {
       for (var h = 0; h <= 12; h++) a.add(new Option(mm(h * 60), h));
@@ -1845,6 +1934,11 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     if (document.activeElement !== $("#examName")) $("#examName").value = tt.exam.name;
     if (document.activeElement !== $("#examDate")) $("#examDate").value = tt.exam.date;
   }
+  function syncExamBar() {
+    var b = document.querySelector("#viewTT .exam");
+    if (b && !$("#viewTT").hidden) document.documentElement.style.setProperty("--examBar", b.offsetHeight + "px");
+  }
+  window.addEventListener("resize", syncExamBar);
   function setView(v) {
     var isTT = v === "tt";
     $("#viewPlanner").hidden = isTT; $("#viewTT").hidden = !isTT;
@@ -1852,6 +1946,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     $("#appTitle").textContent = isTT ? "PIXEL TIME TABLE" : "PIXEL PLANNER";
     document.querySelectorAll(".mainnav .tab").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.view === v)); });
     if (isTT) renderTT(); else { render(); buildWalker(); }
+    if (isTT) setTimeout(syncExamBar, 50);
   }
 
   /* block editor */
@@ -2288,7 +2383,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   $("#goalsBackup").addEventListener("click", function () { $("#backupBox").hidden = false; $("#backupText").focus(); });
   $("#bkExport").addEventListener("click", function () {
     var t = $("#backupText");
-    t.value = JSON.stringify({ app: "pixel-planner", v: 1, tasks: state.tasks, avatar: avatar, greeted: greeted, custom: custom, stats: stats, tt: tt, plans: plans });
+    t.value = JSON.stringify({ app: "pixel-planner", v: 1, tasks: state.tasks, prof: prof, avatar: avatar, greeted: greeted, custom: custom, stats: stats, tt: tt, plans: plans });
     t.select();
     try { if (navigator.clipboard) navigator.clipboard.writeText(t.value).then(function () { toast("COPIED TO CLIPBOARD", "blue"); }, function () { toast("SELECT AND COPY THE TEXT", "gold"); }); else toast("SELECT AND COPY THE TEXT", "gold"); } catch (e) { toast("SELECT AND COPY THE TEXT", "gold"); }
   });
@@ -2298,6 +2393,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       if (!d || d.app !== "pixel-planner" || !Array.isArray(d.tasks)) throw new Error("bad");
       state.tasks = d.tasks.filter(function (x) { return x && typeof x.title === "string"; }).map(function (x) { return { id: String(x.id || uid()), title: String(x.title).slice(0, 120), pri: [1, 2, 3].indexOf(+x.pri) >= 0 ? +x.pri : 2, due: /^\d{4}-\d{2}-\d{2}$/.test(x.due || "") ? x.due : "", cat: CATS[x.cat] ? x.cat : "", amt: +x.amt > 0 ? +x.amt : 0, rep: REPS[x.rep] ? x.rep : "", done: !!x.done, focus: +x.focus > 0 ? +x.focus : 0, pts: +x.pts || 0, doneOn: x.doneOn || null, spawnedId: x.spawnedId || null }; });
       if (d.avatar && SPRITES[d.avatar]) avatar = d.avatar;
+      if (d.prof) prof = normProf(d.prof);
       if (d.custom && typeof d.custom === "object") custom = d.custom;
       stats = normStats(d.stats); tt = normTT(d.tt); plans = Array.isArray(d.plans) ? d.plans.map(normTT) : [];
       dirty = true; store.save(); closeGoals(); render(); renderAvatar(); buildWalker(); toast("BACKUP IMPORTED", "");
@@ -2337,7 +2433,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     }
     applyPlan();
   });
-  $(".mainnav").addEventListener("click", function (e) { var b = e.target.closest("[data-view]"); if (b) setView(b.dataset.view); });
+  $(".mainnav").addEventListener("click", function (e) { var b = e.target.closest("[data-view]"); if (!b) return; if (b.dataset.view === "tt" && curView() === "planner" && !tour.on) planAnimShow(); setView(b.dataset.view); });
   $("#examName").addEventListener("input", function () { tt.exam.name = this.value.slice(0, 40); dirty = true; store.save(); renderExam(); });
   $("#examDate").addEventListener("change", function () { tt.exam.date = this.value; dirty = true; store.save(); renderExam(); });
   $("#ttStart").addEventListener("change", function () { tt.startHour = +this.value; ttSave(); });
@@ -2539,7 +2635,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     var b = e.target.closest("[data-pick]"); if (!b) return;
     avatar = b.dataset.pick; dirty = true;
     store.save(); renderAvatar(); closePicker(); buildWalker();
-    maybeGreet();
+    if (!prof.toured) tourStart(); else maybeGreet();
   });
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
@@ -2547,9 +2643,155 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     else if (!$("#blockModal").hidden) closeBlock();
     else if (!$("#goals").hidden) closeGoals();
     else if (!$("#hello").hidden) closeHello();
+    else if (!$("#planAnim").hidden) planAnimHide();
     else if (!$("#custom").hidden) closeCustom();
     else if (avatar && !$("#picker").hidden) closePicker();
   });
+
+  /* ---------- Pixel: guided tour ---------- */
+  var tour = { on: false, i: 0, again: 0, token: 0, typing: false, full: "" };
+  function tourName() { return prof.name || "friend"; }
+  var TOUR = [
+    { view: "planner", sel: null, ask: "name", text: "Hi, I'm Pixel, your planning companion. I'll walk you through the app in about two minutes, and you can skip at any time. First things first: what should I call you?" },
+    { view: "planner", sel: ".mainnav", text: "Nice to meet you, {n}. The app has two windows. PLANNER is for daily tasks and habits. TIME TABLE is your exam preparation space. You switch between them with these two buttons.", again: "Short version: PLANNER is your everyday to-do list. TIME TABLE is where you schedule your exam study. One tap switches between them." },
+    { view: "planner", sel: "#addForm", text: "This is where tasks begin. Type what needs doing, then set a priority and a due date. Choose a stat to feed one of your progress bars, and a repeat if it happens regularly. Press ADD when you're ready.", again: "In short: write the task, pick how important it is, choose a date and press ADD. The stat you choose decides which bar grows when you finish it." },
+    { view: "planner", sel: "#stats", text: "These four bars are your progress. Fitness and Study level up as you finish tasks and focus sessions. Hydration and Protein track your daily intake against your goals and start fresh each day. Hit all four goals and you get a perfect day.", again: "Each bar belongs to one habit. Finish a task with that stat and the bar fills. Fill all four in one day and you earn a perfect day." },
+    { view: "planner", sel: ".stat[data-stat=hydration] .quick", text: "Water and protein don't need a task. Tap a quick-add button such as +250 and the bar moves straight away. Made a mistake? UNDO steps back one action at a time, as many times as you like. Fitness and Study have UNDO too.", again: "Tap a plus button to log what you drank or ate. Tap UNDO to take back the last entry, and keep tapping to go back further." },
+    { view: "planner", sel: "section[aria-label=Week]", text: "This strip shows the next seven days. Tap a day to see only that day's tasks. The arrows move between weeks, and TODAY brings you straight back.", again: "Tap any day to focus on it. Use the arrows to browse other weeks and TODAY to come back." },
+    { view: "planner", sel: "section[aria-label=Tasks]", text: "Your tasks appear here. Tick a task to complete it and earn progress. The tabs filter what you see, and you can filter by stat too. START TIMER begins a focus session on a task, and TT adds it to your time table.", again: "Tick to complete. Use the tabs and the stat filter to find things. START TIMER opens the focus timer on that task, and TT puts it on your time table." },
+    { view: "planner", sel: "#stage", text: "That's me, walking around. Tap me to chat. Tap my picture at the top to change character, or CUSTOMIZE to change my colours and hairstyle.", again: "Tap me to say hi. Use the picture at the top to switch character and CUSTOMIZE for colours and hair." },
+    { view: "planner", sel: ".head-actions", text: "GOALS sets your daily targets and handles backups. Export your data and keep it safe, and import it to restore. The question mark button replays this tour whenever you like.", again: "GOALS is for targets and backups. The question mark brings this tour back any time." },
+    { view: "tt", sel: "#viewTT .exam", text: "Welcome to the Time Table. This bar at the bottom is your exam bar. It shows the countdown to your exam, your plan and your syllabus progress, and it stays put while you scroll.", again: "The bottom bar always shows your exam countdown and plan, so you never lose track of the date." },
+    { view: "tt", sel: "#planEdit", text: "Start here. PLAN AN EXAM opens a short setup: your exam and date, subjects and topics, study hours, and the features you want, such as automatic revision, rest days and the timer. I'll build your first week from your answers.", again: "Tap PLAN AN EXAM, fill in your exam, subjects and hours, and your week is built for you." },
+    { view: "tt", sel: "section[aria-label=Today]", text: "TODAY lists the blocks planned for today. Tap FOCUS on a block to start the timer, and tick it off when you're done.", again: "This is today's list. FOCUS starts the timer on a block, and the tick marks it done." },
+    { view: "tt", sel: "#secPomo", text: "This is the focus timer. You work in focused sessions with short breaks between them. Study XP and hours only count when a session runs all the way to the end, so there are no shortcuts. You can set session and break lengths for each block.", again: "Work in sessions, rest in breaks. Only finished sessions count towards your study XP and hours." },
+    { view: "tt", sel: "section[aria-label='Weekly time table']", text: "The weekly grid is your plan. Tap an empty slot to add a block, drag a block to move it, and pull its bottom edge to resize. Blocks can be subjects, tasks, breaks or automatic revision.", again: "Tap empty space to add, drag to move, and pull the bottom edge to change the length." },
+    { view: "tt", sel: "#secSubj", text: "Add your subjects here, then list their topics in the syllabus below. Tick topics as you finish them and the coverage bar fills. With automatic revision on, I schedule revisions after 1, 3 and 7 days.", again: "Subjects first, then topics. Tick topics off as you learn them, and revisions get scheduled for you." },
+    { view: "planner", sel: null, finish: true, text: "That's everything, {n}. You can replay this tour any time with the question mark button. Want to start by adding your first task?" }
+  ];
+  function curView() { return $("#viewTT").hidden ? "planner" : "tt"; }
+  function tourShowBtns(list) {
+    var box = $("#tourBtns"); box.innerHTML = "";
+    list.forEach(function (b) {
+      var el = document.createElement("button"); el.type = "button"; el.className = "btn" + (b.alt ? " alt" : ""); el.textContent = b.t; el.addEventListener("click", b.fn); box.appendChild(el);
+    });
+    var f = box.querySelector(".btn:not(.alt)") || box.querySelector(".btn"); if (f && !$("#tourName").offsetParent) f.focus();
+  }
+  function tourSpotTo(el, boxTop, boxH) {
+    var sp = $("#tourSpot"), box = $("#tourBox");
+    box.classList.toggle("top", !!boxTop);
+    if (!el) { sp.classList.add("none"); sp.style.left = "50%"; sp.style.top = "50%"; sp.style.width = "0"; sp.style.height = "0"; return; }
+    sp.classList.remove("none");
+    var r = el.getBoundingClientRect(), pad = 6, vh = window.innerHeight, vw = document.documentElement.clientWidth;
+    var lo = boxTop ? boxH + 24 : 6, hi = boxTop ? vh - 6 : vh - boxH - 22;
+    var top = Math.max(r.top - pad, lo), bot = Math.min(r.bottom + pad, hi), left = Math.max(r.left - pad, 6), right = Math.min(r.right + pad, vw - 6);
+    if (bot - top < 10) bot = top + 10;
+    sp.style.left = left + "px"; sp.style.top = top + "px"; sp.style.width = Math.max(10, right - left) + "px"; sp.style.height = Math.max(10, bot - top) + "px";
+  }
+  async function tourType(text, token) {
+    var el = $("#tourText"), sprite = $("#tourSprite");
+    tour.typing = true; tour.full = text; el.textContent = ""; sprite.classList.add("talk");
+    for (var i = 1; i <= text.length; i++) {
+      if (token !== tour.token || !tour.typing) break;
+      el.textContent = text.slice(0, i);
+      var ch = text[i - 1]; typeKey(ch === " ");
+      await sleep(/[.,?!]/.test(ch) ? 110 : 22);
+    }
+    if (token === tour.token) { el.textContent = text; tour.typing = false; sprite.classList.remove("talk"); typeDing(); }
+  }
+  function tourSkipTyping() { if (tour.typing) { tour.typing = false; } }
+  function tourBtnList(st) {
+    var btns = [];
+    if (st.ask === "name") {
+      btns.push({ t: "THAT'S ME", fn: tourSaveName });
+      btns.push({ t: "SKIP TOUR", alt: true, fn: function () { tourEnd(false); } });
+    } else if (st.finish) {
+      btns.push({ t: "ADD MY FIRST TASK", fn: function () { tourEnd(true); } });
+      btns.push({ t: "I'M GOOD", alt: true, fn: function () { tourEnd(false); } });
+      btns.push({ t: "BACK", alt: true, fn: tourBack });
+    } else {
+      btns.push({ t: "YES, GOT IT", fn: tourNext });
+      if (st.again) btns.push({ t: "EXPLAIN AGAIN", alt: true, fn: function () { tour.again++; tourShow(true); } });
+      btns.push({ t: "BACK", alt: true, fn: tourBack });
+      btns.push({ t: "SKIP TOUR", alt: true, fn: function () { tourEnd(false); } });
+    }
+    return btns;
+  }
+  async function tourShow(again) {
+    var st = TOUR[tour.i], token = ++tour.token, box = $("#tourBox"), txt = $("#tourText");
+    $("#tourProg").textContent = "STEP " + (tour.i + 1) + " OF " + TOUR.length;
+    if (st.view && curView() !== st.view) setView(st.view);
+    var text = (again && st.again ? "Let me say it another way. " + st.again : st.text).replace(/\{n\}/g, tourName());
+    // lay the whole box out first (final text, buttons hidden) so its size is known and never jumps
+    var isName = st.ask === "name", showQ = !st.ask && !st.finish;
+    $("#tourNameRow").hidden = !isName; if (isName) $("#tourName").value = prof.name || "";
+    var q = $("#tourQ"); q.hidden = !showQ; q.style.visibility = "hidden";
+    q.textContent = tour.again > 1 ? "Tap the highlighted part to see it, then press YES when you're ready." : "DOES THAT MAKE SENSE?";
+    var bx = $("#tourBtns"); bx.innerHTML = ""; bx.style.visibility = "hidden";
+    tourBtnList(st).forEach(function (b) {
+      var e = document.createElement("button"); e.type = "button"; e.className = "btn" + (b.alt ? " alt" : ""); e.textContent = b.t; e.addEventListener("click", b.fn); bx.appendChild(e);
+    });
+    txt.style.minHeight = "0"; txt.textContent = text;
+    var boxH = box.offsetHeight; txt.textContent = "";
+    txt.style.minHeight = txt.scrollHeight + "px";
+    // find and place the target
+    var el = st.sel ? document.querySelector(st.sel) : null;
+    var fixedEl = el && getComputedStyle(el).position === "fixed";
+    if (el && !(el.offsetParent || fixedEl)) el = null;
+    var boxTop = false;
+    if (el) {
+      if (fixedEl) { boxTop = el.getBoundingClientRect().top > window.innerHeight * 0.5; }
+      else {
+        var y = el.getBoundingClientRect().top + window.pageYOffset - 14;
+        window.scrollTo(0, Math.max(0, y));
+        await sleep(80);
+        if (token !== tour.token) return;
+        // if the element is short and the page could not scroll it up, it may sit lower: put the box on top then
+        var rr = el.getBoundingClientRect();
+        boxTop = rr.top > window.innerHeight - boxH - 40 && rr.bottom < window.innerHeight - 6;
+      }
+    }
+    tourSpotTo(el, boxTop, boxH);
+    await tourType(text, token);
+    if (token !== tour.token) return;
+    q.style.visibility = "visible"; bx.style.visibility = "visible";
+    if (isName) $("#tourName").focus(); else { var f = bx.querySelector(".btn:not(.alt)") || bx.querySelector(".btn"); if (f) f.focus(); }
+  }
+  function tourSaveName() {
+    var v = $("#tourName").value.replace(/[<>&"]/g, "").trim().slice(0, 20);
+    if (!v) { toast("TYPE A NAME SO I KNOW WHAT TO CALL YOU", "gold"); $("#tourName").focus(); return; }
+    prof.name = v; dirty = true; store.save(); tourNext();
+  }
+  function tourNext() { tour.again = 0; if (tour.i < TOUR.length - 1) { tour.i++; tourShow(false); } else tourEnd(false); }
+  function tourBack() { tour.again = 0; if (tour.i > 0) { tour.i--; tourShow(false); } }
+  function tourStart() {
+    tour.on = true; tour.i = 0; tour.again = 0;
+    $("#tourSprite").innerHTML = avatar ? spriteImg(avatar, "front") : "";
+    $("#tour").hidden = false; tourShow(false);
+  }
+  function tourEnd(addTask) {
+    tour.on = false; tour.token++; tour.typing = false;
+    $("#tour").hidden = true; $("#tourSprite").classList.remove("talk");
+    prof.toured = 1; greeted = todayIso(); dirty = true; store.save();
+    setView("planner");
+    window.scrollTo(0, 0);
+    if (addTask) { var t = $("#newTitle"); if (t) { t.scrollIntoView({ block: "center" }); t.focus(); } }
+  }
+  $("#tourBox").addEventListener("click", function (e) { if (tour.typing && !e.target.closest("button,input")) tourSkipTyping(); });
+  $("#tourName").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); tourSaveName(); } });
+  $("#tourBtn").addEventListener("click", function () { if (!avatar) { openPicker(); return; } tourStart(); });
+  window.addEventListener("resize", function () { if (tour.on) tourShow(false); });
+
+  /* ---------- planning animation (when you open the Time Table) ---------- */
+  var paTimer = 0;
+  function planAnimShow() {
+    var el = $("#planAnim");
+    $("#paChar").innerHTML = avatar ? spriteImg(avatar, "front") : "";
+    el.classList.remove("go"); el.hidden = false; void el.offsetWidth; el.classList.add("go");
+    clearTimeout(paTimer); paTimer = setTimeout(planAnimHide, 1700);
+  }
+  function planAnimHide() { clearTimeout(paTimer); $("#planAnim").hidden = true; }
+  $("#planAnim").addEventListener("click", planAnimHide);
 
   /* ---------- start ---------- */
   window.addEventListener("error", function (e) { $("#foot").textContent = "Error: " + e.message; });
@@ -2557,7 +2799,12 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   render();
   // Load saved tasks in the background; never overwrite changes made while loading.
   initStore().then(function (saved) {
-    if (saved && !dirty && Array.isArray(saved.tasks)) state.tasks = saved.tasks;
+    if (saved && !dirty && Array.isArray(saved.tasks)) {
+      var EXS = ["Example: plan the week", "Example: study block, 2 hours", "Example: tidy desk"];
+      state.tasks = saved.tasks.filter(function (x) { return !(x && EXS.indexOf(x.title) >= 0 && !x.done && !x.cat && !x.rep); });
+      if (state.tasks.length !== saved.tasks.length) dirty = true;
+    }
+    if (saved && saved.prof && !prof.name) prof = normProf(saved.prof);
     if (saved && saved.avatar && SPRITES[saved.avatar] && !avatar) avatar = saved.avatar;
     if (saved && saved.greeted) greeted = saved.greeted;
     if (saved && saved.custom && !dirty) custom = saved.custom;
@@ -2565,7 +2812,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     if (saved && saved.tt && !dirty) { tt = normTT(saved.tt); plans = Array.isArray(saved.plans) ? saved.plans.map(normTT) : []; }
     store.save();
     render(); renderAvatar(); buildWalker();
-    if (!avatar) openPicker(); else maybeGreet();
+    if (!avatar) openPicker(); else if (!prof.toured) tourStart(); else maybeGreet();
   }).catch(function () { render(); });
 })();
 </script>
