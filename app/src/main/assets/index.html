@@ -803,6 +803,113 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
 .spark { position: fixed; width: 8px; height: 8px; pointer-events: none; z-index: 50; }
 .plus { position: fixed; z-index: 50; pointer-events: none; font-family: var(--font-display); font-size: 12px; color: var(--gold); text-shadow: 2px 2px 0 #000; }
 
+
+/* ===== sky, seasons, backdrop ===== */
+body { --sk1: #7ec8ff; --sk2: #9bd6ff; --sk3: #b9e4ff; --sk4: #d6f0ff; --fs: brightness(1); --ft: brightness(1); }
+body[data-tod="dawn"] { --sk1: #4a3a82; --sk2: #a0508f; --sk3: #e8798a; --sk4: #ffbf86; --ft: brightness(.86) sepia(.15); }
+body[data-tod="sunset"] { --sk1: #38337a; --sk2: #9c3f7c; --sk3: #e8604d; --sk4: #ffab4f; --ft: brightness(.8) sepia(.25) hue-rotate(-10deg); }
+body[data-tod="night"] { --sk1: #080a24; --sk2: #10123a; --sk3: #1a1c55; --sk4: #2b2d70; --ft: brightness(.45) saturate(.8); }
+body[data-sea="autumn"] { --fs: hue-rotate(-70deg) saturate(1.15); }
+body[data-sea="winter"] { --fs: saturate(.12) brightness(1.4); }
+body[data-sea="spring"] { --fs: saturate(1.12) brightness(1.04); }
+.stage { background: linear-gradient(180deg, var(--sk1) 0 28%, var(--sk2) 28% 52%, var(--sk3) 52% 74%, var(--sk4) 74% 100%); }
+.stage .hills, .stage .trees, .stage .ground { filter: var(--fs) var(--ft); }
+.stage .house, .stage .pet { filter: var(--ft); }
+.stage .sun { transition: top .6s steps(6), right .6s steps(6); }
+body[data-tod="dawn"] .stage .sun { top: 66px; right: auto; left: 34px; filter: hue-rotate(-12deg); }
+body[data-tod="sunset"] .stage .sun { top: 62px; filter: hue-rotate(-24deg) saturate(1.3); }
+body[data-tod="night"] .stage .sun { filter: grayscale(1) brightness(1.55) contrast(.8); clip-path: polygon(0 0, 70% 0, 70% 20%, 85% 20%, 85% 40%, 100% 40%, 100% 60%, 85% 60%, 85% 80%, 70% 80%, 70% 100%, 0 100%); }
+body[data-tod="night"] .stage .clouds { opacity: .22; filter: brightness(.55); }
+body[data-tod="sunset"] .stage .clouds { filter: sepia(.7) hue-rotate(-35deg) saturate(2.2); opacity: .9; }
+body[data-tod="dawn"] .stage .clouds { filter: sepia(.4) hue-rotate(-30deg) saturate(1.5); opacity: .85; }
+.stage::before { content: ""; position: absolute; inset: 0 0 45% 0; pointer-events: none; opacity: 0; background-image: radial-gradient(#fff 1px, transparent 1.5px), radial-gradient(#cfe6ff 1px, transparent 1.5px); background-size: 41px 37px, 67px 53px; background-position: 7px 9px, 30px 21px; transition: opacity .6s; }
+body[data-tod="night"] .stage::before { opacity: .85; }
+body[data-tod="dawn"] .stage::before { opacity: .35; }
+body.fx[data-tod="night"] .stage::before { animation: twk 3.2s steps(2) infinite; }
+.stagefx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; image-rendering: pixelated; }
+#bgArt { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; z-index: -2; pointer-events: none; image-rendering: pixelated; opacity: .6; }
+
+/* ===== pixel icons ===== */
+.pxi { width: 1.35em; height: 1.35em; display: inline-block; vertical-align: -.32em; margin-right: 6px; image-rendering: pixelated; flex: none; }
+.pxi.sm { width: 12px; height: 12px; margin-right: 4px; vertical-align: -2px; }
+.icon .pxi { width: 22px; height: 22px; margin: 0; vertical-align: 0; }
+.btn .pxi, .tab .pxi { width: 18px; height: 18px; vertical-align: -5px; margin-right: 6px; }
+.tab.big .pxi { width: 22px; height: 22px; vertical-align: -6px; }
+.stat .sic { width: 38px; height: 38px; padding: 2px; }
+.stat { grid-template-columns: 38px minmax(0, 1fr) auto; }
+.coinic { background: var(--coinimg) center / contain no-repeat; border: 0; box-shadow: none; width: 20px; height: 20px; image-rendering: pixelated; }
+.coinfly { width: 16px; height: 16px; background: var(--coinimg) center / contain no-repeat; border: 0; box-shadow: none; image-rendering: pixelated; }
+.coinchip { position: relative; }
+.chipbar i { transition: width .7s cubic-bezier(.2,.9,.3,1); }
+.coinchip.glint::after { content: ""; position: absolute; left: 12px; top: 3px; width: 4px; height: 4px; background: #fff; box-shadow: 0 -4px #fff, 0 4px #fff, -4px 0 #fff, 4px 0 #fff; pointer-events: none; animation: glint .55s steps(6) forwards; }
+@keyframes glint { 0% { transform: scale(0); opacity: 1; } 50% { transform: scale(1.5); opacity: 1; } 100% { transform: scale(.4); opacity: 0; } }
+
+/* ===== smooth progress bars with a sparkle at the leading edge ===== */
+.stat .fill { transition: width 1.1s cubic-bezier(.22,.9,.28,1); }
+.stat .segs { display: none; }
+.stat .spk { position: absolute; top: 50%; width: 0; height: 0; pointer-events: none; z-index: 3; transition: left 1.1s cubic-bezier(.22,.9,.28,1); }
+.stat .spk::before { content: ""; position: absolute; left: -2px; top: -2px; width: 4px; height: 4px; background: #fff; box-shadow: 0 -4px #fff, 0 4px #fff, -4px 0 #fff, 4px 0 #fff, 0 0 8px 2px var(--c); opacity: 0; }
+.stat.full .spk::before { opacity: 0; }
+body.fx .stat:not(.full) .spk.on::before { opacity: .9; animation: spkidle 1.4s steps(4) infinite; }
+body.fx .stat.mv .spk::before { opacity: 1; animation: spkmv .28s steps(3) infinite; }
+@keyframes spkidle { 0%, 100% { transform: scale(.55); } 50% { transform: scale(1); } }
+@keyframes spkmv { 0%, 100% { transform: scale(1) rotate(0); } 50% { transform: scale(1.5) rotate(45deg); } }
+.sp2 { position: absolute; width: 3px; height: 3px; pointer-events: none; z-index: 4; }
+
+/* ===== study and break scenes ===== */
+.pomo-scene { height: 132px; background: linear-gradient(#26254a 0 76%, #1a1936 76%); }
+.ps-lamp { right: 14px; top: 30px; width: 34px; height: 78px; }
+.ps-lamp::before { background: #ffcc33; box-shadow: 0 0 0 2px #000, inset 0 -3px 0 #e0a800; }
+.ps-lamp::after { height: 62px; }
+.ps-lamp b { position: absolute; right: 8px; bottom: 0; width: 18px; height: 4px; background: #6a6a8a; box-shadow: 0 0 0 2px #000; }
+.ps-lamp em { position: absolute; right: 9px; top: 9px; width: 16px; height: 3px; background: #fff6c0; opacity: .25; }
+.ps-cone { position: absolute; right: 6px; top: 40px; width: 150px; height: 68px; clip-path: polygon(76% 0, 90% 0, 100% 100%, 0 100%); background: linear-gradient(180deg, rgba(255,226,140,.42) 0 25%, rgba(255,226,140,.3) 25% 50%, rgba(255,226,140,.19) 50% 75%, rgba(255,226,140,.1) 75%); opacity: .3; pointer-events: none; }
+.ps-pool { position: absolute; left: 60px; bottom: 22px; width: 112px; height: 6px; clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%); background: rgba(255,226,140,.4); opacity: .25; pointer-events: none; }
+.ps-mote { position: absolute; width: 2px; height: 2px; background: #fff6c0; opacity: 0; }
+.ps-mote.m1 { right: 60px; top: 62px; } .ps-mote.m2 { right: 90px; top: 78px; } .ps-mote.m3 { right: 44px; top: 86px; }
+.pomo-scene.read .ps-cone { opacity: 1; animation: pscone 2.6s steps(3) infinite; }
+.pomo-scene.read .ps-pool { opacity: 1; animation: pscone 2.6s steps(3) infinite; }
+.pomo-scene.read .ps-lamp em { opacity: 1; }
+.pomo-scene.read .ps-mote { animation: psmote 3s steps(6) infinite; } .pomo-scene.read .ps-mote.m2 { animation-delay: -1s; } .pomo-scene.read .ps-mote.m3 { animation-delay: -2s; }
+.pomo-scene.idle .ps-cone { opacity: .45; } .pomo-scene.idle .ps-pool { opacity: .4; } .pomo-scene.idle .ps-lamp em { opacity: .6; }
+.pomo-scene.rest .ps-cone, .pomo-scene.rest .ps-pool { opacity: .12; }
+@keyframes pscone { 0%, 100% { opacity: 1; } 50% { opacity: .82; } }
+@keyframes psmote { 0% { transform: translate(0, 6px); opacity: 0; } 30% { opacity: .9; } 100% { transform: translate(-8px, -14px); opacity: 0; } }
+.pomo-scene.read .ps-lamp i, .ps-lamp i { display: none; }
+.ps-say { position: absolute; left: 8px; top: 8px; max-width: calc(100% - 66px); background: var(--ink); color: #000; font-family: var(--font-display); font-size: 7px; line-height: 1.8; padding: 6px 8px; box-shadow: 0 -2px 0 0 #000, 0 2px 0 0 #000, -2px 0 0 0 #000, 2px 0 0 0 #000; z-index: 4; min-height: 24px; text-align: left; }
+.ps-say::after { content: ""; position: absolute; left: 22px; bottom: -8px; width: 6px; height: 6px; background: var(--ink); box-shadow: -2px 0 0 #000, 2px 0 0 #000, 0 2px 0 #000; }
+.ps-say.pop { animation: pspop .3s steps(4); }
+@keyframes pspop { 0% { transform: translateY(6px) scale(.85); opacity: 0; } 100% { transform: none; opacity: 1; } }
+.ps-char { bottom: 20px; }
+.ps-mach { position: absolute; left: 82px; bottom: 22px; width: 40px; height: 64px; display: none; }
+.ps-mach .mb { position: absolute; left: 0; top: 0; width: 40px; height: 58px; background: #55527e; border: 3px solid #000; box-shadow: 3px 3px 0 #000; }
+.ps-mach .mt { position: absolute; left: 0; top: 0; width: 40px; height: 20px; background: #8a86b8; border: 3px solid #000; border-bottom-width: 2px; }
+.ps-mach .mn { position: absolute; left: 14px; top: 20px; width: 10px; height: 8px; background: #2a2a40; border: 2px solid #000; }
+.ps-mach .mr { position: absolute; left: 6px; top: 28px; width: 28px; height: 18px; background: #26254a; }
+.ps-mach .ml { position: absolute; right: 6px; top: 6px; width: 6px; height: 6px; background: #7a2a2e; }
+.ps-mach .mk { position: absolute; left: 6px; top: 6px; width: 6px; height: 6px; background: #ffcc33; box-shadow: inset -2px -2px 0 #c99a00; }
+.ps-mach .my { position: absolute; left: -1px; bottom: 0; width: 42px; height: 7px; background: #3a3858; border: 3px solid #000; }
+.pomo-scene.rest .ps-mach { display: block; }
+.pomo-scene.rest.brew.go .ps-mach .ml { background: #5fd068; animation: pslight .5s steps(2) infinite; }
+@keyframes pslight { 50% { background: #1d5a24; } }
+.ps-cup { left: 91px; bottom: 29px; width: 22px; height: 19px; background: #dcd8f5; border: 3px solid #000; box-shadow: inset -3px 0 0 #b9b4e0; transition: transform .5s steps(5); z-index: 2; --cf: 0; }
+.ps-cup::after { content: ""; position: absolute; right: -9px; top: 3px; width: 6px; height: 8px; border: 3px solid #000; border-left: 0; }
+.ps-cup .cof { position: absolute; left: 0; right: 3px; bottom: 0; height: calc(var(--cf) * .11px); background: #6b3a14; box-shadow: inset 0 2px 0 #c68a4a; }
+.ps-cup .steam { display: none; left: 5px; top: -18px; }
+.ps-cup .steam.s2 { left: 12px; animation-delay: -.6s; }
+.pomo-scene.warm .ps-cup .steam { display: block; }
+.ps-drip { position: absolute; left: 100px; width: 3px; bottom: calc(33px + var(--cf, 0) * .11px); height: calc(27px - var(--cf, 0) * .11px); display: none; background: repeating-linear-gradient(180deg, #6b3a14 0 4px, transparent 4px 7px); z-index: 1; }
+.pomo-scene.rest.brew.go .ps-drip { display: block; animation: psdrip .3s steps(3) infinite; }
+@keyframes psdrip { to { background-position: 0 7px; } }
+.pomo-scene.rest.sip .ps-cup { transform: translate(-26px, -18px); }
+.pomo-scene.rest.sip.go .ps-cup { animation: pssip 1.8s steps(2) infinite; }
+@keyframes pssip { 0%, 50% { transform: translate(-26px, -18px); } 75%, 100% { transform: translate(-26px, -22px) rotate(-12deg); } }
+.pomo-scene.rest.sip.go .ps-char { animation: pssipc 1.8s steps(2) infinite; }
+@keyframes pssipc { 0%, 50% { transform: translateY(0); } 75%, 100% { transform: translateY(-2px) rotate(-3deg); } }
+.pomo-scene.rest .ps-char { animation: none; }
+.pomo-scene.rest.go:not(.sip) .ps-char { animation: psstretch 1.2s steps(3) infinite; }
+.ps-bulb { left: 60px; top: 46px; }
+@media (prefers-reduced-motion: reduce) { .stat .spk::before { animation: none !important; } }
 </style>
 </head>
 <body>
@@ -919,10 +1026,15 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       <h2 style="margin-bottom:12px">FOCUS TIMER</h2>
       <div class="pomo">
         <div class="pomo-main"><div class="pomo-scene idle" id="pomoScene" aria-hidden="true">
-          <div class="ps-lamp"><i></i></div>
+          <div class="ps-cone"></div><div class="ps-pool"></div>
+          <div class="ps-lamp"><em></em><b></b></div>
+          <i class="ps-mote m1"></i><i class="ps-mote m2"></i><i class="ps-mote m3"></i>
+          <div class="ps-say" id="psSay"></div>
           <div class="ps-char" id="psChar"></div>
           <div class="ps-book"><span class="psl l1"></span><span class="psl l2"></span><i class="ps-flip"></i></div>
-          <div class="ps-cup"><i class="steam"></i></div>
+          <div class="ps-mach"><i class="mb"></i><i class="mt"></i><i class="mn"></i><i class="mr"></i><i class="ml"></i><i class="mk"></i><i class="my"></i></div>
+          <i class="ps-drip"></i>
+          <div class="ps-cup"><i class="steam"></i><i class="steam s2"></i><i class="cof"></i></div>
           <i class="ps-pencil"></i>
           <div class="ps-bulb"><i></i><b class="sp s1"></b><b class="sp s2"></b><b class="sp s3"></b><b class="sp s4"></b></div>
           <div class="ps-desk"></div>
@@ -1019,6 +1131,9 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   <div class="box">
     <h2 id="customTitle">CUSTOMIZE LOOK</h2>
     <div class="custom-top"><div class="custom-preview" id="customPreview"></div><div class="custom-rows" id="customRows"></div></div>
+    <div class="lab" style="margin-top:14px">SKY <div class="chips" id="envSky"></div></div>
+    <div class="lab" style="margin-top:12px">SEASON <div class="chips" id="envSea"></div></div>
+    <p class="hint">AUTO FOLLOWS YOUR PHONE CLOCK AND THE CALENDAR MONTH.</p>
     <div class="row-btns"><button class="btn alt" id="customReset" type="button">RESET</button><button class="btn" id="customDone" type="button">DONE</button></div>
   </div>
 </div>
@@ -1184,8 +1299,8 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   var reduceMotion = false; // animation always on: it is the point of ticking a task
   var actx = null;
   var avatar = null;
-  var prof = { name: "", toured: 0, sound: 1, fx: 1 };
-  function normProf(o) { return { name: o && typeof o.name === "string" ? o.name.replace(/[<>&"]/g, "").trim().slice(0, 20) : "", toured: o && o.toured ? 1 : 0, sound: o && o.sound === 0 ? 0 : 1, fx: o && o.fx === 0 ? 0 : 1 }; }
+  var prof = { name: "", toured: 0, sound: 1, fx: 1, sky: "auto", season: "auto" };
+  function normProf(o) { return { name: o && typeof o.name === "string" ? o.name.replace(/[<>&"]/g, "").trim().slice(0, 20) : "", toured: o && o.toured ? 1 : 0, sound: o && o.sound === 0 ? 0 : 1, fx: o && o.fx === 0 ? 0 : 1, sky: o && ["dawn","day","sunset","night"].indexOf(o.sky) >= 0 ? o.sky : "auto", season: o && ["spring","summer","autumn","winter","off"].indexOf(o.season) >= 0 ? o.season : "auto" }; }
   var greeted = null; // local date (YYYY-MM-DD) the daily hello was last shown
   var SPRITES = { boy: { label: "BOY" }, girl: { label: "GIRL" } };
   // Clean 16x16 retro-style sprites: dark outline, three tones per color.
@@ -1440,7 +1555,44 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     }
   }
   function lvOf(k) { return Math.floor(stats[k] / stats.goals.perLevel) + 1; }
+  /* ---------- pixel icons: outlined and shaded, drawn on a 16 x 16 grid ---------- */
+  var PXI = {};
+  (function () {
+    var K = "#1b1a2e";
+    function D(cx, cy, r, c) { var o = []; for (var y = -r; y < r; y++) { var yy = y + 0.5, dx = Math.round(Math.sqrt(r * r - yy * yy)); if (dx > 0) o.push([cx - dx, cy + y, dx * 2, 1, c]); } return o; }
+    function B(x, y, w, h, c, hi, lo) { var o = [[x, y, w, h, c]]; if (hi && h >= 3) o.push([x, y, w, 1, hi]); if (hi && w >= 3) o.push([x, y, 1, h, hi]); if (lo && h >= 3) o.push([x, y + h - 1, w, 1, lo]); if (lo && w >= 3) o.push([x + w - 1, y, 1, h, lo]); return o; }
+    function cat() { var o = []; for (var i = 0; i < arguments.length; i++) o = o.concat(arguments[i]); return o; }
+    function build(rects) {
+      var s = '<svg class="pxi" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">';
+      rects.forEach(function (r) { s += '<rect x="' + (r[0] - 1) + '" y="' + (r[1] - 1) + '" width="' + (r[2] + 2) + '" height="' + (r[3] + 2) + '" fill="' + K + '"/>'; });
+      rects.forEach(function (r) { s += '<rect x="' + r[0] + '" y="' + r[1] + '" width="' + r[2] + '" height="' + r[3] + '" fill="' + r[4] + '"/>'; });
+      return s + "</svg>";
+    }
+    var O = "#ff7a45", OH = "#ffb48a", OL = "#c4501f", G = "#c9c5ee", GH = "#f4f1ff", GL = "#7c78b0";
+    PXI.fitness = build(cat(B(7, 6, 2, 4, G, GH, GL), B(1, 3, 3, 10, O, OH, OL), B(5, 5, 2, 6, O, OH, OL), B(9, 5, 2, 6, O, OH, OL), B(12, 3, 3, 10, O, OH, OL)));
+    PXI.study = build(cat(B(2, 2, 12, 12, "#3f8fe0", "#86c6ff", "#255a9e"), B(5, 3, 8, 10, "#f4f1ff", "#ffffff", "#b9b4e0"), B(2, 2, 3, 12, "#2a62b0", "#5a9ae6", "#1c447e"), [[7, 5, 4, 1, "#9a96c8"], [7, 7, 4, 1, "#9a96c8"], [7, 9, 3, 1, "#9a96c8"]], B(10, 1, 2, 6, "#ff5a5f", "#ff9a9c", "#b8272c")));
+    PXI.hydration = build([[7, 1, 2, 1, "#4aa8ff"], [6, 2, 4, 2, "#4aa8ff"], [5, 4, 6, 2, "#4aa8ff"], [4, 6, 8, 6, "#4aa8ff"], [5, 12, 6, 1, "#4aa8ff"], [6, 13, 4, 1, "#4aa8ff"], [5, 8, 2, 3, "#d6f0ff"], [6, 6, 1, 2, "#d6f0ff"], [10, 8, 1, 3, "#1f6fd0"], [9, 11, 2, 1, "#1f6fd0"], [8, 12, 2, 1, "#1f6fd0"]]);
+    PXI.protein = build(cat(D(10, 6, 4, "#c9783a"), [[8, 3, 3, 1, "#f0a25a"], [7, 4, 2, 2, "#f0a25a"], [10, 8, 3, 1, "#8f4a1a"], [12, 5, 1, 3, "#8f4a1a"], [6, 9, 2, 2, "#f4f1ff"], [5, 10, 2, 2, "#f4f1ff"], [4, 11, 2, 2, "#f4f1ff"], [3, 12, 2, 2, "#f4f1ff"], [1, 12, 3, 2, "#f4f1ff"], [2, 14, 3, 1, "#f4f1ff"]]));
+    PXI.coin = build(cat(D(8, 8, 6, "#ffcc33"), D(8, 8, 4, "#e8a800"), D(8, 8, 3, "#ffd84a"), [[4, 4, 2, 1, "#fff6c0"], [3, 5, 1, 2, "#fff6c0"], [7, 5, 2, 6, "#e8a800"], [7, 5, 1, 4, "#fff0a0"]]));
+    PXI.timer = build(cat(D(8, 9, 6, "#f4f1ff"), D(8, 9, 5, "#dcd8f5"), D(8, 9, 4, "#f4f1ff"), B(7, 0, 2, 2, "#8b87b8"), B(12, 2, 2, 2, "#8b87b8"), [[8, 5, 1, 5, K], [8, 9, 3, 1, K], [8, 9, 1, 1, "#ff5a5f"]]));
+    PXI.pen = build([[12, 1, 3, 3, "#ff8fb8"], [11, 3, 2, 2, "#c9c5ee"], [10, 4, 3, 3, "#ffcc33"], [9, 5, 3, 3, "#ffcc33"], [8, 6, 3, 3, "#ffcc33"], [7, 7, 3, 3, "#ffcc33"], [6, 8, 3, 3, "#ffcc33"], [11, 5, 1, 2, "#c99a00"], [10, 7, 1, 2, "#c99a00"], [9, 9, 1, 1, "#c99a00"], [11, 4, 1, 1, "#fff2a0"], [10, 5, 1, 1, "#fff2a0"], [9, 6, 1, 1, "#fff2a0"], [8, 7, 1, 1, "#fff2a0"], [4, 10, 3, 3, "#e8c08a"], [2, 12, 2, 2, "#e8c08a"], [1, 14, 2, 1, "#2a2a50"]]);
+    PXI.bin = build(cat(B(6, 1, 4, 2, G, GH, GL), B(2, 3, 12, 2, G, GH, GL), B(3, 5, 10, 9, "#b9b4e0", "#e6e3ff", "#7c78b0"), [[5, 7, 1, 5, "#7c78b0"], [7, 7, 1, 5, "#7c78b0"], [9, 7, 1, 5, "#7c78b0"], [11, 7, 1, 5, "#7c78b0"]]));
+    PXI.cal = build(cat(B(2, 3, 12, 11, "#f4f1ff", "#ffffff", "#b9b4e0"), B(2, 3, 12, 4, "#ff5a5f", "#ff9a9c", "#b8272c"), B(4, 1, 2, 4, "#ffd23f", "#fff2a0", "#c9a000"), B(10, 1, 2, 4, "#ffd23f", "#fff2a0", "#c9a000"), [[4, 8, 2, 2, "#5cc8ff"], [7, 8, 2, 2, "#5cc8ff"], [10, 8, 2, 2, "#5cc8ff"], [4, 11, 2, 2, "#5cc8ff"], [7, 11, 2, 2, "#5fd068"], [10, 11, 2, 2, "#5cc8ff"]]));
+    PXI.check = build(cat(B(2, 2, 12, 12, "#f4f1ff", "#ffffff", "#b9b4e0"), [[3, 8, 2, 2, "#2fb34a"], [5, 10, 2, 2, "#2fb34a"], [7, 8, 2, 2, "#2fb34a"], [9, 6, 2, 2, "#2fb34a"], [11, 4, 2, 2, "#2fb34a"]]));
+    PXI.shop = build(cat(B(2, 5, 12, 9, "#ff6fae", "#ffb0d4", "#b8386f"), [[5, 2, 1, 4, "#f4f1ff"], [10, 2, 1, 4, "#f4f1ff"], [5, 2, 6, 1, "#f4f1ff"], [7, 8, 2, 4, "#ffd23f"], [6, 9, 4, 2, "#ffd23f"]]));
+    PXI.goals = build(cat(D(8, 8, 7, "#f4f1ff"), D(8, 8, 5, "#ff5a5f"), D(8, 8, 3, "#f4f1ff"), D(8, 8, 1, "#ff5a5f")));
+    PXI.paint = build(cat(D(8, 8, 7, "#e8b87a"), [[4, 6, 2, 2, "#ff5a5f"], [7, 3, 2, 2, "#ffd23f"], [11, 5, 2, 2, "#5fd068"], [4, 10, 2, 2, "#5cc8ff"]], D(11, 11, 2, "#1b1a2e")));
+    PXI.sndon = build([[2, 6, 3, 4, G], [5, 5, 2, 6, G], [7, 3, 2, 10, G], [11, 6, 1, 4, "#5cc8ff"], [13, 4, 1, 8, "#5cc8ff"]]);
+    PXI.sndoff = build([[2, 6, 3, 4, "#8b87b8"], [5, 5, 2, 6, "#8b87b8"], [7, 3, 2, 10, "#8b87b8"], [10, 6, 1, 1, "#ff5a5f"], [11, 7, 1, 1, "#ff5a5f"], [12, 8, 1, 1, "#ff5a5f"], [13, 9, 1, 1, "#ff5a5f"], [13, 6, 1, 1, "#ff5a5f"], [12, 7, 1, 1, "#ff5a5f"], [11, 8, 1, 1, "#ff5a5f"], [10, 9, 1, 1, "#ff5a5f"]]);
+    function spark(c) { return build([[7, 1, 2, 2, c], [6, 3, 4, 2, c], [1, 7, 14, 2, c], [5, 5, 6, 2, c], [5, 9, 6, 2, c], [6, 11, 4, 2, c], [7, 13, 2, 2, c], [7, 7, 2, 2, "#ffffff"]]); }
+    PXI.fxon = spark("#ffd23f"); PXI.fxoff = spark("#6f6aa0");
+    PXI.help = build(cat(D(8, 8, 7, "#5cc8ff"), [[6, 4, 4, 2, "#ffffff"], [9, 6, 2, 2, "#ffffff"], [7, 8, 2, 2, "#ffffff"], [7, 11, 2, 2, "#ffffff"]]));
+  })();
+  function pxi(n, cls) { var s = PXI[n] || ""; return cls ? s.replace('class="pxi"', 'class="pxi ' + cls + '"') : s; }
+  var coinImg = "url(\"data:image/svg+xml," + encodeURIComponent(PXI.coin.replace('class="pxi" ', "")) + "\")";
+  document.documentElement.style.setProperty("--coinimg", coinImg);
   function iconSvg(cat, color) {
+    if (PXI[cat]) return PXI[cat];
     var c = CATS[cat], out = '<svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true">';
     c.icon.forEach(function (row, y) {
       for (var x = 0; x < 8; x++) {
@@ -1461,6 +1613,34 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     if (c.daily) { var p = Math.min(100, Math.round(v / g[k] * 100)); return { pct: p, lv: v >= g[k] ? "DONE" : p + "%", txt: v + " / " + g[k] + " " + c.unit + " TODAY", full: v >= g[k] }; }
     return { pct: Math.round((v % g.perLevel) / g.perLevel * 100), lv: "LV " + lvOf(k), txt: (v % g.perLevel) + " / " + g.perLevel + " XP", full: false };
   }
+  var barPrev = {};
+  function barGo() {
+    var animOk = document.body.classList.contains("fx") && document.body.animate;
+    document.querySelectorAll("#stats .stat").forEach(function (el) {
+      var k = el.dataset.stat, from = +el.dataset.from, to = +el.dataset.to, f = el.querySelector(".fill"), sp = el.querySelector(".spk");
+      barPrev[k] = to; if (!f) return;
+      if (to > 0) sp.classList.add("on");
+      requestAnimationFrame(function () { requestAnimationFrame(function () {
+        f.style.width = to + "%"; sp.style.left = "calc(2px + (100% - 4px) * " + (to / 100) + ")";
+        if (animOk && to !== from) barSparkle(el, sp, to > from);
+      }); });
+    });
+  }
+  function barSparkle(el, sp, up) {
+    var bar = el.querySelector(".bar"), cols = ["#ffffff", "#ffe27a", "#ff9ad0", "#9fe0ff"], n = 0; if (!bar || !up) return;
+    el.classList.add("mv");
+    var iv = setInterval(function () {
+      n++; var br = bar.getBoundingClientRect(), sr = sp.getBoundingClientRect(), x = sr.left - br.left, y = br.height / 2 + (Math.random() * 12 - 6);
+      for (var i = 0; i < 2; i++) { var p = document.createElement("i"); p.className = "sp2"; p.style.left = x + "px"; p.style.top = y + "px"; p.style.background = cols[(Math.random() * 4) | 0]; bar.appendChild(p);
+        var a = p.animate([{ transform: "translate(0,0) scale(1)", opacity: 1 }, { transform: "translate(" + (-6 - Math.random() * 14) + "px," + (Math.random() * 16 - 8) + "px) scale(.3)", opacity: 0 }], { duration: 520, easing: "steps(5)" }); a.onfinish = function (q) { return function () { q.remove(); }; }(p); }
+      if (n > 12) { clearInterval(iv); el.classList.remove("mv"); starBurst(bar, sp); }
+    }, 90);
+  }
+  function starBurst(bar, sp) {
+    var br = bar.getBoundingClientRect(), sr = sp.getBoundingClientRect(), x = sr.left - br.left, cols = ["#ffffff", "#ffe27a", "#ff9ad0", "#9fe0ff"];
+    for (var i = 0; i < 7; i++) { var p = document.createElement("i"); p.className = "sp2"; p.style.left = x + "px"; p.style.top = br.height / 2 + "px"; p.style.background = cols[i % 4]; p.style.width = p.style.height = (i % 2 ? 4 : 3) + "px"; bar.appendChild(p);
+      var ang = Math.PI * 2 * i / 7, d = 12 + (i % 3) * 5, a = p.animate([{ transform: "translate(0,0) scale(1)", opacity: 1 }, { transform: "translate(" + Math.cos(ang) * d + "px," + Math.sin(ang) * d + "px) scale(.2)", opacity: 0 }], { duration: 620, easing: "steps(6)" }); a.onfinish = function (q) { return function () { q.remove(); }; }(p); }
+  }
   function renderStats() {
     rollDay();
     var hits = goalsHit(stats), n = hits.filter(Boolean).length;
@@ -1468,16 +1648,17 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       var c = CATS[k], sv = statView(k);
       var lgq = stats.lastQuick[k] || [], canUndo = c.quick ? stats[k] > 0 : lgq.length > 0;
       var undoBtn = '<button class="qbtn undo" type="button" data-qundo="' + k + '" data-tip="UNDO THE LAST ' + (c.quick ? "QUICK ADD" : "PROGRESS STEP") + ' (AS MANY TIMES AS YOU LIKE)"' + (canUndo ? "" : " disabled") + ">UNDO" + (lgq.length > 1 ? " " + lgq.length : "") + "</button>";
-      var quick = '<div class="quick">' + (c.quick ? c.quick.map(function (q) { return '<button class="qbtn" type="button" data-q="' + k + '" data-n="' + q + '" data-tip="ADD ' + q + " " + c.unit + '">+' + q + "</button>"; }).join("") : "") + undoBtn + "</div>";
-      return '<div class="stat' + (sv.full ? " full" : "") + '" data-stat="' + k + '" style="--c:' + c.color + '"><div class="sic">' + iconSvg(k) + '</div>' +
+      var quick = '<div class="quick">' + (c.quick ? c.quick.map(function (q) { return '<button class="qbtn" type="button" data-q="' + k + '" data-n="' + q + '" data-tip="ADD ' + q + " " + c.unit + '">' + pxi(k, "sm") + "+" + q + "</button>"; }).join("") : "") + undoBtn + "</div>";
+      var from = barPrev[k] == null ? sv.pct : barPrev[k]; if (sv.pct < from) from = 0;
+      return '<div class="stat' + (sv.full ? " full" : "") + '" data-stat="' + k + '" data-from="' + from + '" data-to="' + sv.pct + '" style="--c:' + c.color + '"><div class="sic">' + iconSvg(k) + '</div>' +
         '<div class="shead"><span class="sname">' + c.label + '</span><span class="slv">' + sv.lv + '</span></div>' +
-        '<div class="bar"><div class="fill" style="width:' + sv.pct + '%"></div><div class="segs"></div></div><span class="sval">' + sv.txt + "</span>" + quick + "</div>";
+        '<div class="bar"><div class="fill" style="width:' + from + '%"></div><i class="spk" style="left:calc(2px + (100% - 4px) * ' + (from / 100) + ')"></i></div><span class="sval">' + sv.txt + "</span>" + quick + "</div>";
     }).join("");
     var names = ["WATER", "PROTEIN", "FITNESS", "STUDY"];
     var dots = hits.map(function (h, i) { return '<span class="gdot' + (h ? " on" : "") + '" data-tip="' + names[i] + (h ? " DONE" : " TO DO") + '"></span>'; }).join("");
     $("#stats").innerHTML = bars + '<div class="sumrow"><span class="flame">' + flameSvg() + '</span><span class="sumtxt">STREAK ' + curStreak() + " DAY" + (curStreak() === 1 ? "" : "S") + " / BEST " + stats.best + '</span><span class="grow"></span><span class="sumtxt">TODAY ' + n + "/4 GOALS</span>" + dots + "</div>" +
       '<div class="coinrow" id="coinRow"><span class="coinic"></span><span class="coinval">0</span><span class="cbar"><i class="cfill"></i></span><span class="cnext"></span><button class="btn alt" id="coinHelp" type="button">COIN GUIDE</button><button class="btn" id="coinShop" type="button">SHOP</button></div>';
-    renderCoins();
+    renderCoins(); barGo();
   }
   function addCoins(n, pop) {
     var b = stats.coins; stats.coins = Math.max(0, b + n);
@@ -1725,7 +1906,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
         '<button class="check" data-act="toggle" aria-label="' + (x.done ? "Mark open" : "Mark done") + '"><svg viewBox="0 0 6 6" shape-rendering="crispEdges"><path d="M0 3h1v1h1v1h1V4h1V3h1V1h-1v1H4v1H3v1H2V3H0z" fill="#000"/></svg></button>' +
         '<div><div class="title">' + (x.cat && CATS[x.cat] ? '<span class="cicon">' + iconSvg(x.cat) + "</span>" : "") + esc(x.title) + '</div><div class="meta"><span class="tag">' + PRI[x.pri] + "</span>" + (x.cat && CATS[x.cat] ? '<span class="cat-tag" style="--c:' + CATS[x.cat].color + '">' + CATS[x.cat].label + (CATS[x.cat].daily ? " " + (x.amt > 0 ? x.amt : CATS[x.cat].def) + CATS[x.cat].unit.toLowerCase() : "") + "</span>" : "") + (x.rep && REPS[x.rep] ? '<span class="rep-tag">' + REPS[x.rep] + "</span>" : "") + (x.focus > 0 ? '<span class="rep-tag fmin">' + Math.round(x.focus) + " MIN FOCUSED</span>" : "") + (x.done || x.cat !== "study" ? "" : '<button class="focusbtn" type="button" data-act="focus" data-tip="START THE FOCUS TIMER ON THIS TASK">START TIMER</button>') +
         (x.due ? '<span class="' + (late ? "late" : "") + '">' + (late ? "LATE " : "") + fmt(x.due) + "</span>" : "<span>no date</span>") + "</div></div>" +
-        '<div class="actions"><button class="icon" data-act="tt" aria-label="Add to time table" data-tip="ADD TO TIME TABLE">TT</button><button class="icon edit" data-act="edit" aria-label="Edit task" data-tip="EDIT">ED</button><button class="icon" data-act="del" aria-label="Delete task" data-tip="DELETE">X</button></div></li>';
+        '<div class="actions"><button class="icon" data-act="tt" aria-label="Add to time table" data-tip="ADD TO TIME TABLE">' + pxi("cal") + '</button><button class="icon edit" data-act="edit" aria-label="Edit task" data-tip="EDIT">' + pxi("pen") + '</button><button class="icon" data-act="del" aria-label="Delete task" data-tip="DELETE">' + pxi("bin") + '</button></div></li>';
     }).join("");
     if (enterId) { var ne = $("#list").querySelector('li[data-id="' + enterId + '"]'); if (ne) ne.classList.add("enter"); enterId = ""; }
     if (doneId) { var de = $("#list").querySelector('li[data-id="' + doneId + '"] .check'); if (de) de.parentNode.classList.add("justdone"); doneId = ""; }
@@ -2275,8 +2456,8 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     var rm = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
     document.body.classList.toggle("fx", prof.fx !== 0 && !rm);
     var sb = $("#sndBtn"), fb = $("#fxBtn");
-    sb.textContent = prof.sound === 0 ? "SOUND OFF" : "SOUND ON"; sb.setAttribute("aria-pressed", String(prof.sound !== 0));
-    fb.textContent = prof.fx === 0 ? "FX OFF" : "FX ON"; fb.setAttribute("aria-pressed", String(prof.fx !== 0));
+    sb.innerHTML = pxi(prof.sound === 0 ? "sndoff" : "sndon") + (prof.sound === 0 ? "SOUND OFF" : "SOUND ON"); sb.setAttribute("aria-pressed", String(prof.sound !== 0));
+    fb.innerHTML = pxi(prof.fx === 0 ? "fxoff" : "fxon") + (prof.fx === 0 ? "FX OFF" : "FX ON"); fb.setAttribute("aria-pressed", String(prof.fx !== 0));
   }
   $("#sndBtn").addEventListener("click", function () { prof.sound = prof.sound === 0 ? 1 : 0; dirty = true; store.save(); applyToggles(); if (prof.sound !== 0) clickSound("main"); });
   $("#fxBtn").addEventListener("click", function () { prof.fx = prof.fx === 0 ? 1 : 0; dirty = true; store.save(); applyToggles(); });
@@ -2304,15 +2485,25 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     var b = e.target.closest && e.target.closest(".btn, .qbtn, .icon, .tab, .day, .coinchip");
     if (b && !b.disabled) miniBurst(e.clientX || lastPtr.x, e.clientY || lastPtr.y);
   }, true);
+  function coinSound(k) {
+    if (prof.sound === 0) return;
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === "suspended") actx.resume();
+      var j = (k || 0) * 45;
+      tone("square", 988 + j, 988 + j, 0, 0.06, 0.07); tone("square", 1319 + j, 1319 + j, 0.06, 0.18, 0.07); tone("sine", 2637, 2637, 0.06, 0.12, 0.04);
+    } catch (e) {}
+  }
   function coinFly(n) {
-    var chip = $("#coinChip"); if (!chip || prof.fx === 0 || !document.body.animate) return;
+    var chip = $("#coinChip"); if (!chip) return;
+    if (prof.fx === 0 || !document.body.animate) { coinSound(0); return; }
     var t = chip.getBoundingClientRect(), tx = t.left + 16, ty = t.top + t.height / 2;
     for (var i = 0; i < Math.min(6, 2 + n); i++) {
       var c = document.createElement("i"); c.className = "coinfly"; c.style.left = lastPtr.x - 5 + (Math.random() * 24 - 12) + "px"; c.style.top = lastPtr.y - 5 + (Math.random() * 16 - 8) + "px";
       document.body.appendChild(c);
       var dx = tx - parseFloat(c.style.left), dy = ty - parseFloat(c.style.top);
       var an = c.animate([{ transform: "translate(0,0) scale(1)", opacity: 1 }, { transform: "translate(" + dx * 0.5 + "px," + (dy * 0.5 - 40) + "px) scale(1.2)", opacity: 1, offset: .45 }, { transform: "translate(" + dx + "px," + dy + "px) scale(.5)", opacity: .9 }], { duration: 650 + i * 60, delay: i * 50, easing: "cubic-bezier(.4,.1,.3,1)", fill: "backwards" });
-      an.onfinish = function (el) { return function () { el.remove(); chip.classList.remove("pulse"); void chip.offsetWidth; chip.classList.add("pulse"); }; }(c);
+      an.onfinish = function (el, idx) { return function () { el.remove(); coinSound(idx); chip.classList.remove("pulse", "glint"); void chip.offsetWidth; chip.classList.add("pulse", "glint"); }; }(c, i);
     }
   }
   var numTw = new WeakMap();
@@ -2328,6 +2519,157 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       if (k < 1 && numTw.get(el) === st) requestAnimationFrame(step); else { st.v = to; el.textContent = to; }
     })(t0);
   }
+  /* ---------- sky, seasons and the layered backdrop ---------- */
+  var SKYC = { dawn: ["#4a3a82", "#a0508f", "#e8798a", "#ffbf86"], day: ["#5aaeea", "#7fc4f5", "#a6d8fa", "#cdeaff"], sunset: ["#38337a", "#9c3f7c", "#e8604d", "#ffab4f"], night: ["#080a24", "#10123a", "#1a1c55", "#2b2d70"] };
+  function hexRgb(c) { return [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)]; }
+  function mixc(a, b, k) { var x = hexRgb(a), y = hexRgb(b); return "rgb(" + Math.round(x[0] + (y[0] - x[0]) * k) + "," + Math.round(x[1] + (y[1] - x[1]) * k) + "," + Math.round(x[2] + (y[2] - x[2]) * k) + ")"; }
+  function envTod() {
+    if (prof.sky && prof.sky !== "auto") return prof.sky;
+    var d = new Date(), h = d.getHours() + d.getMinutes() / 60;
+    return h >= 5 && h < 7.5 ? "dawn" : h >= 7.5 && h < 17.5 ? "day" : h >= 17.5 && h < 19.5 ? "sunset" : "night";
+  }
+  function envSeason() {
+    if (prof.season === "off") return "off";
+    if (prof.season && prof.season !== "auto") return prof.season;
+    var m = new Date().getMonth();
+    return m >= 2 && m <= 4 ? "spring" : m >= 5 && m <= 7 ? "summer" : m >= 8 && m <= 10 ? "autumn" : "winter";
+  }
+  function rngOf(s) { return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+  var env = { bg: null, bx: null, W: 0, H: 0, sy: 0, bld: [], stars: [], trees: [], sc: null, sx: null, sw: 0, sh: 0, bp: [], sp: [], last: 0, redraw: false };
+  function mkParts(W, H, n) { var a = []; for (var i = 0; i < n; i++) a.push({ x: Math.random() * W, y: Math.random() * H, v: 0.15 + Math.random() * 0.35, p: Math.random() * 6.28, k: (Math.random() * 3) | 0 }); return a; }
+  function stepParts(a, W, H, sea, t) {
+    a.forEach(function (p) {
+      if (sea === "winter") { p.y += p.v * 1.2; p.x += Math.sin(t / 700 + p.p) * 0.25; }
+      else if (sea === "spring") { p.y += p.v * 0.7; p.x += 0.3 + Math.sin(t / 500 + p.p) * 0.25; }
+      else if (sea === "autumn") { p.y += p.v * 0.9; p.x += 0.1 + Math.sin(t / 450 + p.p) * 0.5; }
+      else if (sea === "summer") { p.x += Math.sin(t / 900 + p.p) * 0.25; p.y += Math.cos(t / 1100 + p.p) * 0.2; if (p.y < H * 0.25) p.y = H * 0.25; if (p.y > H * 0.9) p.y = H * 0.9; }
+      if (p.x > W) p.x = -2; if (p.x < -3) p.x = W; if (p.y > H) { p.y = -2; p.x = Math.random() * W; }
+    });
+  }
+  function drawParts(c, a, sea, tod, t, scale) {
+    if (sea === "off") return;
+    a.forEach(function (p) {
+      var x = Math.round(p.x), y = Math.round(p.y);
+      if (sea === "winter") { c.fillStyle = "#ffffff"; c.fillRect(x, y, p.k === 0 ? 2 : 1, p.k === 0 ? 2 : 1); }
+      else if (sea === "spring") { c.fillStyle = p.k === 1 ? "#ffffff" : "#ffb8d0"; c.fillRect(x, y, 2, 1); c.fillRect(x + 1, y + 1, 1, 1); }
+      else if (sea === "autumn") { c.fillStyle = ["#e0602a", "#e0a820", "#a8441a"][p.k]; c.fillRect(x, y, 2, 1); c.fillRect(x + 1, y + 1, 1, 1); }
+      else { var a2 = (Math.sin(t / 300 + p.p) + 1) / 2, dark = tod !== "day"; c.globalAlpha = dark ? 0.35 + a2 * 0.65 : 0.12 + a2 * 0.2; c.fillStyle = "#e8ff7a"; c.fillRect(x, y, scale > 2 ? 1 : 2, scale > 2 ? 1 : 2); if (dark && a2 > 0.6) { c.globalAlpha = 0.25; c.fillRect(x - 1, y, 1, 1); c.fillRect(x + 1, y, 1, 1); } c.globalAlpha = 1; }
+    });
+  }
+  function bgBuild() {
+    var W = env.W, H = env.H, r = rngOf(7), i;
+    env.bld = []; for (i = 0; i < W; i += 0) { var w = 3 + Math.floor(r() * 5), h = 6 + Math.floor(r() * 16); env.bld.push({ x: i, w: w, h: h, s: r() }); i += w + (r() < 0.3 ? 1 : 0); }
+    env.stars = []; for (i = 0; i < 46; i++) env.stars.push({ x: Math.floor(r() * W), y: Math.floor(r() * H * 0.5), s: r() });
+    env.trees = []; for (i = 1; i < W; i += 5 + Math.floor(r() * 4)) env.trees.push({ x: i, h: 6 + Math.floor(r() * 6), k: r() < 0.55 ? 0 : 1, c: Math.floor(r() * 3), b: r() });
+    env.bp = mkParts(W, H, 26);
+  }
+  function bgSize() {
+    if (!env.bg) return;
+    var W = Math.ceil(innerWidth / 4), H = Math.ceil(innerHeight / 4);
+    if (env.bg.width !== W) env.bg.width = W; if (env.bg.height !== H) env.bg.height = H;
+    env.W = W; env.H = H; bgBuild(); env.redraw = true;
+  }
+  function bgDraw(t) {
+    var x = env.bx, W = env.W, H = env.H, tod = document.body.dataset.tod || "day", sea = document.body.dataset.sea || "off", S = SKYC[tod], base = "#1b1a2e", i;
+    var dark = tod === "night" ? 0.62 : tod === "sunset" ? 0.22 : tod === "dawn" ? 0.2 : 0, sy = Math.min(90, env.sy / 5);
+    var hz = Math.round(H * 0.58);
+    for (i = 0; i < 4; i++) { x.fillStyle = mixc(S[i], base, 0.3); x.fillRect(0, Math.floor(hz * i / 4), W, Math.ceil(hz / 4) + 1); }
+    x.fillStyle = mixc(S[3], base, 0.3); x.fillRect(0, hz, W, H - hz);
+    if (tod === "night" || tod === "dawn") env.stars.forEach(function (s) { x.globalAlpha = tod === "dawn" ? 0.4 : (0.45 + 0.55 * Math.abs(Math.sin(t / 900 + s.s * 20))); x.fillStyle = "#ffffff"; x.fillRect(s.x, s.y - Math.round(sy * 0.05), 1, 1); }); x.globalAlpha = 1;
+    var sunX = tod === "day" ? W * 0.78 : tod === "sunset" ? W * 0.84 : tod === "dawn" ? W * 0.2 : W * 0.8, sunY = (tod === "day" ? hz * 0.2 : tod === "night" ? hz * 0.18 : hz * 0.72) - sy * 0.08;
+    x.fillStyle = tod === "night" ? "#e8e6ff" : tod === "day" ? "#fff2a0" : "#ffd27a"; x.fillRect(Math.round(sunX) - 3, Math.round(sunY) - 2, 6, 4); x.fillRect(Math.round(sunX) - 2, Math.round(sunY) - 3, 4, 6);
+    if (tod === "night") { x.fillStyle = mixc(S[0], base, 0.3); x.fillRect(Math.round(sunX) + 1, Math.round(sunY) - 3, 3, 4); }
+    var snow = sea === "winter", i2;
+    function ridge(baseY, amp, f1, f2, ph, col, capCol, capK, par) {
+      var oy = Math.round(-sy * par);
+      for (var xx = 0; xx < W; xx++) {
+        var h = amp * (0.55 + 0.3 * Math.sin(xx * f1 + ph) + 0.15 * Math.sin(xx * f2 + ph * 2.3)), top = Math.round(baseY - h + oy);
+        x.fillStyle = col; x.fillRect(xx, top, 1, H - top);
+        if (capCol && h > amp * capK) { x.fillStyle = capCol; x.fillRect(xx, top, 1, snow ? 3 : 2); }
+      }
+    }
+    var cap = mixc("#f4f1ff", S[2], 0.3 + dark * 0.4);
+    ridge(hz + 4, H * 0.2, 0.045, 0.13, 1.0, mixc("#5a5aa8", "#0a0a22", 0.1 + dark * 0.8), cap, 0.7, 0.1);
+    ridge(hz + 10, H * 0.14, 0.07, 0.19, 2.4, mixc("#3c3a80", "#0a0a22", 0.3 + dark * 0.5), null, 0, 0.18);
+    // city skyline
+    var cy = hz + Math.round(H * 0.1) - Math.round(sy * 0.28), lit = tod === "night" || tod === "sunset" || tod === "dawn";
+    env.bld.forEach(function (b) {
+      x.fillStyle = mixc("#2a2860", "#08081c", 0.2 + dark * 0.6); x.fillRect(b.x, cy - b.h, b.w, H);
+      if (b.s > 0.82) { x.fillRect(b.x + 1, cy - b.h - 3, 1, 3); }
+      if (lit) for (var wy = cy - b.h + 2; wy < cy - 1; wy += 3) for (var wx = b.x + 1; wx < b.x + b.w - 1; wx += 2) { var on = Math.sin(wx * 12.9 + wy * 7.7 + Math.floor(t / 4000)) > 0.1; if (on) { x.fillStyle = "#ffd77a"; x.fillRect(wx, wy, 1, 1); } }
+    });
+    // trees by the water
+    var ty = hz + Math.round(H * 0.22) - Math.round(sy * 0.4);
+    env.trees.forEach(function (tr) {
+      var base2 = ty, trunk = mixc("#6b4423", "#0a0a1a", dark * 0.8), leaf, leaf2;
+      if (sea === "autumn") { leaf = ["#c9752a", "#d9a520", "#a8441a"][tr.c]; } else if (sea === "spring") { leaf = "#58a84c"; } else if (sea === "winter") { leaf = "#2f6a48"; } else { leaf = tr.c === 0 ? "#2f8a46" : tr.c === 1 ? "#3fa856" : "#27783c"; }
+      leaf = mixc(leaf, "#0a0a1a", 0.12 + dark * 0.7); trunk = mixc("#6b4423", "#0a0a1a", 0.12 + dark * 0.7);
+      x.fillStyle = trunk; x.fillRect(tr.x, base2 - 3, 1, 4 + (H - base2));
+      if (tr.k === 0) { for (var j = 0; j < 4; j++) { x.fillStyle = leaf; x.fillRect(tr.x - (4 - j), base2 - tr.h + j * 3, 2 * (4 - j) + 1, 3); if (snow) { x.fillStyle = "#e8f0ff"; x.fillRect(tr.x - (4 - j), base2 - tr.h + j * 3, 2 * (4 - j) + 1, 1); } } }
+      else { if (sea !== "winter") { x.fillStyle = leaf; x.fillRect(tr.x - 3, base2 - tr.h + 2, 7, 5); x.fillRect(tr.x - 2, base2 - tr.h, 5, 3); if (sea === "spring") { x.fillStyle = "#ffb8d0"; x.fillRect(tr.x - 2, base2 - tr.h + 3, 1, 1); x.fillRect(tr.x + 2, base2 - tr.h + 5, 1, 1); x.fillRect(tr.x, base2 - tr.h + 1, 1, 1); } } else { x.fillStyle = trunk; x.fillRect(tr.x - 2, base2 - tr.h + 3, 5, 1); x.fillRect(tr.x - 1, base2 - tr.h + 1, 3, 1); x.fillStyle = "#e8f0ff"; x.fillRect(tr.x - 2, base2 - tr.h + 3, 5, 1); } }
+    });
+    // ground bank and river
+    var ry = hz + Math.round(H * 0.3) - Math.round(sy * 0.5);
+    x.fillStyle = mixc(snow ? "#d8e4f4" : sea === "autumn" ? "#8a6a2a" : "#3a7a3a", "#0a0a1a", 0.15 + dark * 0.7); x.fillRect(0, ty + 1, W, ry - ty);
+    var water = mixc("#2d6fb0", "#0a0a22", 0.2 + dark * 0.6); x.fillStyle = water; x.fillRect(0, ry, W, H - ry);
+    var shine = mixc("#9fd8ff", "#303060", 0.1 + dark * 0.6);
+    for (i2 = 0; i2 < 18; i2++) { var wy2 = ry + 2 + (i2 * 5) % Math.max(4, H - ry), wx2 = Math.floor((i2 * 23 + t / 120 * (1 + (i2 % 3) * 0.4)) % (W + 6)) - 3; x.fillStyle = shine; x.fillRect(wx2, wy2, 3 + (i2 % 3), 1); }
+    drawParts(x, env.bp, sea, tod, t, 4);
+  }
+  function stageSize() {
+    var st = $("#stage"); if (!st || st.hidden) return;
+    if (!env.sc) { var c = document.createElement("canvas"); c.className = "stagefx"; c.setAttribute("aria-hidden", "true"); var gr = st.querySelector(".ground"); st.insertBefore(c, gr ? gr.nextSibling : st.firstChild); env.sc = c; env.sx = c.getContext("2d"); }
+    var w = Math.ceil(st.clientWidth / 2), h = Math.ceil(st.clientHeight / 2);
+    if (env.sc.width !== w || env.sc.height !== h) { env.sc.width = w; env.sc.height = h; env.sw = w; env.sh = h; env.sp = mkParts(w, h, 34); }
+  }
+  function stageDraw(t) {
+    var st = $("#stage"); if (!st || st.hidden || !env.sx) return;
+    var tod = document.body.dataset.tod || "day", sea = document.body.dataset.sea || "off";
+    env.sx.clearRect(0, 0, env.sw, env.sh); drawParts(env.sx, env.sp, sea, tod, t, 2);
+  }
+  function envFrame(now) {
+    requestAnimationFrame(envFrame);
+    var anim = document.body.classList.contains("fx");
+    if (document.hidden) return;
+    if (anim ? now - env.last < 70 : !env.redraw) return;
+    env.last = now; env.redraw = false;
+    var sea = document.body.dataset.sea || "off";
+    if (anim) { stepParts(env.bp, env.W, env.H, sea, now); stageSize(); stepParts(env.sp, env.sw, env.sh, sea, now); }
+    else { stageSize(); }
+    bgDraw(now); stageDraw(now);
+  }
+  function applyEnv() {
+    var tod = envTod(), sea = envSeason(), b = document.body;
+    if (b.dataset.tod !== tod || b.dataset.sea !== sea) { b.dataset.tod = tod; b.dataset.sea = sea; env.redraw = true; }
+    stageSize();
+  }
+  function envChips() {
+    function row(sel, key, vals) {
+      var el = $(sel); if (!el) return;
+      el.innerHTML = vals.map(function (v) { return '<button class="chip" type="button" data-env="' + key + '" data-v="' + v + '" aria-pressed="' + ((prof[key] || "auto") === v) + '">' + v.toUpperCase() + "</button>"; }).join("");
+    }
+    row("#envSky", "sky", ["auto", "dawn", "day", "sunset", "night"]);
+    row("#envSea", "season", ["auto", "spring", "summer", "autumn", "winter", "off"]);
+  }
+  (function envInit() {
+    var c = document.createElement("canvas"); c.id = "bgArt"; c.setAttribute("aria-hidden", "true");
+    document.body.insertBefore(c, document.body.firstChild); env.bg = c; env.bx = c.getContext("2d");
+    bgSize(); applyEnv(); envChips();
+    window.addEventListener("resize", function () { bgSize(); stageSize(); });
+    window.addEventListener("scroll", function () { env.sy = window.scrollY || 0; env.redraw = true; }, { passive: true });
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) { applyEnv(); env.redraw = true; } });
+    setInterval(applyEnv, 60000);
+    document.addEventListener("click", function (e) {
+      var b = e.target.closest && e.target.closest("[data-env]"); if (!b) return;
+      prof[b.dataset.env] = b.dataset.v; dirty = true; store.save(); applyEnv(); envChips();
+    });
+    requestAnimationFrame(envFrame);
+  })();
+  (function hdrIcons() {
+    [["#shopBtn", "shop", "SHOP"], ["#goalsBtn", "goals", "GOALS"], ["#tourBtn", "help", ""], ["#customBtn", "paint", "CUSTOMIZE"]].forEach(function (a) { var b = $(a[0]); if (b) b.innerHTML = pxi(a[1]) + a[2]; });
+    var t1 = document.querySelector('.tab.big[data-view="planner"]'), t2 = document.querySelector('.tab.big[data-view="tt"]');
+    if (t1) t1.innerHTML = pxi("check") + "PLANNER"; if (t2) t2.innerHTML = pxi("cal") + "TIME TABLE";
+  })();
   var enterId = "", doneId = "";
   applyToggles();
 
@@ -2590,7 +2932,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       return '<li class="tl' + (isNow ? " now" : "") + (dn ? " done" : "") + (brk ? " brk" : "") + '" style="--c:' + col + '">' +
         '<span class="ttime">' + mm(b.start) + " - " + mm(b.end) + "</span>" +
         '<div class="tmain"><button class="tname" type="button" data-bedit="' + b.id + '">' + esc(blockName(b)) + "</button>" +
-        (b.type === "rev" ? '<span class="badge rv">REVISION</span>' : "") + (b.type !== "break" ? '<button class="focusbtn" type="button" data-focus="b:' + b.id + '" data-tip="START A FOCUS TIMER">FOCUS</button>' : "") + ((+(b.focus || {})[dk] > 0) ? '<span class="badge fm">' + Math.round(b.focus[dk]) + "/" + (b.end - b.start) + " MIN</span>" : "") + (isNow && !dn ? '<span class="badge">NOW</span>' : "") + (b.id === nextId && !isNow ? '<span class="badge next">NEXT</span>' : "") + "</div>" +
+        (b.type === "rev" ? '<span class="badge rv">REVISION</span>' : "") + (b.type !== "break" ? '<button class="focusbtn" type="button" data-focus="b:' + b.id + '" data-tip="START A FOCUS TIMER">' + pxi("timer", "sm") + 'FOCUS</button>' : "") + ((+(b.focus || {})[dk] > 0) ? '<span class="badge fm">' + Math.round(b.focus[dk]) + "/" + (b.end - b.start) + " MIN</span>" : "") + (isNow && !dn ? '<span class="badge">NOW</span>' : "") + (b.id === nextId && !isNow ? '<span class="badge next">NEXT</span>' : "") + "</div>" +
         (brk ? "<span></span>" : '<button class="check' + (dn ? " on" : "") + '" data-ttdone="' + b.id + '" aria-label="' + (dn ? "Mark not done" : "Mark done") + '"><svg viewBox="0 0 6 6" shape-rendering="crispEdges"><path d="M0 3h1v1h1v1h1V4h1V3h1V1h-1v1H4v1H3v1H2V3H0z" fill="#000"/></svg></button>') + "</li>";
     }).join("");
   }
@@ -2875,6 +3217,39 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     return "";
   }
   var psDone = false;
+  var PS_FOCUS = ["Focus. One page at a time.", "You've got this, {n}!", "Phone away. Eyes on the book.", "Deep breath. Keep going.", "Stay with it. Almost there!", "Every minute counts."];
+  var PS_IDLE = ["Ready when you are.", "Press START to focus.", "Let's study something!"];
+  var PS_PAUSE = ["Paused. Ready to continue?", "Take your time, then press RESUME."];
+  var PS_BREW = ["Brewing a fresh cup...", "Have a coffee, relax.", "Smells so good!"];
+  var PS_SIP = ["Mmm... relax.", "Have a coffee, relax.", "You earned this break.", "Stretch your shoulders.", "Rest your eyes for a bit."];
+  var PS_REST0 = ["Break time! Let's make coffee.", "Press START for a short rest."];
+  var psKey = "", psIdx = 0, psCls = "";
+  function psMsgs(key) {
+    var n = prof.name || "friend", a = key === "done" ? ["Session done! Great work, {n}!"] : key === "focus" ? PS_FOCUS : key === "idle" ? PS_IDLE : key === "pause" ? PS_PAUSE : key === "brew" ? PS_BREW : key === "sip" ? PS_SIP : PS_REST0;
+    return a.map(function (m) { return m.replace("{n}", n); });
+  }
+  function psSay(force) {
+    var say = $("#psSay"); if (!say) return;
+    var arr = psMsgs(psKey), t = arr[psIdx % arr.length];
+    if (say.textContent !== t || force) { say.textContent = t; say.classList.remove("pop"); void say.offsetWidth; say.classList.add("pop"); }
+  }
+  function psSceneSync() {
+    var sc = $("#pomoScene"); if (!sc) return;
+    var rest = pomo.phase !== "focus", total = pomoMs(pomo.phase), left = pomo.running ? Math.max(0, pomo.endAt - Date.now()) : pomo.left;
+    var el = total > 0 ? Math.min(1, Math.max(0, 1 - left / total)) : 0;
+    var cf = rest ? Math.min(100, Math.round(el / 0.4 * 100)) : 0, started = el > 0.003, key, cls;
+    if (psDone) { key = "done"; cls = "pomo-scene idle done"; }
+    else if (rest) {
+      var sub = el >= 0.4 ? "sip" : "brew"; key = started || pomo.running ? sub : "rest0";
+      cls = "pomo-scene rest " + sub + (pomo.running ? " go" : "") + (cf > 25 ? " warm" : "");
+    } else { key = pomo.running ? "focus" : (el > 0.003 ? "pause" : "idle"); cls = "pomo-scene " + (pomo.running ? "read" : "idle"); }
+    if (cls !== psCls) { sc.className = cls; psCls = cls; }
+    sc.style.setProperty("--cf", cf);
+    var cup = sc.querySelector(".ps-cup"); if (cup) cup.style.setProperty("--cf", cf);
+    var dr = sc.querySelector(".ps-drip"); if (dr) dr.style.setProperty("--cf", cf);
+    if (key !== psKey) { psKey = key; psIdx = 0; psSay(true); }
+  }
+  setInterval(function () { if ($("#viewTT") && !$("#viewTT").hidden) { psIdx++; psSay(false); } }, 6500);
   function renderPomo() {
     var left = pomo.running ? pomo.endAt - Date.now() : pomo.left;
     $("#pomoTime").textContent = fmtMs(left);
@@ -2882,7 +3257,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     var box = $("#pomoTime").parentElement; box.classList.toggle("brk", pomo.phase !== "focus"); box.classList.toggle("run", pomo.running);
     var sc = $("#pomoScene");
     if (sc) {
-      sc.className = "pomo-scene " + (pomo.phase !== "focus" ? "rest" : pomo.running ? "read" : "idle") + (psDone ? " done" : "");
+      psSceneSync();
       var sk = String(avatar || "") + "|" + (typeof sprSig === "function" ? sprSig() : "");
       if (sc.dataset.k !== sk) { sc.dataset.k = sk; $("#psChar").innerHTML = avatar ? spriteImg(avatar, "front") : ""; }
     }
@@ -2965,7 +3340,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     if (window.AndroidBridge && kaLast !== pomo.running) { kaLast = pomo.running; try { window.AndroidBridge.keepAwake(!!pomo.running); } catch (e) {} }
     if (!pomo.running) return;
     if (pomo.endAt - Date.now() <= 0) pomoComplete();
-    else if (!$("#viewTT").hidden) $("#pomoTime").textContent = fmtMs(pomo.endAt - Date.now());
+    else if (!$("#viewTT").hidden) { $("#pomoTime").textContent = fmtMs(pomo.endAt - Date.now()); psSceneSync(); }
   }, 250);
 
   /* ---------- plan an exam (wizard + panel) ---------- */
@@ -3408,12 +3783,12 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     { view: "planner", sel: ".mainnav", text: "Nice to meet you, {n}. The app has two windows. PLANNER is for daily tasks and habits. TIME TABLE is for exam prep, with a weekly plan, a focus timer and a syllabus. Switch between them with these tabs.", again: "Two windows: PLANNER for daily tasks, TIME TABLE for exam prep. Use these tabs to switch." },
     { view: "planner", sel: "#addForm", text: "Tasks start here. Type what needs doing, then set a priority, a due date and an optional repeat. Pick a stat such as FITNESS or STUDY and finishing the task adds XP to it. Pick WATER or PROTEIN and set an amount to log it automatically.", again: "Type a task, set priority and date, and optionally link it to a stat so finishing it earns XP." },
     { view: "planner", sel: "#stats", text: "These bars show your progress. Fitness and Study level up as you earn XP. Water and protein are daily goals, and the quick-add buttons log a drink or a meal in one tap. Every bar has UNDO. Hit all four goals in a day and your streak grows.", again: "Fitness and Study level up with XP. Water and protein are daily goals with quick-add buttons. UNDO reverses any step." },
-    { view: "planner", sel: "#stage", text: "That's me, walking in my own little world. I grow with your habits. Fitness changes my body at levels 4, 10, 15 and 25, and Study adds gear at the same levels: glasses, a scarf, a graduate cap, then a golden look. I drink when you log water, eat when you log protein, and cheer at your goals. Tap me to chat.", again: "I evolve at levels 4, 10, 15 and 25 and react to what you log. Undo a level and my look goes back." },
+    { view: "planner", sel: "#stage", text: "That's me, walking in my own little world. The sky follows your phone's clock and the seasons change, so you may see snow, blossoms, fireflies or falling leaves. I grow with your habits. Fitness changes my body at levels 4, 10, 15 and 25, and Study adds gear at the same levels: glasses, a scarf, a graduate cap, then a golden look. I drink when you log water, eat when you log protein, and cheer at your goals. Tap me to chat.", again: "I evolve at levels 4, 10, 15 and 25 and react to what you log. Undo a level and my look goes back." },
     { view: "planner", sel: "#coinRow", text: "You earn coins for every task, focus session and daily goal, plus a bonus for perfect days. They also show at the top of the screen. Spend them in the SHOP on a house built in five stages, a dog or a cat, and hats and outfits. COIN GUIDE lists exactly what each action pays.", again: "Coins come from tasks, sessions, goals and streaks. The SHOP sells a house, pets, hats and outfits. COIN GUIDE shows the payouts." },
     { view: "planner", sel: "section[aria-label=Tasks]", text: "Your tasks live here, with the week strip above to filter by day. Tick a task to complete it and earn XP. On a Study task, START TIMER begins a focus session for it. Use the tabs to see open, done, overdue or later tasks.", again: "Tick tasks to finish them and earn XP. START TIMER runs a focus session. Tabs filter open, done, overdue and later." },
     { view: "tt", sel: "#viewTT .exam", text: "Welcome to the Time Table. The bar at the bottom counts down to your exam. PLAN AN EXAM sets up your exam date, subjects, topics and study hours. Your plan fills the weekly grid. Tap a slot to add a block, drag to move it, or pull its edge to resize. TODAY lists the day's blocks.", again: "PLAN AN EXAM builds your weekly grid from your subjects and hours. The bottom bar counts down to the exam." },
     { view: "tt", sel: "#secPomo", text: "To start a focus timer, press START here, or tap START TIMER on a task, or FOCUS on a block. Choose what you're working on so your minutes are logged. Let it run to zero to complete a session. You earn Study XP and coins, a break begins, and a block ticks itself off once its focus target is reached.", again: "Start from this card, a task or a block. Run to zero to finish a session and earn XP. Enough sessions tick the block off." },
-    { view: "tt", sel: "#pomoScene", text: "While you focus I read at the desk, with the lamp on and the pencil moving. In breaks I stretch and drink. A lightbulb pops up when a session finishes. That's the full tour, {n}. There's a lot more to explore in your free time: customise my look, set goals, back up your data and plan more exams. Replay this any time with the ? button.", finish: true }
+    { view: "tt", sel: "#pomoScene", text: "While you focus I read at the desk, with the lamp lighting my book and a little speech bubble cheering me on. In breaks I brew a fresh coffee and sip it. A lightbulb pops up when a session finishes. That's the full tour, {n}. There's a lot more to explore in your free time: customise my look, set goals, back up your data and plan more exams. Replay this any time with the ? button.", finish: true }
   ];
   function curView() { return $("#viewTT").hidden ? "planner" : "tt"; }
   function tourShowBtns(list) {
