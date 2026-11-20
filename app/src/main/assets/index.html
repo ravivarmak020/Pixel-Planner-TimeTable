@@ -487,6 +487,8 @@ h2::before { content: ""; display: inline-block; width: 8px; height: 8px; margin
 .empty::before { content: ""; display: block; width: 24px; height: 24px; margin: 0 auto 12px; background: var(--panel); box-shadow: 0 0 0 4px var(--hover); }
 
 .btn[data-tip], .icon[data-tip], .hero-btn[data-tip] { position: relative; }
+@media (hover: none) { [data-tip]::after { display: none !important; } }
+html, body { overflow-x: clip; }
 [data-tip]::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 10px); transform: translate(-50%, 4px); background: var(--ink); color: #000; font-family: var(--font-display); font-size: 8px; line-height: 1; padding: 7px 8px; white-space: nowrap; pointer-events: none; opacity: 0; z-index: 60; box-shadow: 0 -2px 0 0 #000, 0 2px 0 0 #000, -2px 0 0 0 #000, 2px 0 0 0 #000; transition: opacity .12s steps(3), transform .12s steps(3); }
 [data-tip]:hover::after, [data-tip]:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
 .hero-btn[data-tip]::after { left: 0; transform: translate(0, 4px); }
@@ -1001,8 +1003,8 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     if (o.goals) { ["hydration", "protein", "perLevel"].forEach(function (k) { var v = +o.goals[k]; if (v > 0) r.goals[k] = v; }); }
     r.streak = Math.max(0, +o.streak || 0); r.best = Math.max(r.streak, +o.best || 0);
     r.lastPerfect = o.lastPerfect || null; r.yday = o.yday || null; r.lastQuick = {};
-    if (o.lastQuick && typeof o.lastQuick === "object") ["hydration", "protein"].forEach(function (k) {
-      var v = o.lastQuick[k]; r.lastQuick[k] = Array.isArray(v) ? v.map(function (n) { return n && typeof n === "object" ? { n: +n.n, t: String(n.t || "") } : +n; }).filter(function (n) { return (typeof n === "object" ? n.n : n) > 0; }).slice(-50) : (+v > 0 ? [+v] : []);
+    if (o.lastQuick && typeof o.lastQuick === "object") ["hydration", "protein", "fitness", "study"].forEach(function (k) {
+      var v = o.lastQuick[k]; r.lastQuick[k] = Array.isArray(v) ? v.map(function (n) { return n && typeof n === "object" ? { n: +n.n, t: String(n.t || ""), b: String(n.b || ""), tk: String(n.tk || ""), tm: n.tm ? 1 : 0, mins: +n.mins || 0, auto: n.auto ? 1 : 0 } : +n; }).filter(function (n) { return (typeof n === "object" ? n.n : n) > 0; }).slice(-50) : (+v > 0 ? [+v] : []);
     });
     return r;
   }
@@ -1052,7 +1054,9 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     var hits = goalsHit(stats), n = hits.filter(Boolean).length;
     var bars = CAT_KEYS.map(function (k) {
       var c = CATS[k], sv = statView(k);
-      var quick = c.quick ? '<div class="quick">' + c.quick.map(function (q) { return '<button class="qbtn" type="button" data-q="' + k + '" data-n="' + q + '" data-tip="ADD ' + q + " " + c.unit + '">+' + q + "</button>"; }).join("") + '<button class="qbtn undo" type="button" data-qundo="' + k + '" data-tip="UNDO THE LAST QUICK ADD (AS MANY TIMES AS YOU LIKE)"' + (stats[k] > 0 ? "" : " disabled") + ">UNDO" + ((stats.lastQuick[k] && stats.lastQuick[k].length > 1) ? " " + stats.lastQuick[k].length : "") + "</button></div>" : "";
+      var lgq = stats.lastQuick[k] || [], canUndo = c.quick ? stats[k] > 0 : lgq.length > 0;
+      var undoBtn = '<button class="qbtn undo" type="button" data-qundo="' + k + '" data-tip="UNDO THE LAST ' + (c.quick ? "QUICK ADD" : "PROGRESS ADDED TODAY") + ' (AS MANY TIMES AS YOU LIKE)"' + (canUndo ? "" : " disabled") + ">UNDO" + (lgq.length > 1 ? " " + lgq.length : "") + "</button>";
+      var quick = '<div class="quick">' + (c.quick ? c.quick.map(function (q) { return '<button class="qbtn" type="button" data-q="' + k + '" data-n="' + q + '" data-tip="ADD ' + q + " " + c.unit + '">+' + q + "</button>"; }).join("") : "") + undoBtn + "</div>";
       return '<div class="stat' + (sv.full ? " full" : "") + '" data-stat="' + k + '" style="--c:' + c.color + '"><div class="sic">' + iconSvg(k) + '</div>' +
         '<div class="shead"><span class="sname">' + c.label + '</span><span class="slv">' + sv.lv + '</span></div>' +
         '<div class="bar"><div class="fill" style="width:' + sv.pct + '%"></div><div class="segs"></div></div><span class="sval">' + sv.txt + "</span>" + quick + "</div>";
@@ -1110,12 +1114,12 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       var sameDay = t.doneOn === stats.day;
       t.pts = 0; t.doneOn = null;
       if (c.daily && !sameDay) return;
-      if (c.daily) { var lg = stats.lastQuick[k] || []; for (var li = lg.length - 1; li >= 0; li--) if (typeof lg[li] === "object" && lg[li].t === t.id) { lg.splice(li, 1); break; } }
+      { var lg = stats.lastQuick[k] || []; for (var li = lg.length - 1; li >= 0; li--) if (typeof lg[li] === "object" && lg[li].t === t.id) { lg.splice(li, 1); break; } }
       if (!c.daily && sameDay) stats.today[k] = Math.max(0, (stats.today[k] || 0) - pts);
       applyStat(k, -pts); return;
     }
     if (!c.daily) stats.today[k] = (stats.today[k] || 0) + pts;
-    else { var lg2 = (stats.lastQuick[k] = stats.lastQuick[k] || []); lg2.push({ n: pts, t: t.id }); if (lg2.length > 50) lg2.shift(); }
+    { var lg2 = (stats.lastQuick[k] = stats.lastQuick[k] || []); lg2.push({ n: pts, t: t.id }); if (lg2.length > 50) lg2.shift(); }
     applyStat(k, pts);
   }
   function quickAdd(k, n) {
@@ -1126,6 +1130,22 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     rollDay();
     if (!(stats[k] > 0)) return;
     var log = stats.lastQuick[k] || (stats.lastQuick[k] = []), e = log.pop();
+    if (!CATS[k].quick && !e) { toast("NOTHING TO UNDO TODAY", "gold"); renderStats(); return; }
+    if (e && typeof e === "object" && e.tm) {
+      var tdy = todayIso(), ub = e.b && tt.blocks.find(function (x) { return x.id === e.b; }), ut = e.tk && state.tasks.find(function (x) { return x.id === e.tk; });
+      var mn = +e.mins || 0;
+      if (ub) { ub.focus = ub.focus || {}; ub.focus[tdy] = Math.max(0, (+ub.focus[tdy] || 0) - mn); if (e.auto && isDone(ub, tdy)) setBlockDone(ub, tdy, false, true); if (ub.link) { var ult = state.tasks.find(function (x) { return x.id === ub.link; }); if (ult) ult.focus = Math.max(0, (+ult.focus || 0) - mn); } }
+      if (ut) ut.focus = Math.max(0, (+ut.focus || 0) - mn);
+      var un = Math.min(stats[k], e.n);
+      stats.today[k] = Math.max(0, (stats.today[k] || 0) - un); applyStat(k, -un);
+      dirty = true; store.save(); render(); if ($("#viewTT").hidden) renderPomo(); else renderTT();
+      toast("UNDID " + un + " " + CATS[k].label + " XP / " + mn + " MIN", "gold"); return;
+    }
+    if (e && typeof e === "object" && e.b) {
+      var bk = tt.blocks.find(function (x) { return x.id === e.b; });
+      if (bk && bk.xp && bk.xp[todayIso()]) { setBlockDone(bk, todayIso(), false, true); toast("REOPENED: " + blockName(bk).slice(0, 24).toUpperCase(), "gold"); return; }
+      e = e.n;
+    }
     if (e && typeof e === "object") {
       var t = state.tasks.find(function (x) { return x.id === e.t; });
       if (t && t.done) {
@@ -1633,10 +1653,12 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       var pts = Math.max(5, Math.round((b.end - b.start) / 30) * 5);
       b.xp[date] = pts;
       if (date === stats.day) stats.today[cat] = (stats.today[cat] || 0) + pts;
+      if (date === stats.day) { var lgb = (stats.lastQuick[cat] = stats.lastQuick[cat] || []); lgb.push({ n: pts, b: b.id }); if (lgb.length > 50) lgb.shift(); }
       applyStat(cat, pts);
     } else {
       var p = b.xp[date]; if (!p) return;
       delete b.xp[date];
+      { var lgr = stats.lastQuick[cat] || []; for (var lj = lgr.length - 1; lj >= 0; lj--) if (typeof lgr[lj] === "object" && lgr[lj].b === b.id) { lgr.splice(lj, 1); break; } }
       if (date === stats.day) stats.today[cat] = Math.max(0, (stats.today[cat] || 0) - p);
       applyStat(cat, -p);
     }
@@ -2055,7 +2077,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     pomoBeep();
     if (pomo.phase === "focus") {
       var n = pomoCount() + 1; tt.pomoDay = { date: todayIso(), count: n };
-      var xpTxt = "", xpTxtBlock = false, mins = pcfg().focus, tg = pomo.target, tb = null, tk = null, cat = "study";
+      var uEntry = null, xpTxt = "", xpTxtBlock = false, mins = pcfg().focus, tg = pomo.target, tb = null, tk = null, cat = "study";
       if (tg.indexOf("b:") === 0) tb = tt.blocks.find(function (x) { return x.id === tg.slice(2); });
       if (tg.indexOf("t:") === 0) tk = state.tasks.find(function (x) { return x.id === tg.slice(2); });
       if (tb) { tb.focus = tb.focus || {}; tb.focus[todayIso()] = (+tb.focus[todayIso()] || 0) + mins; cat = tb.type === "task" ? (tb.cat === "fitness" ? "fitness" : (tb.cat === "study" || tb.link ? "study" : null)) : "study"; }
@@ -2067,7 +2089,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       }
       if (tb && tb.link) { var lt = state.tasks.find(function (x) { return x.id === tb.link; }); if (lt) lt.focus = (+lt.focus || 0) + mins; }
       var xp = Math.max(1, Math.round(mins / 5));
-      if (tt.features.xp && cat) { rollDay(); stats.today[cat] = (stats.today[cat] || 0) + xp; applyStat(cat, xp); xpTxt = " +" + xp + " " + CATS[cat].label + " XP"; }
+      if (tt.features.xp && cat) { rollDay(); stats.today[cat] = (stats.today[cat] || 0) + xp; uEntry = { n: xp, tm: 1, b: tb ? tb.id : "", tk: tk ? tk.id : "", mins: mins, auto: 0 }; var lgt = (stats.lastQuick[cat] = stats.lastQuick[cat] || []); lgt.push(uEntry); if (lgt.length > 50) lgt.shift(); applyStat(cat, xp); xpTxt = " +" + xp + " " + CATS[cat].label + " XP"; }
       if (tb || xpTxtBlock || tk) xpTxt += " / +" + mins + " MIN LOGGED";
       pomo.phase = n % pcfg().every === 0 ? "long" : "short";
       toast("FOCUS DONE! TAKE A BREAK." + xpTxt, "gold"); sysBanner("[ TIMER ]", "FOCUS COMPLETE<br>" + (pomo.phase === "long" ? "LONG" : "SHORT") + " BREAK");
@@ -2075,7 +2097,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
         var tdy = todayIso(), occursToday = tb.date ? tb.date === tdy : tb.day === dayIdx(new Date());
         var needMin = tb.pomo && tb.pomo.need ? tb.pomo.need : (tb.end - tb.start);
         if (occursToday && !isDone(tb, tdy) && (+tb.focus[tdy] || 0) >= needMin) {
-          setBlockDone(tb, tdy, true, true);
+          setBlockDone(tb, tdy, true, true); if (uEntry) uEntry.auto = 1;
           setTimeout(function () { celebrateBlock(tb, +tb.focus[tdy] || 0, xp && cat ? " / +" + xp + " XP THIS SESSION" : ""); }, 350);
         }
       }
