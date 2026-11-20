@@ -519,6 +519,32 @@ h2 { line-height: 1.5; }
 .bookrain i::after { content: ""; position: absolute; left: 3px; top: 3px; width: 8px; height: 3px; background: #fff; }
 @keyframes bookfall { 0% { transform: translateY(0) rotate(0); } 100% { transform: translateY(110vh) rotate(260deg); } }
 @media (prefers-reduced-motion: reduce) { .flex, .bookrain i { animation: none !important; } }
+.coinrow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; grid-column: 1 / -1; padding-top: 6px; }
+.coinic { display: inline-block; width: 16px; height: 16px; background: #ffd23f; border: 3px solid #000; box-shadow: inset -3px -3px 0 #e0a800; flex: none; }
+.coinval { font-family: var(--font-display); font-size: 11px; color: #ffd23f; min-width: 32px; }
+.cbar { flex: 1 1 80px; min-width: 70px; height: 14px; background: #000; border: 3px solid #000; box-shadow: 0 0 0 2px var(--gold); position: relative; }
+.cfill { display: block; height: 100%; width: 0; background: #ffd23f; }
+.cnext { font-family: var(--font-display); font-size: 8px; line-height: 1.5; color: #bbb; }
+.shop-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.shop-coins { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-display); font-size: 11px; color: #ffd23f; }
+#shop h3 { font-family: var(--font-display); font-size: 9px; color: var(--gold); margin: 12px 0 6px; }
+.shop-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 0; }
+.shop-name { font-size: 18px; } .shop-name small { font-size: 14px; color: #bbb; }
+#shopList { max-height: 56vh; overflow: auto; }
+.house { position: absolute; right: 4px; bottom: 20px; width: 96px; height: 72px; pointer-events: none; }
+.house svg { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+.house[hidden], .pet[hidden] { display: none; }
+.pet { position: absolute; left: 0; bottom: 22px; width: 32px; height: 24px; pointer-events: none; will-change: transform; }
+.pet svg { width: 100%; height: 100%; display: block; }
+.fxitem { position: absolute; left: 28px; top: 6px; width: 16px; height: 16px; pointer-events: none; z-index: 3; }
+.fxitem svg { width: 100%; height: 100%; display: block; }
+.fxitem.drink { animation: fxup 1.9s steps(8) both; }
+.fxitem.eat { animation: fxup 1.9s steps(8) both; }
+@keyframes fxup { 0% { transform: translate(8px, 16px); } 35%, 75% { transform: translate(-4px, 4px) rotate(-25deg); } 100% { transform: translate(8px, 16px); opacity: 0; } }
+.evoflash { position: fixed; inset: 0; background: #fff; pointer-events: none; z-index: 9998; animation: evof .8s steps(6) both; }
+@keyframes evof { 0% { opacity: .9; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .evoflash, .fxitem { animation: none !important; } }
+
 .modal { position: fixed; inset: 0; z-index: 100; background: rgba(10,9,24,.85); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .modal[hidden] { display: none; }
 .modal .box { max-height: 92vh; overflow: auto; width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 16px; }
@@ -673,7 +699,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       <button class="hero-btn" id="avatarBtn" type="button" aria-label="Change character" data-tip="CHANGE CHARACTER"></button>
       <h1 id="appTitle">PIXEL PLANNER</h1>
     </div>
-    <div class="head-actions"><button class="btn alt" id="goalsBtn" type="button" data-tip="GOALS AND BACKUP">GOALS</button> <button class="btn alt" id="tourBtn" type="button" aria-label="Show the guided tour" data-tip="TOUR WITH PIXEL">?</button> <button class="btn alt" id="customBtn" type="button" data-tip="COLORS FOR YOUR CHARACTER">CUSTOMIZE</button></div>
+    <div class="head-actions"><button class="btn alt" id="shopBtn" type="button" data-tip="SPEND COINS ON A HOUSE, PETS AND LOOKS">SHOP</button> <button class="btn alt" id="goalsBtn" type="button" data-tip="GOALS AND BACKUP">GOALS</button> <button class="btn alt" id="tourBtn" type="button" aria-label="Show the guided tour" data-tip="TOUR WITH PIXEL">?</button> <button class="btn alt" id="customBtn" type="button" data-tip="COLORS FOR YOUR CHARACTER">CUSTOMIZE</button></div>
   </header>
   <div class="toasts" id="toasts" aria-live="polite"></div>
 
@@ -687,6 +713,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
 
   <div class="box stage" id="stage" hidden>
     <div class="sun"></div><div class="clouds"></div><div class="hills"></div><div class="trees"></div><div class="ground"></div>
+    <div class="house" id="house"></div><div class="pet" id="petDog" hidden></div><div class="pet" id="petCat" hidden></div>
     <button class="walker" id="walker" type="button" aria-label="Click your character to say hi"><div class="flip" id="flip"></div></button>
     <div class="bubble" id="bubble" hidden></div>
   </div>
@@ -834,6 +861,15 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     <p>Pick the character that goes with your tasks.</p>
     <div class="picks" id="picks"></div>
     <button class="btn alt" id="pickClose" type="button" hidden>CLOSE</button>
+  </div>
+</div>
+
+<div class="modal" id="shop" role="dialog" aria-modal="true" aria-labelledby="shopTitle" hidden>
+  <div class="box wide">
+    <div class="shop-head"><h2 id="shopTitle">PIXEL SHOP</h2><span class="shop-coins"><span class="coinic"></span><b id="shopCoins">0</b></span></div>
+    <p class="hint" id="shopMsg">Earn coins by finishing tasks, focus sessions, daily goals and streaks.</p>
+    <div id="shopList"></div>
+    <div class="row-btns"><button class="btn" id="shopDone" type="button">DONE</button></div>
   </div>
 </div>
 
@@ -1039,6 +1075,8 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     for (var k in base) pal[k] = base[k];
     if (key === "boy" || key === "girl") {
       if (c.hair) { var hk = key === "boy" ? "h" : "y"; pal[hk] = c.hair; pal.H = tint(c.hair, 0.3); }
+      var ofc = stats && stats.inv && stats.inv.outfit && SHOP_OUTS[stats.inv.outfit] ? SHOP_OUTS[stats.inv.outfit].col : "";
+      if (ofc) c = { hair: c.hair, shirt: ofc, pants: c.pants, eyes: c.eyes };
       if (c.shirt) { pal.b = c.shirt; pal.B = shade(c.shirt, 0.3); pal.L = tint(c.shirt, 0.35); }
       if (c.pants) { pal.p = c.pants; pal.P = shade(c.pants, 0.3); }
       if (c.eyes) pal.e = c.eyes;
@@ -1072,35 +1110,38 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     return d.styles[n] || d.styles[0];
   }
   /* ---------- evolution: tiers from Fitness / Study level ---------- */
-  function tierOf(lv) { return lv >= 6 ? 2 : lv >= 3 ? 1 : 0; }
+  function tierOf(lv) { return lv >= 25 ? 4 : lv >= 15 ? 3 : lv >= 10 ? 2 : lv >= 4 ? 1 : 0; }
   function evoNow() { return stats ? { f: tierOf(lvOf("fitness")), s: tierOf(lvOf("study")) } : { f: 0, s: 0 }; }
-  function sprSig() { var e = evoNow(); return e.f + "" + e.s; }
-  function block(x, y, w, h, fill) {
-    return '<rect x="' + (x - 1) + '" y="' + (y - 1) + '" width="' + (w + 2) + '" height="' + (h + 2) + '" fill="#000"/>';
-  }
+  function sprSig() { var e = evoNow(), i = stats && stats.inv || {}; return e.f + "" + e.s + (i.hat || "") + (i.outfit || ""); }
   function evoSvg(key, frame, e) {
     if (key !== "boy" && key !== "girl") return "";
-    var pal = palFor(key), skin = pal.s, shirt = pal.b, hi = pal.L || shirt, front = frame === "front", o = "", fill = "";
-    function R(x, y, w, h, c) { return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + c + '"/>'; }
-    if (front && e.f > 0) {
-      var tall = e.f === 2 && key === "boy" ? 4 : 3, top = tall === 4 ? 8 : 9;
-      [1, 13].forEach(function (x) {
-        o += block(x, top, 2, tall + (tall === 4 ? 0 : 0));
-        fill += R(x, top, 2, tall - 2 + (tall === 4 ? 0 : 0), shirt) + R(x, top + tall - 2, 2, 2, skin);
+    var pal = palFor(key), skin = pal.s, shirt = pal.b, hi = pal.L || shirt, front = frame === "front", fill = "", boy = key === "boy";
+    function R(x, y, w, h, c, op) { return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + c + '"' + (op ? ' opacity="' + op + '"' : "") + "/>"; }
+    var pre = "";
+    if (front && e.f >= 4) pre += R(0, 2, 1, 12, "#ffd23f", .55) + R(15, 2, 1, 12, "#ffd23f", .55) + R(1, 1, 1, 1, "#fff") + R(14, 2, 1, 1, "#fff") + R(0, 14, 16, 1, "#ffd23f", .4);
+    if (front && e.f >= 2) {
+      var w = boy ? [0, 2, 2, 3, 3][e.f] : [0, 0, 2, 2, 2][e.f], h = boy ? [0, 3, 4, 4, 5][e.f] : [0, 0, 3, 3, 4][e.f];
+      if (w) [2 - w + 1, 13].forEach(function (x) {
+        fill += R(x - 1, 12 - h - 1, w + 2, h + 2, "#000") ;
       });
-      if (key === "boy" && e.f === 2) fill += R(5, 9, 2, 1, hi) + R(9, 9, 2, 1, hi);
-      if (key === "girl") { fill += R(3, 2, 10, 1, "#ff4d6d"); if (e.f === 2) fill += R(0, 1, 1, 1, "#fff") + R(15, 3, 1, 1, "#fff") + R(14, 0, 1, 1, "#ffe27a"); }
-      if (key === "boy" && e.f === 1) fill += R(3, 2, 10, 1, "#e63946");
-    } else if (!front && e.f > 0) {
-      if (key === "girl") fill += R(3, 2, 8, 1, "#ff4d6d"); else if (e.f === 1) fill += R(3, 2, 8, 1, "#e63946");
+      if (w) [2 - w + 1, 13].forEach(function (x) { fill += R(x, 12 - h, w, h - 2, shirt) + R(x, 12 - h + h - 2, w, 2, skin); });
+      if (e.f >= 3) fill += R(5, 9, 2, 1, hi) + R(9, 9, 2, 1, hi);
+      if (e.f >= 4) fill += R(6, 10, 4, 1, hi);
     }
-    if (e.s >= 1 && front) {
-      fill += '<rect x="4.5" y="3.8" width="3" height="2.4" fill="none" stroke="#111" stroke-width=".6"/><rect x="8.5" y="3.8" width="3" height="2.4" fill="none" stroke="#111" stroke-width=".6"/><rect x="7.5" y="4.4" width="1" height=".6" fill="#111"/>';
-    }
-    if (e.s >= 2) {
-      fill += R(1, 0, 14, 1, "#15152b") + R(3, 1, 10, 1, "#15152b") + R(1, 0, 14, .5, "#3a3a6a") + R(14, 1, 1, 3, "#ffcc33") + R(14, 4, 1, 1, "#ffcc33");
-    }
-    return o + fill;
+    if (e.f >= 1) fill += R(3, 2, front ? 10 : 8, 1, boy ? "#e63946" : "#ff4d6d");
+    if (!boy && front && e.f >= 3) fill += R(0, 1, 1, 1, "#fff") + R(15, 3, 1, 1, "#fff") + R(14, 0, 1, 1, "#ffe27a");
+    if (e.s >= 1 && front) fill += '<rect x="4.5" y="3.8" width="3" height="2.4" fill="none" stroke="#111" stroke-width=".6"/><rect x="8.5" y="3.8" width="3" height="2.4" fill="none" stroke="#111" stroke-width=".6"/><rect x="7.5" y="4.4" width="1" height=".6" fill="#111"/>';
+    if (e.s >= 2) fill += front ? R(4, 7, 8, 1, "#2a9d8f") : R(5, 7, 5, 1, "#2a9d8f");
+    if (e.s >= 4) fill += R(1, 8, 1, 6, "#c1121f") + R(14, 8, 1, 6, "#c1121f");
+    var hat = stats && stats.inv && stats.inv.hat;
+    if (e.s >= 3) {
+      var gold = e.s >= 4, bd = gold ? "#ffd23f" : "#15152b";
+      fill += R(1, 0, 14, 1, bd) + R(3, 1, 10, 1, bd) + R(1, 0, 14, .5, gold ? "#fff3a0" : "#3a3a6a") + R(14, 1, 1, 3, gold ? "#e63946" : "#ffcc33") + R(14, 4, 1, 1, gold ? "#e63946" : "#ffcc33");
+    } else if (hat === "beanie") fill += R(3, 0, 10, 2, "#e63946") + R(2, 2, 12, 1, "#fff");
+    else if (hat === "party") fill += R(4, 0, 8, 1, "#ff6fae") + R(5, 1, 6, 1, "#ffd23f") + R(7, 0, 2, 1, "#fff");
+    else if (hat === "cowboy") fill += R(1, 2, 14, 1, "#8a5a2b") + R(4, 0, 8, 2, "#a9743a");
+    else if (hat === "wizard") fill += R(3, 0, 10, 1, "#4b2c8a") + R(2, 1, 12, 2, "#4b2c8a") + R(7, 0, 2, 1, "#ffd23f");
+    return pre + fill;
   }
   function spriteImg(key, frame, plain) {
     var d = ART[key]; if (!d) return "";
@@ -1110,12 +1151,10 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     return svg.replace("<svg ", '<svg data-f="' + frame + '" ');
   }
   var evoPrev = null;
+  var FIT_N = { boy: ["", "ATHLETE", "STRONG", "MUSCULAR", "LEGEND"], girl: ["", "SPORTY", "TONED", "PEAK FIT", "LEGEND"] }, STU_N = ["", "STUDY GLASSES", "SCHOLAR SCARF", "GRADUATE CAP", "GOLDEN SCHOLAR"];
   function evoDesc(e) {
-    var g = avatar === "girl", out = [];
-    if (e.f === 1) out.push(g ? "FIT LOOK UNLOCKED" : "ATHLETIC BUILD");
-    if (e.f === 2) out.push(g ? "PEAK FIT" : "MUSCULAR BUILD");
-    if (e.s === 1) out.push("STUDY GLASSES");
-    if (e.s === 2) out.push("GRADUATION CAP");
+    var out = [], g = avatar === "girl" ? "girl" : "boy";
+    if (e.f) out.push(FIT_N[g][e.f] + " FORM"); if (e.s) out.push(STU_N[e.s]);
     return out;
   }
   function evoFlex() {
@@ -1130,11 +1169,12 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     if (!ch) return;
     renderAvatar(); try { buildWalker(); } catch (x) {} var sc = $("#pomoScene"); if (sc) sc.dataset.k = "";
     if (upF || upS) {
-      var d = evoDesc(e), t = upF ? d[0] : d[d.length - 1];
-      setTimeout(function () { levelSound(); sysBanner("[ SYSTEM ]", "PIXEL EVOLVED!<br>" + t); evoFlex(); if (upS) booksFx(); }, 1500);
+      var t = upF ? FIT_N[avatar === "girl" ? "girl" : "boy"][e.f] + " FORM" : STU_N[e.s];
+      setTimeout(function () { levelSound(); evoFlash(); sysBanner("[ SYSTEM ]", "PIXEL EVOLVED!<br>" + t); evoFlex(); if (upS) booksFx(); pixelSay(upF ? "Look at me now! I feel stronger!" : "All that studying is paying off!", 3200, "cheer"); }, 1500);
     } else if (dn) { toast("PIXEL'S LOOK CHANGED BACK", ""); evoFlex(); }
     if (!$("#viewTT").hidden) renderPomo();
   }
+  function evoFlash() { var f = document.createElement("div"); f.className = "evoflash"; document.body.appendChild(f); setTimeout(function () { f.remove(); }, 900); }
   function booksFx() {
     var w = document.createElement("div"); w.className = "bookrain";
     var cols = ["#e63946", "#3a86ff", "#2dd36f", "#ffcc33", "#ff6fae", "#8338ec"];
@@ -1210,7 +1250,13 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
   var PTS = { 1: 5, 2: 10, 3: 20 };
   var DEF_GOALS = { hydration: 3000, protein: 100, perLevel: 100 };
   var stats = newStats();
-  function newStats() { return { fitness: 0, study: 0, hydration: 0, protein: 0, day: null, today: { fitness: 0, study: 0 }, goals: { hydration: 3000, protein: 100, perLevel: 100 }, streak: 0, best: 0, lastPerfect: null, yday: null, lastQuick: {} }; }
+  var SHOP_HOUSE = [null, { n: "TENT", c: 60 }, { n: "HUT", c: 150 }, { n: "COTTAGE", c: 300 }, { n: "HOUSE", c: 600 }, { n: "MANSION", c: 1200 }];
+  var SHOP_HATS = { beanie: { n: "BEANIE", c: 40 }, party: { n: "PARTY HAT", c: 50 }, cowboy: { n: "COWBOY HAT", c: 80 }, wizard: { n: "WIZARD HAT", c: 120 } };
+  var SHOP_OUTS = { hoodie: { n: "GREY HOODIE", c: 60, col: "#8d8d99" }, sunset: { n: "SUNSET TEE", c: 70, col: "#ff8a3d" }, ninja: { n: "NINJA SUIT", c: 90, col: "#2a2a35" }, royal: { n: "ROYAL ROBE", c: 150, col: "#7b3fc4" } };
+  var PET_COST = { dog: 120, cat: 100 };
+  var COIN_TASK = 5, COIN_GOAL = 10, COIN_PERFECT = 15;
+  function newStats() { return { fitness: 0, study: 0, hydration: 0, protein: 0, day: null, today: { fitness: 0, study: 0 }, goals: { hydration: 3000, protein: 100, perLevel: 100 }, streak: 0, best: 0, lastPerfect: null, yday: null, lastQuick: {}, coins: 0, paid: {}, inv: newInv() }; }
+  function newInv() { return { house: 0, dog: 0, cat: 0, hats: [], hat: "", outs: [], outfit: "" }; }
   function normStats(o) {
     var r = newStats();
     if (!o) return r;
@@ -1220,6 +1266,12 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     if (o.goals) { ["hydration", "protein", "perLevel"].forEach(function (k) { var v = +o.goals[k]; if (v > 0) r.goals[k] = v; }); }
     r.streak = Math.max(0, +o.streak || 0); r.best = Math.max(r.streak, +o.best || 0);
     r.lastPerfect = o.lastPerfect || null; r.yday = o.yday || null; r.lastQuick = {};
+    r.coins = Math.max(0, Math.floor(+o.coins || 0)); r.paid = {};
+    if (o.paid && typeof o.paid === "object") ["hydration", "protein"].forEach(function (k) { if (typeof o.paid[k] === "string") r.paid[k] = o.paid[k]; });
+    var iv = o.inv || {}; r.inv = newInv();
+    r.inv.house = Math.min(5, Math.max(0, Math.floor(+iv.house || 0))); r.inv.dog = iv.dog ? 1 : 0; r.inv.cat = iv.cat ? 1 : 0;
+    r.inv.hats = (Array.isArray(iv.hats) ? iv.hats : []).filter(function (h) { return SHOP_HATS[h]; }); r.inv.hat = r.inv.hats.indexOf(iv.hat) >= 0 ? iv.hat : "";
+    r.inv.outs = (Array.isArray(iv.outs) ? iv.outs : []).filter(function (h) { return SHOP_OUTS[h]; }); r.inv.outfit = r.inv.outs.indexOf(iv.outfit) >= 0 ? iv.outfit : "";
     if (o.lastQuick && typeof o.lastQuick === "object") ["hydration", "protein", "fitness", "study"].forEach(function (k) {
       var v = o.lastQuick[k]; r.lastQuick[k] = Array.isArray(v) ? v.map(function (n) { return n && typeof n === "object" ? { n: +n.n, t: String(n.t || ""), b: String(n.b || ""), tk: String(n.tk || ""), tm: n.tm ? 1 : 0, mins: +n.mins || 0, auto: n.auto ? 1 : 0, d: /^\d{4}-\d{2}-\d{2}$/.test(n.d || "") ? n.d : "" } : +n; }).filter(function (n) { return (typeof n === "object" ? n.n : n) > 0; }).slice(-50) : (+v > 0 ? [+v] : []);
     });
@@ -1241,6 +1293,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     if (goalsHit(stats).every(Boolean) && stats.lastPerfect !== todayIso()) {
       stats.streak = stats.lastPerfect === yesterdayIso() ? stats.streak + 1 : 1;
       stats.lastPerfect = todayIso(); stats.best = Math.max(stats.best, stats.streak);
+      addCoins(COIN_PERFECT + 5 * Math.min(stats.streak, 10), true);
       setTimeout(function () { levelSound(); sysBanner("[ SYSTEM ]", "PERFECT DAY!<br>STREAK " + stats.streak); }, 900);
     }
   }
@@ -1280,7 +1333,25 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     }).join("");
     var names = ["WATER", "PROTEIN", "FITNESS", "STUDY"];
     var dots = hits.map(function (h, i) { return '<span class="gdot' + (h ? " on" : "") + '" data-tip="' + names[i] + (h ? " DONE" : " TO DO") + '"></span>'; }).join("");
-    $("#stats").innerHTML = bars + '<div class="sumrow"><span class="flame">' + flameSvg() + '</span><span class="sumtxt">STREAK ' + curStreak() + " DAY" + (curStreak() === 1 ? "" : "S") + " / BEST " + stats.best + '</span><span class="grow"></span><span class="sumtxt">TODAY ' + n + "/4 GOALS</span>" + dots + "</div>";
+    $("#stats").innerHTML = bars + '<div class="sumrow"><span class="flame">' + flameSvg() + '</span><span class="sumtxt">STREAK ' + curStreak() + " DAY" + (curStreak() === 1 ? "" : "S") + " / BEST " + stats.best + '</span><span class="grow"></span><span class="sumtxt">TODAY ' + n + "/4 GOALS</span>" + dots + "</div>" +
+      '<div class="coinrow" id="coinRow"><span class="coinic"></span><span class="coinval">0</span><span class="cbar"><i class="cfill"></i></span><span class="cnext"></span><button class="btn" id="coinShop" type="button">SHOP</button></div>';
+    renderCoins();
+  }
+  function addCoins(n, pop) {
+    var b = stats.coins; stats.coins = Math.max(0, b + n);
+    renderCoins();
+    if (pop && n > 0) toast("+" + n + " COINS", "gold");
+  }
+  function nextGoal() {
+    var h = stats.inv.house; if (h < 5) return { n: SHOP_HOUSE[h + 1].n, c: SHOP_HOUSE[h + 1].c };
+    return null;
+  }
+  function renderCoins() {
+    var el = $("#coinRow"); if (!el) return;
+    var g = nextGoal(), pct = g ? Math.min(100, Math.round(stats.coins / g.c * 100)) : 100;
+    el.querySelector(".coinval").textContent = stats.coins;
+    el.querySelector(".cfill").style.width = pct + "%";
+    el.querySelector(".cnext").textContent = g ? "NEXT HOUSE: " + g.n + " " + g.c : "MANSION BUILT!";
   }
   function sysBanner(top, big) {
     var b = document.createElement("div"); b.className = "sysbanner";
@@ -1306,12 +1377,17 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
       var f = document.createElement("span"); f.className = "floater"; f.textContent = "+" + n + " " + (c.daily ? c.unit : c.label); el.appendChild(f);
       setTimeout(function () { f.remove(); }, 1200);
     }
+    if (!c.daily) addCoins(n > 0 ? COIN_TASK : -COIN_TASK);
     if (n > 0) {
       var per = stats.goals.perLevel;
+      if (c.daily) actFx(k);
       if (!c.daily && Math.floor(stats[k] / per) > Math.floor(before / per)) {
         levelSound(); sysBanner("[ SYSTEM ]", "LEVEL UP!<br>" + c.label + " LV " + lvOf(k));
+        pixelSay("Level up! Keep it going!", 2800, "cheer");
       } else if (c.daily && before < stats.goals[k] && stats[k] >= stats.goals[k]) {
         levelSound(); sysBanner("[ SYSTEM ]", "DAILY GOAL COMPLETE!<br>" + c.label);
+        if (stats.paid[k] !== stats.day) { stats.paid[k] = stats.day; addCoins(COIN_GOAL, true); }
+        pixelSay("Goal smashed, " + (prof.name || "friend") + "!", 2800, "cheer");
       }
       checkPerfect();
     }
@@ -1569,7 +1645,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     var imgs = $("#flip").querySelectorAll("[data-f]");
     for (var i = 0; i < imgs.length; i++) imgs[i].style.display = imgs[i].dataset.f === String(k) ? "block" : "none";
   }
-  function placeWalker(step) { $("#walker").style.transform = "translate(" + Math.round(walkX) + "px," + (step % 2 ? -3 : 0) + "px)"; }
+  function placeWalker(step) { $("#walker").style.transform = "translate(" + Math.round(walkX) + "px," + (step % 2 ? -3 : 0) + "px)"; placePets(step); }
   async function walkLoop(token) {
     var stage = $("#stage"), flip = $("#flip");
     var dir = 1, step = 0, sinceRest = 0;
@@ -1719,10 +1795,138 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     var stage = $("#stage");
     $("#bubble").hidden = true;
     if (!avatar) { stage.hidden = true; return; }
-    stage.hidden = false;
+    stage.hidden = false; renderScenery();
     $("#flip").innerHTML = spriteImg(avatar, "front") + [0, 1, 2, 3].map(function (n) { return spriteImg(avatar, n); }).join("");
     walkLoop(walkToken);
   }
+
+
+  /* ---------- scenery: house, pets, action effects, reactions ---------- */
+  function houseSvg(n) {
+    var o = '<svg viewBox="0 0 32 24" shape-rendering="crispEdges" aria-hidden="true">';
+    function r(x, y, w, h, c) { o += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + c + '"/>'; }
+    function tri(cx, top, rows, c, step) { for (var i = 0; i < rows; i++) r(cx - 1 - i * step, top + i, 2 + i * step * 2, 1, c); }
+    if (n === 1) { tri(16, 8, 14, "#e9a23b", 1); r(14, 16, 4, 6, "#7a4a1a"); r(15, 18, 2, 4, "#2a1a0a"); }
+    if (n === 2) { r(8, 14, 16, 8, "#a9743a"); r(8, 14, 16, 1, "#7a4a1a"); tri(16, 6, 9, "#d9b24b", 1); r(14, 17, 4, 5, "#4a2a0e"); }
+    if (n === 3) { r(5, 12, 22, 10, "#f2e3c0"); tri(16, 3, 10, "#c1432e", 1); r(12, 16, 4, 6, "#7a4a1a"); r(19, 14, 5, 4, "#8fd3ff"); r(21, 14, 1, 4, "#fff"); r(7, 14, 3, 3, "#8fd3ff"); }
+    if (n === 4) { r(4, 8, 24, 14, "#e8d9b8"); r(4, 8, 24, 2, "#b79b6a"); tri(16, 0, 8, "#6b6b80", 2); r(23, 1, 3, 5, "#8a3b2b"); r(13, 15, 6, 7, "#6a3a14"); r(7, 11, 4, 4, "#8fd3ff"); r(21, 11, 4, 4, "#8fd3ff"); r(7, 17, 4, 3, "#8fd3ff"); r(21, 17, 4, 3, "#8fd3ff"); }
+    if (n === 5) { r(0, 10, 32, 12, "#efe4c8"); r(11, 2, 10, 20, "#f6edd4"); tri(16, 0, 3, "#b5651d", 2); r(15, -1 + 1, 2, 1, "#ffd23f"); r(14, 15, 4, 7, "#d9a520"); [2, 7, 22, 27].forEach(function (x) { r(x, 13, 3, 4, "#8fd3ff"); r(x, 18, 3, 3, "#8fd3ff"); }); r(13, 5, 2, 3, "#8fd3ff"); r(17, 5, 2, 3, "#8fd3ff"); r(0, 10, 32, 1, "#b79b6a"); }
+    return o + "</svg>";
+  }
+  function petSvg(kind) {
+    var o = '<svg viewBox="0 0 12 9" shape-rendering="crispEdges" aria-hidden="true">';
+    function r(x, y, w, h, c) { o += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + c + '"/>'; }
+    if (kind === "dog") { r(2, 3, 7, 3, "#a9743a"); r(8, 1, 3, 3, "#a9743a"); r(8, 0, 1, 2, "#6b4423"); r(10, 0, 1, 2, "#6b4423"); r(10, 2, 1, 1, "#000"); r(11, 3, 1, 1, "#000"); r(1, 2, 1, 2, "#a9743a"); r(2, 6, 1, 2, "#6b4423"); r(4, 6, 1, 2, "#6b4423"); r(7, 6, 1, 2, "#6b4423"); r(2, 3, 7, 1, "#c28d52"); }
+    else { r(2, 3, 7, 3, "#f08a24"); r(8, 1, 3, 3, "#f08a24"); r(8, 0, 1, 1, "#f08a24"); r(10, 0, 1, 1, "#f08a24"); r(9, 2, 1, 1, "#000"); r(1, 1, 1, 3, "#f08a24"); r(2, 6, 1, 2, "#c96a10"); r(4, 6, 1, 2, "#c96a10"); r(7, 6, 1, 2, "#c96a10"); r(3, 3, 1, 3, "#c96a10"); r(5, 3, 1, 3, "#c96a10"); }
+    return o + "</svg>";
+  }
+  function renderScenery() {
+    if (!stats) return;
+    var h = $("#house"); if (!h) return;
+    h.innerHTML = stats.inv.house ? houseSvg(stats.inv.house) : ""; h.hidden = !stats.inv.house;
+    [["dog", "#petDog"], ["cat", "#petCat"]].forEach(function (a) {
+      var el = $(a[1]); el.hidden = !stats.inv[a[0]];
+      if (stats.inv[a[0]] && !el.firstChild) el.innerHTML = petSvg(a[0]);
+    });
+    placePets(0);
+  }
+  function placePets(step) {
+    var st = $("#stage"); if (!st || st.hidden || !stats) return;
+    var left = ($("#flip").style.transform || "").indexOf("-1") >= 0, maxX = st.clientWidth - 32;
+    [["dog", "#petDog", 36], ["cat", "#petCat", 66]].forEach(function (a) {
+      if (!stats.inv[a[0]]) return;
+      var x = left ? walkX + 20 + a[2] : walkX - a[2] + 12;
+      x = Math.max(0, Math.min(maxX, x));
+      $(a[1]).style.transform = "translate(" + Math.round(x) + "px," + (step % 2 ? -2 : 0) + "px) scaleX(" + (left ? -1 : 1) + ")";
+    });
+  }
+  function bubbleShow(msg) {
+    var stage = $("#stage"), bubble = $("#bubble"), w = Math.min(260, stage.clientWidth - 16);
+    bubble.style.width = w + "px";
+    bubble.style.left = Math.min(Math.max(walkX + 24 - w / 2, 8), Math.max(8, stage.clientWidth - w - 8)) + "px";
+    bubble.textContent = msg; bubble.hidden = false;
+  }
+  var ITEM_SVG = {
+    drink: '<svg viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="1" y="1" width="6" height="6" fill="#000"/><rect x="2" y="2" width="4" height="5" fill="#8fd3ff"/><rect x="2" y="2" width="4" height="1" fill="#fff"/></svg>',
+    eat: '<svg viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="0" y="0" width="6" height="5" fill="#000"/><rect x="1" y="1" width="4" height="3" fill="#c97b3a"/><rect x="2" y="5" width="2" height="2" fill="#000"/><rect x="3" y="5" width="1" height="2" fill="#f4e9d0"/></svg>'
+  };
+  // a short scene: Pixel stops, says something, optionally with a cup / food; kind: cheer, nudge, drink, eat
+  async function pixelSay(msg, ms, kind, retried) {
+    var stage = $("#stage"); if (!avatar || !stage || stage.hidden) return;
+    if (talking) { if (kind === "cheer" && !retried) setTimeout(function () { pixelSay(msg, ms, kind, true); }, 2400); return; }
+    talking = true;
+    var token = walkToken, flip = $("#flip"), walker = $("#walker"), item = null;
+    flip.style.transform = "none"; showFrame("front"); placeWalker(0); placePets(0);
+    flip.classList.remove("hop"); void flip.offsetWidth; flip.classList.add("hop");
+    if (kind === "drink" || kind === "eat") { item = document.createElement("i"); item.className = "fxitem " + kind; item.innerHTML = ITEM_SVG[kind]; walker.appendChild(item); }
+    bubbleShow(msg);
+    await sleep(ms || 2600);
+    if (item) item.remove();
+    if (token !== walkToken) return;
+    $("#bubble").hidden = true; talking = false;
+  }
+  function actFx(k) {
+    if (k === "hydration") pixelSay(["Glug glug! Hydrated!", "Ahh, refreshing!"][Math.floor(Math.random() * 2)], 1900, "drink");
+    else if (k === "protein") pixelSay(["Nom nom! Protein power!", "Yum! Fuel for muscles!"][Math.floor(Math.random() * 2)], 1900, "eat");
+  }
+  var lastAct = Date.now(), lastNudge = 0;
+  ["pointerdown", "keydown", "touchstart"].forEach(function (ev) { document.addEventListener(ev, function () { lastAct = Date.now(); }, { passive: true }); });
+  setInterval(function () {
+    if (document.hidden || !avatar || talking || !stats) return;
+    var idle = Date.now() - lastAct;
+    if (idle < 8 * 60000 || Date.now() - lastNudge < 8 * 60000) return;
+    lastNudge = Date.now();
+    var n = prof.name || "friend", opts = ["Psst " + n + ", ready for a focus session?", "Still there, " + n + "? One small task keeps the streak alive.", "Time for a stretch or a sip of water, " + n + "!"];
+    if (!(stats.today.study > 0)) opts.push("No study yet today, " + n + ". Just 25 minutes?");
+    if (!(stats.today.fitness > 0)) opts.push("A short workout would feel great, " + n + "!");
+    pixelSay(opts[Math.floor(Math.random() * opts.length)], 4200, "nudge");
+  }, 30000);
+
+  /* ---------- shop ---------- */
+  function shopRow(id, name, cost, state, extra) {
+    var btn = state === "own" ? '<button class="btn alt" disabled>OWNED</button>' : state === "equip" ? '<button class="btn" data-shop="equip:' + id + '">WEAR</button>' : state === "worn" ? '<button class="btn alt" data-shop="unequip:' + id + '">TAKE OFF</button>' :
+      '<button class="btn' + (stats.coins >= cost ? "" : " alt") + '" data-shop="buy:' + id + '"' + (stats.coins >= cost ? "" : " disabled") + ">BUY " + cost + "</button>";
+    return '<div class="shop-row"><span class="shop-name">' + name + (extra || "") + "</span>" + btn + "</div>";
+  }
+  function renderShop() {
+    var i = stats.inv, h = "";
+    $("#shopCoins").textContent = stats.coins;
+    h += "<h3>HOUSE</h3>";
+    if (i.house < 5) h += shopRow("house", "BUILD: " + SHOP_HOUSE[i.house + 1].n, SHOP_HOUSE[i.house + 1].c, "buy", ' <small>(STAGE ' + (i.house + 1) + "/5)</small>");
+    else h += '<div class="shop-row"><span class="shop-name">MANSION BUILT!</span></div>';
+    h += "<h3>PETS</h3>" + shopRow("dog", "DOG", PET_COST.dog, i.dog ? "own" : "buy") + shopRow("cat", "CAT", PET_COST.cat, i.cat ? "own" : "buy");
+    h += "<h3>HATS</h3>" + Object.keys(SHOP_HATS).map(function (k) { return shopRow("hat-" + k, SHOP_HATS[k].n, SHOP_HATS[k].c, i.hats.indexOf(k) < 0 ? "buy" : i.hat === k ? "worn" : "equip"); }).join("");
+    h += '<p class="hint">Hats are hidden once your study cap is unlocked.</p><h3>OUTFITS</h3>' + Object.keys(SHOP_OUTS).map(function (k) { return shopRow("out-" + k, SHOP_OUTS[k].n, SHOP_OUTS[k].c, i.outs.indexOf(k) < 0 ? "buy" : i.outfit === k ? "worn" : "equip"); }).join("");
+    $("#shopList").innerHTML = h;
+  }
+  function shopAfter(msg) {
+    dirty = true; store.save(); renderShop(); renderCoins(); renderScenery(); renderAvatar(); try { buildWalker(); } catch (e) {} $("#shopMsg").textContent = msg;
+    var sc = $("#pomoScene"); if (sc) sc.dataset.k = ""; if (!$("#viewTT").hidden) renderPomo();
+  }
+  function shopAct(a) {
+    var p = a.split(":"), op = p[0], id = p[1], i = stats.inv;
+    if (op === "buy") {
+      var cost, ok = false;
+      if (id === "house") { cost = SHOP_HOUSE[i.house + 1].c; } else if (id === "dog" || id === "cat") cost = PET_COST[id]; else if (id.indexOf("hat-") === 0) cost = SHOP_HATS[id.slice(4)].c; else cost = SHOP_OUTS[id.slice(4)].c;
+      if (stats.coins < cost) { $("#shopMsg").textContent = "NOT ENOUGH COINS YET."; return; }
+      stats.coins -= cost;
+      if (id === "house") { i.house++; levelSound(); sysBanner("[ SYSTEM ]", "HOUSE UPGRADED!<br>" + SHOP_HOUSE[i.house].n); }
+      else if (id === "dog" || id === "cat") { i[id] = 1; levelSound(); }
+      else if (id.indexOf("hat-") === 0) { i.hats.push(id.slice(4)); i.hat = id.slice(4); } else { i.outs.push(id.slice(4)); i.outfit = id.slice(4); }
+      shopAfter("PURCHASED! SPENT " + cost + " COINS.");
+    } else if (op === "equip") { if (id.indexOf("hat-") === 0) i.hat = id.slice(4); else i.outfit = id.slice(4); shopAfter("EQUIPPED."); }
+    else if (op === "unequip") { if (id.indexOf("hat-") === 0) i.hat = ""; else i.outfit = ""; shopAfter("TAKEN OFF."); }
+  }
+  function openShop() { rollDay(); renderShop(); $("#shopMsg").textContent = "Earn coins by finishing tasks, focus sessions, daily goals and streaks."; $("#shop").hidden = false; $("#shopDone").focus(); }
+  function closeShop() { $("#shop").hidden = true; }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-shop]");
+    if (b && !b.disabled) { shopAct(b.dataset.shop); return; }
+    if (e.target.closest && (e.target.closest("#shopBtn") || e.target.closest("#coinShop"))) openShop();
+    else if (e.target.closest && e.target.closest("#shopDone")) closeShop();
+    else if (e.target.id === "shop") closeShop();
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("#shop").hidden) closeShop(); });
 
   /* ---------- daily hello (once per day) ---------- */
   var QUOTES = [
@@ -2799,7 +3003,8 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     { view: "planner", sel: "#addForm", text: "This is where tasks begin. Type what needs doing, then set a priority and a due date. Choose a stat to feed one of your progress bars, and a repeat if it happens regularly. Press ADD when you're ready.", again: "In short: write the task, pick how important it is, choose a date and press ADD. The stat you choose decides which bar grows when you finish it." },
     { view: "planner", sel: "#stats", text: "These four bars are your progress. Fitness and Study level up as you finish tasks and focus sessions. Hydration and Protein track your daily intake against your goals and start fresh each day. Hit all four goals and you get a perfect day.", again: "Each bar belongs to one habit. Finish a task with that stat and the bar fills. Fill all four in one day and you earn a perfect day." },
     { view: "planner", sel: ".stat[data-stat=hydration] .quick", text: "Water and protein don't need a task. Tap a quick-add button such as +250 and the bar moves straight away. Made a mistake? UNDO steps back one action at a time, as many times as you like. Fitness and Study have UNDO too.", again: "Tap a plus button to log what you drank or ate. Tap UNDO to take back the last entry, and keep tapping to go back further." },
-    { view: "planner", sel: "#stage", text: "Your Fitness level changes how I look. Reach Fitness level 3 and I get athletic. At level 6 I'm {strong}. If you undo your way back below a level, I change back. Keep your habits up and I'll keep getting stronger.", again: "Level 3 gets me athletic, level 6 gets me {strong}. Undo takes levels back, and my look follows." },
+    { view: "planner", sel: "#stage", text: "Your Fitness level changes how I look. Fitness changes my body in four stages, at levels 4, 10, 15 and 25, each tougher than the last. Study adds gear at the same levels: glasses, a scarf, a graduate cap and then a golden scholar look. If you undo your way back below a level, I change back.", again: "Four fitness stages at levels 4, 10, 15 and 25, plus study gear at the same levels. Undo takes levels back and my look follows." },
+    { view: "planner", sel: "#coinRow", text: "Everything you do earns coins. Finishing tasks and focus sessions, hitting daily goals and keeping your streak all pay. The bar shows how close you are to your next house upgrade. Tap SHOP to build a house in five stages, adopt a dog or a cat, and buy hats and outfits. I'll also react when you drink water, eat protein or reach a goal.", again: "Tasks, sessions, daily goals and streaks earn coins. Spend them in the SHOP on a house, a dog or cat, hats and outfits." },
     { view: "planner", sel: "section[aria-label=Week]", text: "This strip shows the next seven days. Tap a day to see only that day's tasks. The arrows move between weeks, and TODAY brings you straight back.", again: "Tap any day to focus on it. Use the arrows to browse other weeks and TODAY to come back." },
     { view: "planner", sel: "section[aria-label=Tasks]", text: "Your tasks appear here. Tick a task to complete it and earn progress. The tabs filter what you see, and you can filter by stat too. START TIMER begins a focus session on a task, and TT adds it to your time table.", again: "Tick to complete. Use the tabs and the stat filter to find things. START TIMER opens the focus timer on that task, and TT puts it on your time table." },
     { view: "planner", sel: "#stage", text: "That's me, walking around. Tap me to chat. Tap my picture at the top to change character, or CUSTOMIZE to change my colours and hairstyle.", again: "Tap me to say hi. Use the picture at the top to switch character and CUSTOMIZE for colours and hair." },
@@ -2809,7 +3014,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     { view: "tt", sel: "section[aria-label=Today]", text: "TODAY lists the blocks planned for today. Tap FOCUS on a block to start the timer, and tick it off when you're done.", again: "This is today's list. FOCUS starts the timer on a block, and the tick marks it done." },
     { view: "tt", sel: "#secPomo", text: "Let's start a focus timer. There are three ways. Press START on this card. Or tap START TIMER on any task in the Planner. Or tap FOCUS on a block in your Today list, or START TIMER inside a block's panel. Choose what you're working on in the box labelled WORKING ON, so your minutes are logged to it.", again: "Three ways to start: START on this card, START TIMER on a planner task, or FOCUS on a time-table block. Pick your task in the box so the minutes count towards it." },
     { view: "tt", sel: "#secPomo", text: "To complete a session, let the countdown run all the way to zero. You'll hear a beep and see a popup, you earn Study XP, and the minutes count as focused hours. Then a short break starts. When a block's focus time is done, it ticks itself off with a strike-through. PAUSE and RESET are there if you're interrupted. The fast-forward button is only for testing, so skip it for real progress.", again: "Run the timer to zero and the session counts: XP, focused hours and a break. Finish enough sessions on a block and it ticks off by itself." },
-    { view: "tt", sel: "#pomoScene", text: "Watch this little scene. While you focus, I sit at the desk and read, with the lamp on and the pencil scribbling. During breaks I stretch and have a drink. When a session finishes, a lightbulb pops up. Reach Study level 3 and I wear glasses, and at level 6 a graduation cap.", again: "Focus means I read at the desk, breaks mean I stretch, and a finished session gives a lightbulb. Study levels 3 and 6 add glasses and a graduation cap." },
+    { view: "tt", sel: "#pomoScene", text: "Watch this little scene. While you focus, I sit at the desk and read, with the lamp on and the pencil scribbling. During breaks I stretch and have a drink. When a session finishes, a lightbulb pops up. Study levels 4, 10, 15 and 25 give me glasses, a scarf, a graduate cap and a golden scholar look.", again: "Focus means I read at the desk, breaks mean I stretch, and a finished session gives a lightbulb. Study levels 4, 10, 15 and 25 add glasses, a scarf, a cap and a golden look." },
     { view: "tt", sel: "section[aria-label='Weekly time table']", text: "The weekly grid is your plan. Tap an empty slot to add a block, drag a block to move it, and pull its bottom edge to resize. Blocks can be subjects, tasks, breaks or automatic revision.", again: "Tap empty space to add, drag to move, and pull the bottom edge to change the length." },
     { view: "tt", sel: "#secSubj", text: "Add your subjects here, then list their topics in the syllabus below. Tick topics as you finish them and the coverage bar fills. With automatic revision on, I schedule revisions after 1, 3 and 7 days.", again: "Subjects first, then topics. Tick topics off as you learn them, and revisions get scheduled for you." },
     { view: "planner", sel: null, explore: true, text: "There's a lot more you can do, {n}. Customise my colours and hairstyle, set your own goals and XP per level, plan several exams, add revision slots, link planner tasks to time-table blocks, and back up your data. Explore it in your free time. I'll be around whenever you need me." },
