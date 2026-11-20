@@ -113,7 +113,13 @@ public class MainActivity extends Activity {
     protected void onPause() {
         super.onPause();
         // Make sure the last change is written to the phone before the app goes away.
-        web.evaluateJavascript("window.__flushSave && window.__flushSave();", null);
+        web.evaluateJavascript("window.__flushSave && window.__flushSave(); window.__syncReminders && window.__syncReminders(true);", null);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        web.evaluateJavascript("window.__syncReminders && window.__syncReminders();", null);
     }
 
     @Override
@@ -167,6 +173,40 @@ public class MainActivity extends Activity {
             }
             writeAtomically(backupFile(), json);
             writeAtomically(new File(getFilesDir(), BACKUP_NAME), json);
+        }
+
+        @JavascriptInterface
+        public void schedule(final String json) {
+            try { Reminders.replaceAll(MainActivity.this, json == null ? "[]" : json); } catch (Exception ignored) { }
+        }
+
+        /** 0 = ready, 1 = notifications not allowed, 2 = exact alarms not allowed. */
+        @JavascriptInterface
+        public int notifStatus() {
+            if (Build.VERSION.SDK_INT >= 33
+                    && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                return 1;
+            }
+            return Reminders.canExact(MainActivity.this) ? 0 : 2;
+        }
+
+        @JavascriptInterface
+        public void askNotif() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ReminderReceiver.ensureChannel(MainActivity.this);
+                    if (Build.VERSION.SDK_INT >= 33
+                            && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 7);
+                    } else if (!Reminders.canExact(MainActivity.this) && Build.VERSION.SDK_INT >= 31) {
+                        try {
+                            startActivity(new Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                                    Uri.parse("package:" + getPackageName())));
+                        } catch (Exception ignored) { }
+                    }
+                }
+            });
         }
 
         @JavascriptInterface

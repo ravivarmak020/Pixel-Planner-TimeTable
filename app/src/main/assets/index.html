@@ -599,6 +599,8 @@ h2 { line-height: 1.5; }
 .sp-skip { position: absolute; bottom: 12px; left: 0; right: 0; text-align: center; font-family: var(--font-display); font-size: 8px; color: #8b87b8; }
 @media (prefers-reduced-motion: reduce) { .sp-stars, .sp-word span, .sp-logo, .sp-heroes .sp-hero, .sp-heroes.wave .sp-hero svg { animation: none !important; } .sp-heroes.in .sp-hero.b { left: calc(50% - 96px); } .sp-heroes.in .sp-hero.g { right: calc(50% - 96px); } }
 
+.notifbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 18px; border-left: 6px solid var(--gold); }
+.notifbar[hidden] { display: none; }
 .modal { position: fixed; inset: 0; z-index: 100; background: rgba(10,9,24,.85); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .modal[hidden] { display: none; }
 .modal .box { max-height: 92vh; overflow: auto; width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 16px; }
@@ -760,6 +762,7 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
 </div>
 
 <div class="wrap">
+  <div class="box notifbar" id="notifBar" hidden><span id="notifTxt"></span><button class="btn" id="notifGo" type="button">ALLOW</button></div>
   <header class="box">
     <div class="hero">
       <button class="hero-btn" id="avatarBtn" type="button" aria-label="Change character" data-tip="CHANGE CHARACTER"></button>
@@ -2114,6 +2117,57 @@ li.task.pop .check { animation: checkpop .45s steps(6) 1; }
     var all = QUOTES.concat(MORE_QUOTES), q = all[Math.floor(Math.random() * all.length)];
     pixelSay(q, 3500 + q.length * 45, "quote");
   }, 10000);
+
+
+  /* ---------- closed-app reminders (Android app only) ---------- */
+  var awayAt = 0, lastRemJson = "";
+  function hash31(k) { var h = 7; for (var i = 0; i < k.length; i++) h = (h * 31 + k.charCodeAt(i)) | 0; return Math.abs(h) % 2000000000 + 1; }
+  function buildReminders(away) {
+    var now = Date.now(), name = prof.name || "friend", out = [], smile = "😊";
+    function add(key, at, title, body) { if (at > now + 2000) out.push({ id: hash31(key), at: at, title: title, body: body }); }
+    function atMin(date, m) { var d = parseIso(date); return new Date(d.getFullYear(), d.getMonth(), d.getDate(), Math.floor(m / 60), m % 60).getTime(); }
+    if (pomo.running && pomo.endAt > now) {
+      if (pomo.phase === "focus") add("timer", pomo.endAt, "Focus session done " + smile, "Great work, " + name + "! Take your break.");
+      else add("timer", pomo.endAt, "Break over", "Ready for the next focus session, " + name + "?");
+    }
+    if (away) add("away", now + 60000, "Focus " + name + "! " + smile, "I'll be right here in your app. Work hard " + smile);
+    var base = new Date();
+    for (var k = 0; k < 3; k++) {
+      var date = iso(new Date(base.getFullYear(), base.getMonth(), base.getDate() + k));
+      tt.blocks.forEach(function (b) {
+        if (b.type === "break" || !(b.start >= 0)) return;
+        if (b.date ? b.date !== date : b.day !== wdOfDate(date)) return;
+        if (isDone(b, date)) return;
+        add("blk-" + b.id + "-" + date, atMin(date, b.start), "Time to study " + smile, blockName(b) + " starts now, " + name + ".");
+      });
+      var due = state.tasks.filter(function (t) { return !t.done && t.due === date; });
+      if (due.length) add("due-" + date, atMin(date, 540), "Tasks due today", due.length === 1 ? due[0].title : due[0].title + " and " + (due.length - 1) + " more");
+      var hit = k === 0 ? goalsHit(stats).filter(Boolean).length : -1;
+      if (k !== 0 || hit < 4) add("eve-" + date, atMin(date, 1200), "Evening check-in", k === 0 ? name + ", " + hit + " of 4 goals done today. A little more?" : "How did today go, " + name + "? Log your goals before bed.");
+      add("plan-" + date, atMin(date, 1260), "Plan tomorrow " + smile, "Take two minutes to plan tomorrow, " + name + ".");
+      add("mot12-" + date, atMin(date, 720), "Focus " + name + "! " + smile, "I'll be right here in your app. Work hard " + smile);
+      add("mot17-" + date, atMin(date, 1020), "Focus " + name + "! " + smile, "I'll be right here in your app. Work hard " + smile);
+    }
+    out.sort(function (a, b) { return a.at - b.at; });
+    return out.slice(0, 55);
+  }
+  function syncReminders(away, force) {
+    var B = window.AndroidBridge; if (!B || !B.schedule || !stats) return;
+    try {
+      var j = JSON.stringify(buildReminders(!!away));
+      if (j !== lastRemJson || force) { lastRemJson = j; B.schedule(j); }
+    } catch (e) {}
+  }
+  window.__syncReminders = function (away) { if (away === true) { awayAt = Date.now(); syncReminders(true, true); } else { awayAt = 0; syncReminders(false, true); notifCheck(); } };
+  setInterval(function () { if (!awayAt) syncReminders(false); }, 15000);
+  function notifCheck() {
+    var B = window.AndroidBridge; if (!B || !B.notifStatus) return;
+    var st = 0; try { st = B.notifStatus(); } catch (e) {}
+    $("#notifBar").hidden = st === 0;
+    $("#notifTxt").textContent = st === 1 ? "Allow notifications so Pixel can remind you when the app is closed." : "Allow exact alarms so reminders arrive on time.";
+  }
+  $("#notifGo").addEventListener("click", function () { try { window.AndroidBridge.askNotif(); } catch (e) {} setTimeout(notifCheck, 2000); });
+  setTimeout(notifCheck, 1500);
 
   /* ---------- daily hello (once per day) ---------- */
   var QUOTES = [
