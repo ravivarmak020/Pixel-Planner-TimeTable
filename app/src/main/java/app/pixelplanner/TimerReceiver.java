@@ -23,6 +23,8 @@ public class TimerReceiver extends BroadcastReceiver {
     static final int ID_RUN = 7001;
     static final int ID_DONE = 7002;
 
+    static void channelsFor(Context c) { channels(c); }
+
     private static void channels(Context c) {
         if (Build.VERSION.SDK_INT < 26) return;
         NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -76,12 +78,20 @@ public class TimerReceiver extends BroadcastReceiver {
         return b.build();
     }
 
+    private static void plain(Context c, NotificationManager nm, String label) {
+        try {
+            Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(c, CH_RUN) : new Notification.Builder(c);
+            b.setSmallIcon(R.drawable.ic_mono).setContentTitle(label).setContentText("Timer running - tap to open").setOngoing(true).setContentIntent(openApp(c, ID_RUN));
+            nm.notify(ID_RUN, b.build());
+        } catch (Throwable ignored) { }
+    }
+
     /** Start (or replace) the running timer. */
     static void start(Context c, long endAt, String label, String doneTitle, String doneBody) {
         channels(c);
         NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
         nm.cancel(ID_DONE);
-        try { nm.notify(ID_RUN, runNotif(c, endAt, label)); } catch (Throwable ignored) { }
+        try { nm.notify(ID_RUN, runNotif(c, endAt, label)); } catch (Throwable e) { plain(c, nm, label); }
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
         PendingIntent pi = alarmIntent(c, doneTitle, doneBody);
         try {

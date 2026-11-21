@@ -1,1 +1,2 @@
-- Fixes the crash when starting the focus timer (back to the stable timer notification)
+- The app now detects when notifications are blocked for it and shows an ALLOW button that opens the right settings screen
+- Safer fallback so timer and reminder notifications still show if the pixel card can't be drawn

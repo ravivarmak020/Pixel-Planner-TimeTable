@@ -387,6 +387,17 @@ public class MainActivity extends Activity {
         /** 0 = ready, 1 = notifications not allowed, 2 = exact alarms not allowed. */
         @JavascriptInterface
         public int notifStatus() {
+            try {
+                android.app.NotificationManager nm = (android.app.NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                if (!nm.areNotificationsEnabled()) return 1;
+                if (Build.VERSION.SDK_INT >= 26) {
+                    TimerReceiver.channelsFor(MainActivity.this);
+                    android.app.NotificationChannel c1 = nm.getNotificationChannel(TimerReceiver.CH_RUN);
+                    android.app.NotificationChannel c2 = nm.getNotificationChannel(ReminderReceiver.CHANNEL);
+                    if ((c1 != null && c1.getImportance() == android.app.NotificationManager.IMPORTANCE_NONE)
+                            || (c2 != null && c2.getImportance() == android.app.NotificationManager.IMPORTANCE_NONE)) return 1;
+                }
+            } catch (Throwable ignored) { }
             if (Build.VERSION.SDK_INT >= 33
                     && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != android.content.pm.PackageManager.PERMISSION_GRANTED) {
                 return 1;
@@ -400,9 +411,18 @@ public class MainActivity extends Activity {
                 @Override
                 public void run() {
                     ReminderReceiver.ensureChannel(MainActivity.this);
-                    if (Build.VERSION.SDK_INT >= 33
+                    TimerReceiver.channelsFor(MainActivity.this);
+                    android.content.SharedPreferences sp = getSharedPreferences("pp", MODE_PRIVATE);
+                    boolean asked = sp.getBoolean("askedNotif", false);
+                    if (Build.VERSION.SDK_INT >= 33 && !asked
                             && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                        sp.edit().putBoolean("askedNotif", true).apply();
                         requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 7);
+                    } else if (notifStatus() == 1) {
+                        try {
+                            startActivity(new Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                                    .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, getPackageName()));
+                        } catch (Exception ignored) { }
                     } else if (!Reminders.canExact(MainActivity.this) && Build.VERSION.SDK_INT >= 31) {
                         try {
                             startActivity(new Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,

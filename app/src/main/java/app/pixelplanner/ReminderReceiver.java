@@ -87,7 +87,13 @@ public class ReminderReceiver extends BroadcastReceiver {
             }
         } catch (Exception ignored) { }
         NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
-        try { nm.notify(id, b.build()); } catch (Exception ignored) { }
+        try { nm.notify(id, b.build()); } catch (Throwable e) {
+            try {
+                Notification.Builder pb = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(ctx, CHANNEL) : new Notification.Builder(ctx);
+                pb.setSmallIcon(R.drawable.ic_mono).setContentTitle(title == null ? "Pixel Planner" : title).setContentText(body == null ? "" : body).setContentIntent(pi).setAutoCancel(true);
+                nm.notify(id, pb.build());
+            } catch (Throwable ignored) { }
+        }
         // forget it so a reboot does not fire it again
         try {
             JSONArray arr = new JSONArray(Reminders.read(ctx));
