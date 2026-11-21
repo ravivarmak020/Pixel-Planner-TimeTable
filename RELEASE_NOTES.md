@@ -1,1 +1,1 @@
-- The focus-timer countdown now stays in the notification bar even after you close the app from recent apps
+- Fixes a crash when starting the focus timer; the countdown stays in the notification bar after you close the app

@@ -428,7 +428,7 @@ public class MainActivity extends Activity {
             try {
                 TimerReceiver.start(MainActivity.this, endAt, label == null ? "Focus timer" : label,
                         doneTitle == null ? "Timer finished" : doneTitle, doneBody == null ? "" : doneBody);
-            } catch (Exception ignored) {
+            } catch (Throwable ignored) {
             }
         }
 
@@ -436,7 +436,7 @@ public class MainActivity extends Activity {
         public void timerClear() {
             try {
                 TimerReceiver.stop(MainActivity.this);
-            } catch (Exception ignored) {
+            } catch (Throwable ignored) {
             }
         }
 
