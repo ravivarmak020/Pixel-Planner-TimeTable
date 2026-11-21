@@ -1,2 +1,2 @@
-- Choose where each piece of furniture goes in Pixel's room: tap a piece, then tap a spot, and move or remove it any time
-- Each floor of your home has several spots for floor items, wall items and rugs
+- All furniture redrawn with much more detail (bed, desk with glowing monitor, bookshelf, sofa, TV, fridge, plant, lamp, rug, poster)
+- Focus screen: Pixel sits at the desk reading with page turns, a nodding head, steam from the mug and a flickering monitor; music notes float when lo-fi is on

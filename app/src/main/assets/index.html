@@ -547,6 +547,25 @@ h2 { line-height: 1.5; }
 .rm-chip small { display: block; font-size: 10px; color: #8fe0ff; }
 .rm-chip.sel { border-color: #ffd23f; background: #3b3375; }
 .rm-chip.lock { opacity: .5; cursor: default; }
+.pomo-room.zoom { aspect-ratio: 72 / 30; max-width: 340px; }
+.pomo-room .rm-wrap { position: absolute; left: 0; width: 100%; }
+.dk > * { position: absolute; pointer-events: none; }
+.dk-px { overflow: hidden; }
+.dk-in { width: 100%; }
+.dk-in svg { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+.dk-flip { transform-box: fill-box; transform-origin: left center; opacity: 0; }
+.dk-mon { opacity: .0; }
+.dk-steam .s1, .dk-steam .s2, .dk-steam .s3 { animation: dksteam 2.4s steps(4) infinite; }
+.dk-steam .s2 { animation-delay: .8s; } .dk-steam .s3 { animation-delay: 1.6s; }
+@keyframes dksteam { 0% { transform: translateY(1px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(-2px); opacity: 0; } }
+.dk.rd .dk-in { animation: dknod 3.2s steps(1) infinite; }
+@keyframes dknod { 0% { transform: translateY(0); } 55% { transform: translateY(2.5%); } 65% { transform: translateY(0); } 85% { transform: translateY(1.5%); } 92% { transform: translateY(0); } }
+.dk.rd .dk-flip { animation: dkflip 6s steps(1) infinite; }
+@keyframes dkflip { 0%, 72% { opacity: 0; transform: scaleX(1); } 74% { opacity: 1; transform: scaleX(1); } 80% { opacity: 1; transform: scaleX(.55); } 86% { opacity: 1; transform: scaleX(.15); } 92% { opacity: 1; transform: scaleX(-.3); } 96% { opacity: 1; transform: scaleX(-.8); } 100% { opacity: 0; transform: scaleX(1); } }
+.dk.rd .dk-mon { animation: dkmon 2.2s steps(1) infinite; }
+@keyframes dkmon { 0% { opacity: .12; } 40% { opacity: .0; } 55% { opacity: .22; } 70% { opacity: .05; } }
+.dk-note .n1 { animation: dknote 3s steps(6) infinite; }
+@keyframes dknote { 0% { transform: translate(0, 3px); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(1px, -3px); opacity: 0; } }
 .rm-px { position: absolute; pointer-events: none; }
 .rm-px svg { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
 .rm-px.bob { animation: rmbob 1.8s steps(2) infinite; }
@@ -2803,7 +2822,7 @@ var ROOM = (function () {
     plant:  { name: "PLANT", cost: 25, w: 5, st: 1, info: "A LITTLE GREEN FRIEND." },
     lamp:   { name: "LAMP", cost: 30, w: 3, st: 1, info: "COZY LIGHT FOR LATE STUDY." },
     poster: { name: "POSTER", cost: 20, w: 6, st: 1, wall: 1, info: "COOL WALL ART." },
-    desk:   { name: "DESK", cost: 70, w: 12, st: 2, info: "STUDY DESK + COMPUTER." },
+    desk:   { name: "DESK", cost: 70, w: 14, st: 2, info: "STUDY DESK + COMPUTER." },
     shelf:  { name: "BOOKSHELF", cost: 60, w: 10, st: 2, wall: 1, info: "BOOKS FOR BIG BRAINS." },
     sofa:   { name: "SOFA", cost: 90, w: 14, st: 3, info: "CHILL AFTER FOCUS." },
     tv:     { name: "TV", cost: 120, w: 9, st: 3, info: "SMALL TV FOR BREAKS." },
@@ -2854,17 +2873,97 @@ var ROOM = (function () {
     p.r(0, H - 2, W, 2, "#4caf50"); p.r(0, H - 2, W, 1, "#7bd36b");
     return sty;
   }
-  var DRAW = {
-    bed: function (p, x, fy) { var w = pal("#7a4a1a"), b = pal("#c1272d"); p.r(x, fy - 8, 2, 8, w[1]); p.r(x, fy - 8, 2, 1, w[3]); p.r(x + 2, fy - 3, 12, 3, w[2]); p.r(x + 2, fy - 3, 12, 1, w[3]); p.r(x + 2, fy - 5, 5, 2, "#f4f1ea"); p.r(x + 2, fy - 5, 5, 1, "#ffffff"); p.r(x + 6, fy - 5, 8, 2, b[2]); p.r(x + 6, fy - 5, 8, 1, b[3]); p.r(x + 12, fy - 5, 2, 5, w[2]); p.r(x + 6, fy - 4, 1, 1, b[0]); p.r(x + 11, fy - 4, 1, 1, b[1]); },
-    rug: function (p, x, fy) { p.r(x, fy - 1, 16, 1, "#c1272d"); for (var i = 1; i < 16; i += 3) p.r(x + i, fy - 1, 1, 1, "#ffd23f"); },
-    plant: function (p, x, fy) { var g = pal("#3fa34d"), t = pal("#e07b39"); p.r(x + 1, fy - 3, 3, 3, t[2]); p.r(x + 1, fy - 3, 3, 1, t[3]); p.r(x + 2, fy - 6, 1, 3, g[1]); p.r(x, fy - 7, 2, 2, g[2]); p.r(x + 3, fy - 8, 2, 3, g[2]); p.r(x + 2, fy - 8, 1, 2, g[3]); p.r(x + 1, fy - 9, 2, 2, g[3]); },
-    lamp: function (p, x, fy) { p.r(x + 1, fy - 9, 1, 9, "#7a7a86"); p.r(x, fy - 12, 3, 3, "#ffd23f"); p.r(x, fy - 12, 3, 1, "#fff0a8"); p.r(x, fy - 1, 3, 1, "#5a5a66"); p.r(x - 1, fy - 13, 5, 1, "#ffe27a33"); },
-    poster: function (p, x, fy) { var y = fy - 22; p.r(x, y, 6, 8, "#f4f1ea"); p.r(x + 1, y + 1, 4, 6, "#3a8fb7"); p.r(x + 1, y + 4, 4, 3, "#3fa34d"); p.r(x + 3, y + 2, 1, 1, "#ffd23f"); },
-    desk: function (p, x, fy) { var w = pal("#7a4a1a"); p.r(x, fy - 6, 12, 1, w[3]); p.r(x, fy - 5, 12, 1, w[2]); p.r(x, fy - 5, 1, 5, w[1]); p.r(x + 11, fy - 5, 1, 5, w[1]); p.r(x + 7, fy - 4, 4, 3, w[1]); p.r(x + 8, fy - 3, 2, 1, "#ffd23f"); p.r(x + 2, fy - 11, 6, 5, "#2b2f3a"); p.r(x + 3, fy - 10, 4, 3, "#5ad1ff"); p.r(x + 4, fy - 7, 2, 1, "#2b2f3a"); p.r(x + 3, fy - 10, 2, 1, "#c6f0ff"); p.r(x + 9, fy - 7, 2, 1, "#f4f1ea"); },
-    shelf: function (p, x, fy) { var w = pal("#7a4a1a"), y = fy - 20, cols = ["#c1272d", "#3a8fb7", "#ffd23f", "#3fa34d", "#8a5a9e", "#e07b39"]; p.r(x, y, 10, 1, w[3]); p.r(x, y + 6, 10, 1, w[2]); p.r(x, y + 7, 10, 1, w[0]); p.r(x, y + 1, 1, 5, w[1]); p.r(x + 9, y + 1, 1, 5, w[1]); for (var i = 0; i < 4; i++) p.r(x + 1 + i * 2, y + 2 - (i % 2), 2, 4 + (i % 2), cols[i % 6]); p.r(x + 6, y + 3, 3, 3, cols[4]); p.r(x + 6, y + 3, 3, 1, "#ffffff55"); },
-    sofa: function (p, x, fy) { var t = pal("#3a8fb7"); p.r(x, fy - 7, 14, 3, t[2]); p.r(x, fy - 7, 14, 1, t[3]); p.r(x, fy - 5, 2, 5, t[1]); p.r(x + 12, fy - 5, 2, 5, t[1]); p.r(x + 2, fy - 4, 10, 4, t[2]); p.r(x + 2, fy - 4, 10, 1, t[3]); p.r(x + 7, fy - 4, 1, 3, t[1]); p.r(x + 1, fy - 1, 1, 1, "#2b2f3a"); p.r(x + 12, fy - 1, 1, 1, "#2b2f3a"); },
-    tv: function (p, x, fy) { p.r(x + 1, fy - 3, 7, 3, "#7a4a1a"); p.r(x + 1, fy - 3, 7, 1, "#a4693a"); p.r(x, fy - 8, 9, 5, "#2b2f3a"); p.r(x + 1, fy - 7, 7, 3, "#5ad1ff"); p.r(x + 1, fy - 7, 3, 1, "#c6f0ff"); p.r(x + 5, fy - 5, 2, 1, "#3a8fb7"); },
-    fridge: function (p, x, fy) { p.r(x, fy - 14, 8, 14, "#dfe6ee"); p.r(x, fy - 14, 8, 1, "#ffffff"); p.r(x, fy - 14, 1, 14, "#f4f8fc"); p.r(x + 7, fy - 14, 1, 14, "#aab4c2"); p.r(x, fy - 7, 8, 1, "#aab4c2"); p.r(x + 5, fy - 12, 1, 3, "#7a7a86"); p.r(x + 5, fy - 5, 1, 3, "#7a7a86"); p.r(x + 2, fy - 11, 2, 2, "#c1272d"); }
+  var DRAW2 = {
+    bed: function (p, x, B) {
+      var w = pal("#8a5a2c"), rd = pal("#c1272d"), cr = pal("#f4f1ea"), K = "#1a0f26";
+      p.r(x, B - 17, 4, 17, K); p.r(x + 1, B - 16, 2, 15, w[2]); p.r(x + 1, B - 16, 2, 1, w[4]); p.r(x + 1, B - 16, 1, 15, w[3]); p.r(x + 1, B - 11, 2, 1, w[1]); p.r(x + 1, B - 7, 2, 1, w[1]);
+      p.r(x + 4, B - 7, 22, 4, K); p.r(x + 4, B - 6, 22, 2, w[2]); p.r(x + 4, B - 6, 22, 1, w[3]);
+      p.r(x + 4, B - 3, 3, 3, K); p.r(x + 5, B - 3, 1, 3, w[1]); p.r(x + 23, B - 3, 3, 3, K); p.r(x + 24, B - 3, 1, 3, w[1]);
+      p.r(x + 25, B - 10, 3, 10, K); p.r(x + 26, B - 9, 1, 8, w[2]); p.r(x + 26, B - 9, 1, 1, w[4]);
+      p.r(x + 4, B - 11, 21, 5, K); p.r(x + 5, B - 10, 19, 3, cr[2]); p.r(x + 5, B - 10, 19, 1, cr[4]); p.r(x + 5, B - 8, 19, 1, cr[1]);
+      p.r(x + 5, B - 14, 9, 5, K); p.r(x + 6, B - 13, 7, 3, "#ffffff"); p.r(x + 6, B - 13, 7, 1, "#ffffff"); p.r(x + 6, B - 11, 7, 1, "#cfd3e6"); p.r(x + 9, B - 12, 1, 1, "#cfd3e6"); p.r(x + 10, B - 13, 1, 1, "#cfd3e6");
+      p.r(x + 12, B - 13, 14, 7, K); p.r(x + 13, B - 12, 12, 5, rd[2]); p.r(x + 13, B - 12, 12, 1, rd[4]); p.r(x + 13, B - 11, 12, 1, rd[3]); p.r(x + 13, B - 8, 12, 1, rd[1]);
+      for (var i = 0; i < 4; i++) { p.r(x + 15 + i * 3, B - 10, 1, 1, "#ffd23f"); p.r(x + 16 + i * 3, B - 9, 1, 1, "#ffd23f"); }
+      p.r(x + 13, B - 7, 12, 1, rd[0]);
+    },
+    rug: function (p, x, B) {
+      var K = "#1a0f26", rd = pal("#c1272d");
+      p.r(x + 1, B - 3, 30, 3, K); p.r(x + 2, B - 2, 28, 2, rd[2]); p.r(x + 2, B - 2, 28, 1, rd[3]); p.r(x + 4, B - 2, 24, 1, "#f4e6b5");
+      for (var i = 0; i < 24; i += 3) p.r(x + 4 + i, B - 2, 1, 1, "#ffd23f");
+      for (var j = 0; j < 30; j += 2) { p.r(x + 1 + j, B - 0, 1, 1, "#f4e6b5"); }
+    },
+    plant: function (p, x, B) {
+      var g = pal("#3fa34d"), t = pal("#e07b39"), K = "#1a0f26";
+      p.r(x + 1, B - 7, 8, 7, K); p.r(x + 2, B - 6, 6, 5, t[2]); p.r(x + 2, B - 6, 6, 1, t[4]); p.r(x + 2, B - 5, 1, 4, t[3]); p.r(x + 7, B - 5, 1, 4, t[1]); p.r(x + 3, B - 3, 4, 1, t[1]); p.r(x + 1, B - 7, 8, 1, t[3]);
+      p.r(x + 2, B - 8, 6, 1, "#4a2e18");
+      p.r(x + 4, B - 14, 2, 6, g[0]); p.r(x + 5, B - 13, 1, 5, g[1]);
+      p.r(x + 0, B - 15, 4, 3, K); p.r(x + 1, B - 14, 3, 1, g[3]); p.r(x + 1, B - 13, 3, 1, g[2]);
+      p.r(x + 6, B - 17, 4, 4, K); p.r(x + 7, B - 16, 3, 2, g[2]); p.r(x + 7, B - 16, 2, 1, g[4]);
+      p.r(x + 3, B - 19, 4, 5, K); p.r(x + 4, B - 18, 2, 3, g[3]); p.r(x + 4, B - 18, 1, 1, g[4]);
+      p.r(x + 1, B - 11, 3, 3, K); p.r(x + 2, B - 10, 1, 1, g[3]); p.r(x + 2, B - 9, 1, 1, g[2]);
+    },
+    lamp: function (p, x, B) {
+      var K = "#1a0f26", m = pal("#8a8fa3");
+      p.r(x - 2, B - 28, 10, 12, "#ffe27a18"); p.r(x - 4, B - 26, 14, 8, "#ffe27a12");
+      p.r(x, B - 1, 6, 1, K); p.r(x + 1, B - 2, 4, 2, m[1]); p.r(x + 1, B - 2, 4, 1, m[3]);
+      p.r(x + 2, B - 18, 2, 16, m[2]); p.r(x + 2, B - 18, 1, 16, m[3]);
+      p.r(x - 1, B - 26, 8, 8, K); p.r(x, B - 25, 6, 6, "#ffd23f"); p.r(x, B - 25, 6, 1, "#fff6b0"); p.r(x, B - 24, 1, 5, "#ffe98a"); p.r(x + 5, B - 24, 1, 5, "#e0a812"); p.r(x + 1, B - 20, 4, 1, "#e0a812");
+      p.r(x + 2, B - 17, 2, 2, "#fff6b0");
+    },
+    poster: function (p, x, B) {
+      var y = B - 44, K = "#1a0f26";
+      p.r(x, y, 12, 16, K); p.r(x + 1, y + 1, 10, 14, "#f4f1ea"); p.r(x + 2, y + 2, 8, 12, "#6fc3ff"); p.r(x + 2, y + 2, 8, 3, "#9fdcff");
+      p.r(x + 7, y + 3, 2, 2, "#ffe98a"); p.r(x + 2, y + 9, 8, 5, "#3fa34d"); p.r(x + 2, y + 8, 3, 2, "#2e8b3d"); p.r(x + 5, y + 7, 3, 3, "#5ccf6b"); p.r(x + 3, y + 11, 4, 1, "#2e7bb5"); p.r(x + 1, y + 1, 10, 1, "#ffffff");
+    },
+    desk: function (p, x, B) {
+      var w = pal("#8a5a2c"), K = "#1a0f26";
+      p.r(x, B - 10, 28, 3, K); p.r(x + 1, B - 9, 26, 1, w[4]); p.r(x + 1, B - 8, 26, 1, w[3]); p.r(x, B - 7, 28, 1, w[1]);
+      p.r(x + 1, B - 7, 3, 7, K); p.r(x + 2, B - 7, 1, 7, w[2]);
+      p.r(x + 15, B - 7, 12, 7, K); p.r(x + 16, B - 6, 10, 2, w[2]); p.r(x + 16, B - 6, 10, 1, w[3]); p.r(x + 16, B - 3, 10, 2, w[2]); p.r(x + 16, B - 3, 10, 1, w[3]); p.r(x + 20, B - 5, 2, 1, "#ffd23f"); p.r(x + 20, B - 2, 2, 1, "#ffd23f");
+      // monitor on the left
+      p.r(x + 4, B - 12, 6, 2, "#4b5470"); p.r(x + 6, B - 13, 2, 1, "#4b5470");
+      p.r(x + 1, B - 24, 12, 11, K); p.r(x + 2, B - 23, 10, 8, "#1c2c4a"); p.r(x + 2, B - 23, 10, 1, "#2f4a7a");
+      p.r(x + 3, B - 22, 5, 1, "#6fe3ff"); p.r(x + 3, B - 20, 7, 1, "#8aff9a"); p.r(x + 3, B - 18, 4, 1, "#ffd23f"); p.r(x + 8, B - 22, 3, 1, "#ff8fb0"); p.r(x + 4, B - 19, 5, 1, "#6fe3ff"); p.r(x + 3, B - 17, 6, 1, "#8aff9a");
+      p.r(x + 12, B - 14, 1, 1, "#ff5a5a");
+      // keyboard + mug + pencil cup
+      p.r(x + 2, B - 11, 10, 1, "#cfd3e6"); p.r(x + 2, B - 10, 10, 1, "#8a8fa3");
+      p.r(x + 22, B - 15, 5, 5, K); p.r(x + 23, B - 14, 3, 4, "#f4f1ea"); p.r(x + 23, B - 14, 3, 1, "#6b3f1d"); p.r(x + 27, B - 14, 1, 3, K); p.r(x + 24, B - 11, 1, 1, "#cfd3e6");
+      p.r(x + 17, B - 15, 4, 5, K); p.r(x + 18, B - 14, 2, 4, "#3a8fb7"); p.r(x + 18, B - 17, 1, 3, "#ffd23f"); p.r(x + 19, B - 16, 1, 2, "#e63946");
+    },
+    shelf: function (p, x, B) {
+      var w = pal("#8a5a2c"), K = "#1a0f26", y = B - 46, cols = ["#c1272d", "#3a8fb7", "#ffd23f", "#3fa34d", "#8a5a9e", "#e07b39", "#2e7bb5"];
+      p.r(x, y, 20, 16, K); p.r(x + 1, y + 1, 18, 14, w[1]); p.r(x + 1, y + 1, 18, 1, w[3]);
+      p.r(x + 1, y + 7, 18, 1, w[2]); p.r(x + 1, y + 8, 18, 1, w[0]); p.r(x + 1, y + 14, 18, 1, w[2]);
+      var hs = [5, 6, 4, 6, 5, 6, 4];
+      for (var i = 0; i < 6; i++) { var h = hs[i]; p.r(x + 2 + i * 2 + (i > 3 ? 1 : 0), y + 7 - h, 2, h, cols[i]); p.r(x + 2 + i * 2 + (i > 3 ? 1 : 0), y + 7 - h, 1, h, "#ffffff44"); p.r(x + 2 + i * 2 + (i > 3 ? 1 : 0), y + 4, 2, 1, "#00000033"); }
+      p.r(x + 15, y + 3, 3, 4, "#ffd23f"); p.r(x + 16, y + 4, 1, 2, "#b8860b");
+      for (var j = 0; j < 4; j++) { p.r(x + 2 + j * 2, y + 14 - hs[j + 2], 2, hs[j + 2], cols[(j + 3) % 7]); p.r(x + 2 + j * 2, y + 14 - hs[j + 2], 1, hs[j + 2], "#ffffff44"); }
+      p.r(x + 11, y + 11, 6, 3, "#f4f1ea"); p.r(x + 11, y + 11, 6, 1, "#ffffff"); p.r(x + 12, y + 12, 4, 1, "#cfd3e6");
+    },
+    sofa: function (p, x, B) {
+      var t = pal("#3a8fb7"), K = "#1a0f26";
+      p.r(x + 3, B - 14, 22, 8, K); p.r(x + 4, B - 13, 20, 6, t[2]); p.r(x + 4, B - 13, 20, 1, t[4]); p.r(x + 4, B - 12, 20, 1, t[3]); p.r(x + 14, B - 13, 1, 5, t[1]);
+      p.r(x, B - 10, 5, 10, K); p.r(x + 1, B - 9, 3, 8, t[2]); p.r(x + 1, B - 9, 3, 1, t[4]); p.r(x + 1, B - 9, 1, 8, t[3]); p.r(x + 3, B - 8, 1, 7, t[1]);
+      p.r(x + 23, B - 10, 5, 10, K); p.r(x + 24, B - 9, 3, 8, t[2]); p.r(x + 24, B - 9, 3, 1, t[4]); p.r(x + 26, B - 8, 1, 7, t[1]);
+      p.r(x + 4, B - 8, 20, 6, K); p.r(x + 5, B - 7, 9, 4, t[3]); p.r(x + 5, B - 7, 9, 1, t[4]); p.r(x + 14, B - 7, 9, 4, t[2]); p.r(x + 14, B - 7, 9, 1, t[3]); p.r(x + 13, B - 6, 1, 3, t[1]); p.r(x + 5, B - 4, 18, 1, t[1]);
+      p.r(x + 5, B - 12, 6, 6, K); p.r(x + 6, B - 11, 4, 4, "#ffd23f"); p.r(x + 6, B - 11, 4, 1, "#fff6b0"); p.r(x + 7, B - 9, 2, 1, "#e0a812");
+      p.r(x + 2, B - 2, 2, 2, "#6e4223"); p.r(x + 24, B - 2, 2, 2, "#6e4223");
+    },
+    tv: function (p, x, B) {
+      var w = pal("#8a5a2c"), K = "#1a0f26";
+      p.r(x + 1, B - 7, 16, 7, K); p.r(x + 2, B - 6, 14, 5, w[2]); p.r(x + 2, B - 6, 14, 1, w[3]); p.r(x + 8, B - 5, 1, 4, w[0]); p.r(x + 5, B - 4, 1, 1, "#ffd23f"); p.r(x + 11, B - 4, 1, 1, "#ffd23f"); p.r(x + 3, B - 2, 4, 1, "#8a8fa3");
+      p.r(x, B - 17, 18, 11, K); p.r(x + 1, B - 16, 16, 9, "#6fc3ff"); p.r(x + 1, B - 16, 16, 3, "#9fdcff"); p.r(x + 2, B - 15, 3, 2, "#ffffff"); p.r(x + 12, B - 15, 3, 3, "#ffe98a");
+      p.r(x + 1, B - 11, 16, 4, "#3fa34d"); p.r(x + 1, B - 12, 6, 1, "#3fa34d"); p.r(x + 8, B - 12, 5, 2, "#2e8b3d"); p.r(x + 3, B - 9, 4, 1, "#5ccf6b");
+      p.r(x + 1, B - 16, 2, 1, "#ffffff88"); p.r(x + 16, B - 8, 1, 1, "#39d353");
+    },
+    fridge: function (p, x, B) {
+      var K = "#1a0f26", f = pal("#dfe6ee");
+      p.r(x, B - 29, 16, 29, K); p.r(x + 1, B - 28, 14, 27, f[2]); p.r(x + 1, B - 28, 14, 1, f[4]); p.r(x + 1, B - 28, 1, 27, f[4]); p.r(x + 14, B - 28, 1, 27, f[1]);
+      p.r(x + 1, B - 19, 14, 1, f[0]); p.r(x + 1, B - 18, 14, 1, f[4]);
+      p.r(x + 11, B - 26, 2, 5, "#7a7a86"); p.r(x + 11, B - 26, 1, 5, "#b5b9c9"); p.r(x + 11, B - 16, 2, 6, "#7a7a86"); p.r(x + 11, B - 16, 1, 6, "#b5b9c9");
+      p.r(x + 3, B - 25, 3, 3, "#c1272d"); p.r(x + 3, B - 25, 3, 1, "#ff6b6b"); p.r(x + 6, B - 23, 2, 2, "#ffd23f"); p.r(x + 3, B - 21, 4, 2, "#f4f1ea"); p.r(x + 4, B - 21, 2, 1, "#8a8fa3");
+      p.r(x + 2, B - 2, 12, 1, f[1]); p.r(x + 2, B - 4, 12, 1, f[1]);
+    }
   };
   function floorY(st, f) { var nf = FLOORS[st]; return TOP + (nf - 1 - f) * FH + FH - 3; }
   function H(st) { return TOP + FLOORS[st] * FH + 2; }
@@ -2896,17 +2995,18 @@ var ROOM = (function () {
     var nf = FLOORS[st], h = H(st), p = new Painter();
     shell(p, st, nf, h);
     var pl = opts.pl || defaultPlace(st, owned), sl = slots(st);
-    ORDER.forEach(function (id) { if (owned.indexOf(id) < 0) return; sl.forEach(function (s) { if (pl[s.id] === id) DRAW[id](p, s.x + Math.floor((s.w - ITEMS[id].w) / 2), floorY(st, s.f)); }); });
+    p.s += '<g transform="scale(.5)">';
+    ORDER.forEach(function (id) { if (owned.indexOf(id) < 0) return; sl.forEach(function (s) { if (pl[s.id] === id) DRAW2[id](p, (s.x + Math.floor((s.w - ITEMS[id].w) / 2)) * 2, floorY(st, s.f) * 2); }); });
+    p.s += "</g>";
     var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + " " + h + '" shape-rendering="crispEdges" aria-hidden="true">';
     if (st === 1) svg += '<polygon points="0,' + h + " 0," + (TOP + 2) + " 36,0 72," + (TOP + 2) + " 72," + h + '" fill="none"/>';
     return svg + p.s + "</svg>";
   }
   // single item preview (for the shop)
   function item(id) {
-    var p = new Painter(), w = 18, h = 24, fy = 22, ww = ITEMS[id].w, x = Math.floor((w - ww) / 2);
-    var wall = ITEMS[id].wall; if (wall) fy = 22 + 0;
-    p.r(0, 0, w, h, "#3b2b44"); p.r(0, fy, w, 2, "#8a5a2c");
-    DRAW[id](p, x, wall ? fy : fy);
+    var p = new Painter(), w = 36, h = 52, ww = ITEMS[id].w * 2, x = Math.floor((w - ww) / 2), fy = 48;
+    p.r(0, 0, w, h, "#3b2b44"); p.r(0, fy, w, 4, "#8a5a2c"); p.r(0, fy, w, 1, "#c58a4a");
+    DRAW2[id](p, x, fy);
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + " " + h + '" shape-rendering="crispEdges" aria-hidden="true">' + p.s + "</svg>";
   }
   return { slots: slots, fits: fits, defaultPlace: defaultPlace, TYPE: TYPE, render: render, item: item, ITEMS: ITEMS, ORDER: ORDER, LAY: LAY, FLOORS: FLOORS, W: W, H: H, floorY: floorY, FH: FH };
@@ -3227,9 +3327,29 @@ if (typeof module !== "undefined") module.exports = PET;
     if (focus) ROOM.slots(st).forEach(function (q) { if (m[q.id] === "desk") { f = q.f; x = q.x - 3; } });
     return { f: f, x: x };
   }
+  function seatSprite() {
+    var k = avatar === "girl" ? "girl" : "boy", o = hdOpts(k, false, "focus"); o.f = 0; o.s = 0;
+    return HD.sprite(o, "front", false).replace(/__D__/g, "-" + (Math.random() * 5).toFixed(1) + "s");
+  }
+  function deskScene(st, ds, m) {
+    var x0 = ds.x + Math.floor((ds.w - 14) / 2), fy = ROOM.floorY(st, ds.f), H = ROOM.H(st), top = fy - 5, cx = x0 + 8.5, sc = 0.34, pw = 32 * sc, ph = 44 * sc, vh = ph * 0.58;
+    var u = function (v, d) { return (v / ROOM.W * 100).toFixed(2) + "%"; }, uy = function (v) { return (v / H * 100).toFixed(2) + "%"; };
+    var reading = pomo.running && pomo.phase === "focus", cls = "dk" + (reading ? " rd" : "");
+    var h = '<div class="' + cls + '">';
+    h += '<div class="dk-px" style="left:' + u(cx - pw / 2) + ";top:" + uy(top - vh + 0.6) + ";width:" + u(pw) + ";height:" + uy(vh) + '"><div class="dk-in" style="height:' + (ph / vh * 100).toFixed(1) + '%">' + (avatar ? seatSprite() : "") + "</div></div>";
+    h += '<svg class="dk-book" style="left:' + u(cx - 4.5) + ";top:" + uy(top - 2.6) + ";width:" + u(9) + ";height:" + uy(3.2) + '" viewBox="0 0 18 6.4" shape-rendering="crispEdges"><rect x="0" y="1" width="18" height="5" fill="#1a0f26"/><rect x="1" y="0" width="8" height="5" fill="#f4f1ea"/><rect x="9" y="0" width="8" height="5" fill="#fffdf4"/><rect x="8.5" y="0" width="1" height="5.4" fill="#8a5a2c"/><rect x="2" y="1" width="5" height=".6" fill="#9aa3c7"/><rect x="2" y="2.4" width="5" height=".6" fill="#9aa3c7"/><rect x="2" y="3.8" width="3.5" height=".6" fill="#9aa3c7"/><rect x="10" y="1" width="5" height=".6" fill="#9aa3c7"/><rect x="10" y="2.4" width="4" height=".6" fill="#9aa3c7"/><rect x="10" y="3.8" width="5" height=".6" fill="#9aa3c7"/><rect class="dk-flip" x="9" y="-.3" width="8" height="5.4" fill="#f4f1ea" stroke="#cfd3e6" stroke-width=".3"/><rect x="0" y="4" width="2" height="2.4" fill="#f2c09a"/><rect x="16" y="4" width="2" height="2.4" fill="#f2c09a"/></svg>';
+    h += '<svg class="dk-mon" style="left:' + u(x0 + 1) + ";top:" + uy(fy - 11.5) + ";width:" + u(5) + ";height:" + uy(4) + '" viewBox="0 0 5 4" shape-rendering="crispEdges"><rect width="5" height="4" fill="#bfeaff"/></svg>';
+    h += '<svg class="dk-steam" style="left:' + u(x0 + 11.2) + ";top:" + uy(fy - 11.5) + ";width:" + u(2) + ";height:" + uy(4) + '" viewBox="0 0 2 4" shape-rendering="crispEdges"><rect class="s1" x="0" y="2" width=".6" height=".6" fill="#ffffffcc"/><rect class="s2" x="1" y="1" width=".6" height=".6" fill="#ffffffaa"/><rect class="s3" x="0" y="0" width=".6" height=".6" fill="#ffffff88"/></svg>';
+    if (reading && prof.lofi) h += '<svg class="dk-note" style="left:' + u(cx + 5) + ";top:" + uy(top - 9) + ";width:" + u(4) + ";height:" + uy(5) + '" viewBox="0 0 4 5" shape-rendering="crispEdges"><g class="n1"><rect x="1" y="0" width=".7" height="3.4" fill="#ffd23f"/><rect x="0" y="3" width="1.7" height="1.4" fill="#ffd23f"/></g></svg>';
+    return h + "</div>";
+  }
   function roomHtml(focus, edit) {
-    var i = stats.inv, st = i.house, sp = roomSpot(focus), H = ROOM.H(st), fy = ROOM.floorY(st, sp.f), sc = 0.42, pw = 32 * sc, ph = 44 * sc, m = placeMap();
-    var h = ROOM.render(st, i.furn, { pl: m }) + '<div class="rm-px' + (focus ? "" : " bob") + '" style="left:' + ((sp.x - pw / 2) / ROOM.W * 100).toFixed(2) + "%;top:" + ((fy + 1 - ph) / H * 100).toFixed(2) + "%;width:" + (pw / ROOM.W * 100).toFixed(2) + "%;height:" + (ph / H * 100).toFixed(2) + '%">' + (avatar ? prevSprite({}) : "") + "</div>";
+    var i = stats.inv, st = i.house, m = placeMap(), ds = null;
+    if (focus) ROOM.slots(st).forEach(function (q) { if (m[q.id] === "desk") ds = q; });
+    var H = ROOM.H(st), sp = roomSpot(false), fy = ROOM.floorY(st, sp.f), sc = 0.42, pw = 32 * sc, ph = 44 * sc;
+    var h = ROOM.render(st, i.furn, { pl: m });
+    if (ds) h += deskScene(st, ds, m);
+    else h += '<div class="rm-px' + (focus ? "" : " bob") + '" style="left:' + ((Math.max(pw / 2, Math.min(ROOM.W - pw / 2, sp.x)) - pw / 2) / ROOM.W * 100).toFixed(2) + "%;top:" + ((fy + 1 - ph) / H * 100).toFixed(2) + "%;width:" + (pw / ROOM.W * 100).toFixed(2) + "%;height:" + (ph / H * 100).toFixed(2) + '%">' + (avatar ? prevSprite({}) : "") + "</div>";
     if (edit) ROOM.slots(st).forEach(function (q) {
       var y = ROOM.floorY(st, q.f), top = q.t === "F" ? y - 15 : q.t === "W" ? y - 24 : y - 4, hh = q.t === "F" ? 15 : q.t === "W" ? 11 : 4, occ = m[q.id], ok = roomSel && ROOM.fits(roomSel, q);
       if (!occ && !ok) return;
@@ -3255,8 +3375,13 @@ if (typeof module !== "undefined") module.exports = PET;
   function renderPomoRoom() {
     var el = $("#pomoRoom"); if (!el || !stats) return; var i = stats.inv;
     if (!i.house) { el.hidden = true; roomKey = ""; return; }
-    var k = i.house + "|" + i.furn.join(",") + "|" + JSON.stringify(placeMap()) + "|" + (typeof sprSig === "function" ? sprSig() : "") + "|" + avatar;
-    if (el.dataset.k !== k) { el.dataset.k = k; el.innerHTML = roomHtml(true, false); }
+    var k = i.house + "|" + i.furn.join(",") + "|" + JSON.stringify(placeMap()) + "|" + (typeof sprSig === "function" ? sprSig() : "") + "|" + avatar + "|" + (pomo.running && pomo.phase === "focus" ? 1 : 0) + (prof.lofi ? 1 : 0);
+    if (el.dataset.k !== k) {
+      el.dataset.k = k;
+      var pm = placeMap(), dsl = null; ROOM.slots(i.house).forEach(function (q) { if (pm[q.id] === "desk") dsl = q; });
+      if (dsl) { var ft = ROOM.floorY(i.house, dsl.f) - (ROOM.FH - 3); el.classList.add("zoom"); el.innerHTML = '<div class="rm-wrap" style="top:-' + (ft / ROOM.FH * 100).toFixed(2) + '%">' + roomHtml(true, false) + "</div>"; }
+      else { el.classList.remove("zoom"); el.innerHTML = roomHtml(true, false); }
+    }
     el.hidden = false;
   }
   document.addEventListener("click", function (e) {
@@ -3629,7 +3754,7 @@ if (typeof module !== "undefined") module.exports = PET;
     $("#notifTxt").textContent = st === 1 ? "Notifications are blocked for Pixel Planner, so the timer and reminders cannot show. Tap ALLOW and switch them on." : "Allow exact alarms so reminders arrive on time.";
   }
   /* in-app update notice (Android app): compares the installed version with the newest GitHub release */
-  var APP_NOTES = { "3.6": ["Choose where each piece of furniture goes in your room. Tap a piece, then tap a gold spot. Tap a placed piece to move it or send it back to the tray.", "Rooms show every floor of your home, and the focus screen shows your room as you arranged it."], "3.5": ["The notepad icon is now on a black background and also shows inside the app."], "3.4": ["New notepad app icon.", "Redesigned pixel-style Today widget, plus a new Upcoming widget that lists the next days. Add it from your widget picker.", "The running timer notification can no longer be swiped away. It has a STOP button to end the timer."], "3.3": ["A running focus timer is now remembered. Reopen the app and it shows the real time left instead of resetting."], "3.2": ["Notifications now use Android's standard layout with a live countdown for the timer, so they show reliably on new phones."], "3.1": ["The app now tells you when notifications are blocked and the ALLOW button opens the right settings screen.", "Safer fallback so the timer and reminder notifications still show."], "3.0": ["Fixed the crash when starting the focus timer."], "2.7": ["After the opening animation, new installs ask if you are new or an existing user. Existing users can restore their Google Drive backup right away."], "2.6": ["Pixel's room: tap your tent or house to step inside. Each home has its own floors, from a one-room tent up to a three-storey mansion.", "Buy a bed, desk, sofa, TV and more with R coins. They show in the shop, in your room and on the focus screen.", "Back up your progress to a file and pick Google Drive on the save screen. Restore it from the same screen after a phone change."], "2.5": ["New look for notifications: a pixel-style card with your character, a colour for each kind of reminder, and a big live countdown for the focus timer."], "2.4": ["The UPDATE button now downloads the new version inside the app and opens the installer by itself."], "2.3": ["Focus timer keeps running in the background with a live countdown notification and a ringtone when it ends.", "Home-screen widget with today's tasks, your next block, coins and streak.", "Activity calendars for fitness, study, water and protein in the report.", "Phone alarms from tasks and time-table blocks.", "Pixel gets sleepy at night, says wow on big moments, and every action has its own sound.", "Optional lo-fi music loop during focus sessions."] };
+  var APP_NOTES = { "3.7": ["All furniture is redrawn with much more detail: bed, desk with a glowing monitor, bookshelf, sofa, TV, fridge, plant, lamp, rug and poster.", "On the focus screen Pixel now sits at the desk reading a book with page turns, a nodding head, rising steam from the mug and a flickering monitor. Music notes float when lo-fi is on."], "3.6": ["Choose where each piece of furniture goes in your room. Tap a piece, then tap a gold spot. Tap a placed piece to move it or send it back to the tray.", "Rooms show every floor of your home, and the focus screen shows your room as you arranged it."], "3.5": ["The notepad icon is now on a black background and also shows inside the app."], "3.4": ["New notepad app icon.", "Redesigned pixel-style Today widget, plus a new Upcoming widget that lists the next days. Add it from your widget picker.", "The running timer notification can no longer be swiped away. It has a STOP button to end the timer."], "3.3": ["A running focus timer is now remembered. Reopen the app and it shows the real time left instead of resetting."], "3.2": ["Notifications now use Android's standard layout with a live countdown for the timer, so they show reliably on new phones."], "3.1": ["The app now tells you when notifications are blocked and the ALLOW button opens the right settings screen.", "Safer fallback so the timer and reminder notifications still show."], "3.0": ["Fixed the crash when starting the focus timer."], "2.7": ["After the opening animation, new installs ask if you are new or an existing user. Existing users can restore their Google Drive backup right away."], "2.6": ["Pixel's room: tap your tent or house to step inside. Each home has its own floors, from a one-room tent up to a three-storey mansion.", "Buy a bed, desk, sofa, TV and more with R coins. They show in the shop, in your room and on the focus screen.", "Back up your progress to a file and pick Google Drive on the save screen. Restore it from the same screen after a phone change."], "2.5": ["New look for notifications: a pixel-style card with your character, a colour for each kind of reminder, and a big live countdown for the focus timer."], "2.4": ["The UPDATE button now downloads the new version inside the app and opens the installer by itself."], "2.3": ["Focus timer keeps running in the background with a live countdown notification and a ringtone when it ends.", "Home-screen widget with today's tasks, your next block, coins and streak.", "Activity calendars for fitness, study, water and protein in the report.", "Phone alarms from tasks and time-table blocks.", "Pixel gets sleepy at night, says wow on big moments, and every action has its own sound.", "Optional lo-fi music loop during focus sessions."] };
   function notesHtml(body) {
     var lines = String(body).split(/\r?\n/).filter(function (l) { return /^\s*[-*]\s+/.test(l); }).slice(0, 6);
     return lines.length ? '<small class="wn">WHAT\'S NEW</small>' + lines.map(function (l) { return "<small>- " + esc(l.replace(/^\s*[-*]\s+/, "").slice(0, 110)) + "</small>"; }).join("") : "";
