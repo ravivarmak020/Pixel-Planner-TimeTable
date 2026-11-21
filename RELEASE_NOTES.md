@@ -1,2 +1,1 @@
-- New BUY LIST tab: add things to buy and tick them off
-- New SUBS tab: track subscriptions with name, price and end date, each with a coloured letter icon
+- Main tabs now sit in a roomier 2 by 2 grid so nothing is squeezed
