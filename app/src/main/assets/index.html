@@ -1090,6 +1090,7 @@ body.fx .cbar .cfill::before, body.fx .chipbar i::before { content: ""; position
 </div>
 
 <div class="wrap">
+  <div class="box notifbar" id="updBar" hidden><span id="updTxt"></span><span class="row-btns"><button class="btn" id="updGo" type="button">UPDATE</button><button class="btn alt" id="updLater" type="button">LATER</button></span></div>
   <div class="box notifbar" id="notifBar" hidden><span id="notifTxt"></span><button class="btn" id="notifGo" type="button">ALLOW</button></div>
   <header class="box">
     <canvas class="hdrart" id="hdrArt" width="200" height="42" aria-hidden="true"></canvas>
@@ -3301,6 +3302,20 @@ if (typeof module !== "undefined") module.exports = PET;
     $("#notifBar").hidden = st === 0;
     $("#notifTxt").textContent = st === 1 ? "Allow notifications so Pixel can remind you when the app is closed." : "Allow exact alarms so reminders arrive on time.";
   }
+  /* in-app update notice (Android app): compares the installed version with the newest GitHub release */
+  var UPD_REPO = "ravivarmak020/Pixel-Planner-TimeTable", updNew = "";
+  function verCmp(a, b) { var x = String(a).split("."), y = String(b).split("."); for (var i = 0; i < Math.max(x.length, y.length); i++) { var d = (+x[i] || 0) - (+y[i] || 0); if (d) return d < 0 ? -1 : 1; } return 0; }
+  function updateCheck() {
+    var B = window.AndroidBridge; if (!B || !B.appVersion || !window.fetch) return;
+    var cur = ""; try { cur = String(B.appVersion() || ""); } catch (e) {} if (!cur) return;
+    fetch("https://api.github.com/repos/" + UPD_REPO + "/releases/tags/latest", { headers: { Accept: "application/vnd.github+json" } }).then(function (r) { return r.json(); }).then(function (j) {
+      var m = /v(\d+(?:\.\d+)*)/i.exec(((j && j.name) || "") + " " + ((j && j.body) || "")); if (!m || verCmp(m[1], cur) <= 0) return;
+      var sk = prof.updSkip; if (sk && sk.v === m[1] && Date.now() - sk.at < 864e5) return;
+      updNew = m[1]; $("#updTxt").textContent = "NEW VERSION AVAILABLE: v" + m[1] + " (you have v" + cur + "). Please update to get the latest features."; $("#updBar").hidden = false;
+    }).catch(function () {});
+  }
+  $("#updGo").addEventListener("click", function () { try { window.AndroidBridge.openUrl("https://github.com/" + UPD_REPO + "/releases/download/latest/PixelPlanner.apk"); } catch (e) {} });
+  $("#updLater").addEventListener("click", function () { prof.updSkip = { v: updNew, at: Date.now() }; $("#updBar").hidden = true; try { store.save(); } catch (e) {} });
   $("#notifGo").addEventListener("click", function () { try { window.AndroidBridge.askNotif(); } catch (e) {} setTimeout(notifCheck, 2000); });
   setTimeout(notifCheck, 1500);
   setTimeout(pullActions, 2500);
@@ -4895,7 +4910,7 @@ if (typeof module !== "undefined") module.exports = PET;
     if (saved && saved.tt && !dirty) { tt = normTT(saved.tt); plans = Array.isArray(saved.plans) ? saved.plans.map(normTT) : []; }
     store.save();
     render(); renderAvatar(); buildWalker();
-    initDone = true; applyToggles();
+    initDone = true; applyToggles(); setTimeout(updateCheck, 4000);
     afterSplash(function () { if (!avatar) openPicker(); else if (!prof.toured) tourStart(); else maybeGreet(); });
   }).catch(function () { initDone = true; render(); });
 

@@ -344,6 +344,35 @@ public class MainActivity extends Activity {
             });
         }
 
+        /** The installed app's versionName, used by the in-app update notice. */
+        @JavascriptInterface
+        public String appVersion() {
+            try {
+                return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            } catch (Exception e) {
+                return "";
+            }
+        }
+
+        /** Opens a web address (used to download the new APK). Only https links are allowed. */
+        @JavascriptInterface
+        public void openUrl(final String url) {
+            if (url == null || !url.startsWith("https://")) {
+                return;
+            }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(i);
+                    } catch (Exception ignored) {
+                    }
+                }
+            });
+        }
+
         /** Sets a real alarm in the phone's Clock app. days = comma list of Calendar day numbers (1=Sun..7=Sat), or empty for a one-time alarm. */
         @JavascriptInterface
         public boolean setAlarm(int hour, int minute, String label, String days) {
