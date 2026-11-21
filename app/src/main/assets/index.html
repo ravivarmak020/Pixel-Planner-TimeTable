@@ -536,6 +536,17 @@ h2 { line-height: 1.5; }
 .roomview, .pomo-room { flex: none; position: relative; background: #0d0a14; box-shadow: 0 0 0 2px #000; border-radius: 8px; overflow: hidden; line-height: 0; }
 .roomview > svg, .pomo-room > svg { width: 100%; height: auto; display: block; image-rendering: pixelated; }
 .pomo-room { max-width: 300px; margin: 10px auto 0; cursor: pointer; }
+.rm-slot { position: absolute; padding: 0; margin: 0; background: transparent; border: 0; cursor: pointer; }
+.rm-slot.ok { background: rgba(255, 210, 63, .18); outline: 1px dashed #ffd23f; outline-offset: -1px; animation: rmslot 1s steps(2) infinite; }
+.rm-slot.has.sel { outline: 2px solid #39d353; outline-offset: -1px; background: rgba(57, 211, 83, .15); }
+@keyframes rmslot { 50% { background: rgba(255, 210, 63, .38); } }
+.rm-tray { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.rm-chip { display: flex; align-items: center; gap: 6px; padding: 4px 8px 4px 4px; background: #2a2556; border: 2px solid #0d0a14; border-radius: 8px; color: #fff; font-family: inherit; font-size: 12px; cursor: pointer; text-align: left; }
+.rm-chip .rm-ic { width: 24px; height: 32px; image-rendering: pixelated; flex: none; }
+.rm-chip span { font-weight: bold; display: block; }
+.rm-chip small { display: block; font-size: 10px; color: #8fe0ff; }
+.rm-chip.sel { border-color: #ffd23f; background: #3b3375; }
+.rm-chip.lock { opacity: .5; cursor: default; }
 .rm-px { position: absolute; pointer-events: none; }
 .rm-px svg { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
 .rm-px.bob { animation: rmbob 1.8s steps(2) infinite; }
@@ -1307,6 +1318,7 @@ body.fx .cbar .cfill::before, body.fx .chipbar i::before { content: ""; position
   <div class="box">
     <h2 id="roomTitle">PIXEL'S ROOM</h2>
     <div class="roomview" id="roomView"></div>
+    <div class="rm-tray" id="roomTray"></div>
     <p class="hint" id="roomHint"></p>
     <div id="roomList"></div>
     <div class="row-btns"><button class="btn alt" id="roomShop" type="button">OPEN SHOP</button><button class="btn" id="roomClose" type="button">CLOSE</button></div>
@@ -1604,7 +1616,7 @@ body.fx .cbar .cfill::before, body.fx .chipbar i::before { content: ""; position
   function tierOf(lv) { return lv >= 25 ? 4 : lv >= 15 ? 3 : lv >= 10 ? 2 : lv >= 4 ? 1 : 0; }
   var evoDemo = null;
   function evoNow() { if (evoDemo) return { f: evoDemo.f, s: evoDemo.s }; return stats ? { f: tierOf(lvOf("fitness")), s: tierOf(lvOf("study")) } : { f: 0, s: 0 }; }
-  function sprSig() { var e = evoNow(), i = stats && stats.inv || {}; return e.f + "" + e.s + (i.hat || "") + (i.outfit || "") + (i.face || "") + (i.back || "") + (i.pacc || "") + (i.house || 0) + (i.furn || []).join(","); }
+  function sprSig() { var e = evoNow(), i = stats && stats.inv || {}; return e.f + "" + e.s + (i.hat || "") + (i.outfit || "") + (i.face || "") + (i.back || "") + (i.pacc || "") + (i.house || 0) + (i.furn || []).join(",") + JSON.stringify(i.pl || {}); }
   function evoSvg(key, frame, e) {
     if (key !== "boy" && key !== "girl") return "";
     var pal = palFor(key), skin = pal.s, shirt = pal.b, hi = pal.L || shirt, front = frame === "front", fill = "", boy = key === "boy";
@@ -2088,7 +2100,7 @@ if (typeof module !== "undefined") module.exports = HD;
   var SHOP_PACC = { collar: { n: "RED COLLAR", c: 30 }, bow: { n: "PINK BOW TIE", c: 30 }, scarf: { n: "TEAL SCARF", c: 40 } };
   var SLOTS = { hat: { t: SHOP_HATS, own: "hats", w: "hat" }, out: { t: SHOP_OUTS, own: "outs", w: "outfit" }, face: { t: SHOP_FACES, own: "faces", w: "face" }, back: { t: SHOP_BACKS, own: "backs", w: "back" }, pet: { t: SHOP_PACC, own: "paccs", w: "pacc" } };
   function slotOf(id) { var p = id.indexOf("-"); if (p < 0) return null; var sl = SLOTS[id.slice(0, p)]; return sl ? { sl: sl, k: id.slice(p + 1), item: sl.t[id.slice(p + 1)] } : null; }
-  function newInv() { return { house: 0, dog: 0, cat: 0, hats: [], hat: "", outs: [], outfit: "", faces: [], face: "", backs: [], back: "", paccs: [], pacc: "", furn: [] }; }
+  function newInv() { return { house: 0, dog: 0, cat: 0, hats: [], hat: "", outs: [], outfit: "", faces: [], face: "", backs: [], back: "", paccs: [], pacc: "", furn: [], pl: {} }; }
   function normLog(o) {
     var r = {}; if (!o || typeof o !== "object") return r;
     var keys = Object.keys(o).filter(function (k) { return /^\d{4}-\d{2}-\d{2}$/.test(k); }).sort().slice(-400);
@@ -2121,6 +2133,13 @@ if (typeof module !== "undefined") module.exports = HD;
       r.inv[q[0]] = (Array.isArray(iv[q[0]]) ? iv[q[0]] : []).filter(function (h) { return q[2][h]; }); r.inv[q[1]] = r.inv[q[0]].indexOf(iv[q[1]]) >= 0 ? iv[q[1]] : "";
     });
     r.inv.furn = (Array.isArray(iv.furn) ? iv.furn : []).filter(function (h, ix, a) { return ROOM.ITEMS[h] && a.indexOf(h) === ix; });
+    r.inv.pl = {};
+    if (iv.pl && typeof iv.pl === "object") Object.keys(iv.pl).forEach(function (st) {
+      var m = iv.pl[st]; if (!ROOM.FLOORS[st] || !m || typeof m !== "object") return;
+      var sl = ROOM.slots(+st), out = {}, seen = {};
+      Object.keys(m).forEach(function (k) { var id = m[k], sd = sl.filter(function (q) { return q.id === k; })[0]; if (sd && r.inv.furn.indexOf(id) >= 0 && !seen[id] && ROOM.fits(id, sd)) { out[k] = id; seen[id] = 1; } });
+      r.inv.pl[st] = out;
+    });
     if (o.lastQuick && typeof o.lastQuick === "object") ["hydration", "protein", "fitness", "study"].forEach(function (k) {
       var v = o.lastQuick[k]; r.lastQuick[k] = Array.isArray(v) ? v.map(function (n) { return n && typeof n === "object" ? { n: +n.n, t: String(n.t || ""), b: String(n.b || ""), tk: String(n.tk || ""), tm: n.tm ? 1 : 0, mins: +n.mins || 0, auto: n.auto ? 1 : 0, d: /^\d{4}-\d{2}-\d{2}$/.test(n.d || "") ? n.d : "" } : +n; }).filter(function (n) { return (typeof n === "object" ? n.n : n) > 0; }).slice(-50) : (+v > 0 ? [+v] : []);
     });
@@ -2849,11 +2868,35 @@ var ROOM = (function () {
   };
   function floorY(st, f) { var nf = FLOORS[st]; return TOP + (nf - 1 - f) * FH + FH - 3; }
   function H(st) { return TOP + FLOORS[st] * FH + 2; }
+  var TYPE = { bed: "F", desk: "F", sofa: "F", tv: "F", fridge: "F", plant: "F", lamp: "F", rug: "R", poster: "W", shelf: "W" };
+  function slots(st) {
+    var nf = FLOORS[st], o = [];
+    for (var f = 0; f < nf; f++) {
+      var obs = []; if (f === 0) obs.push(nf > 1 ? [40, 47] : [64, 71]); if (f < nf - 1) obs.push([65, 71]);
+      var ok = function (x, w) { return obs.every(function (r) { return x + w <= r[0] || x >= r[1]; }); };
+      [[2, 14], [19, 14], [36, 11], [49, 14]].forEach(function (s, i) { if (ok(s[0], s[1])) o.push({ id: f + "F" + i, f: f, t: "F", x: s[0], w: s[1] }); });
+      [[26, 10], [38, 10], [50, 10]].forEach(function (s, i) { if (ok(s[0], s[1])) o.push({ id: f + "W" + i, f: f, t: "W", x: s[0], w: s[1] }); });
+      [[6, 16], [30, 16]].forEach(function (s, i) { o.push({ id: f + "R" + i, f: f, t: "R", x: s[0], w: s[1] }); });
+    }
+    return o;
+  }
+  function fits(id, s) { return !!ITEMS[id] && s.t === TYPE[id] && ITEMS[id].w <= s.w; }
+  function defaultPlace(st, owned) {
+    var sl = slots(st), map = {}, used = {};
+    ORDER.forEach(function (id) {
+      if (owned.indexOf(id) < 0 || !ITEMS[id] || ITEMS[id].st > st) return;
+      var L = LAY[st][id], best = null, bd = 1e9;
+      sl.forEach(function (s) { if (used[s.id] || !fits(id, s)) return; var d = L ? Math.abs(s.f - L[0]) * 1000 + Math.abs(s.x - L[1]) : 0; if (d < bd) { bd = d; best = s; } });
+      if (best) { used[best.id] = 1; map[best.id] = id; }
+    });
+    return map;
+  }
   function render(st, owned, opts) {
     opts = opts || {}; owned = owned || [];
     var nf = FLOORS[st], h = H(st), p = new Painter();
     shell(p, st, nf, h);
-    ORDER.forEach(function (id) { if (owned.indexOf(id) < 0) return; var l = LAY[st][id]; if (!l) return; DRAW[id](p, l[1], floorY(st, l[0])); });
+    var pl = opts.pl || defaultPlace(st, owned), sl = slots(st);
+    ORDER.forEach(function (id) { if (owned.indexOf(id) < 0) return; sl.forEach(function (s) { if (pl[s.id] === id) DRAW[id](p, s.x + Math.floor((s.w - ITEMS[id].w) / 2), floorY(st, s.f)); }); });
     var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + " " + h + '" shape-rendering="crispEdges" aria-hidden="true">';
     if (st === 1) svg += '<polygon points="0,' + h + " 0," + (TOP + 2) + " 36,0 72," + (TOP + 2) + " 72," + h + '" fill="none"/>';
     return svg + p.s + "</svg>";
@@ -2866,7 +2909,7 @@ var ROOM = (function () {
     DRAW[id](p, x, wall ? fy : fy);
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + " " + h + '" shape-rendering="crispEdges" aria-hidden="true">' + p.s + "</svg>";
   }
-  return { render: render, item: item, ITEMS: ITEMS, ORDER: ORDER, LAY: LAY, FLOORS: FLOORS, W: W, H: H, floorY: floorY, FH: FH };
+  return { slots: slots, fits: fits, defaultPlace: defaultPlace, TYPE: TYPE, render: render, item: item, ITEMS: ITEMS, ORDER: ORDER, LAY: LAY, FLOORS: FLOORS, W: W, H: H, floorY: floorY, FH: FH };
 })();
 
 var BLD = (function () {
@@ -3169,39 +3212,72 @@ if (typeof module !== "undefined") module.exports = PET;
     placePets(0);
   }
   /* ---------- Pixel's room ---------- */
-  var roomKey = "";
+  var roomKey = "", roomSel = "";
+  function placeMap() { var i = stats.inv; return i.pl[i.house] ? i.pl[i.house] : ROOM.defaultPlace(i.house, i.furn); }
+  function setPlace(m) { stats.inv.pl[stats.inv.house] = m; dirty = true; store.save(); }
+  function autoPlace(id) {
+    var i = stats.inv, st = i.house, it = ROOM.ITEMS[id]; if (!it || it.st > st) return;
+    var m = {}, cur = placeMap(); Object.keys(cur).forEach(function (k) { m[k] = cur[k]; });
+    if (Object.keys(m).some(function (k) { return m[k] === id; })) return;
+    var sl = ROOM.slots(st).filter(function (q) { return !m[q.id] && ROOM.fits(id, q); })[0];
+    if (sl) { m[sl.id] = id; setPlace(m); }
+  }
   function roomSpot(focus) {
-    var i = stats.inv, st = i.house, L = ROOM.LAY[st] || {}, f = 0, x = 26;
-    if (focus && i.furn.indexOf("desk") >= 0 && L.desk) { f = L.desk[0]; x = L.desk[1] - 5; }
-    else if (focus && i.furn.indexOf("bed") >= 0 && L.bed && false) { f = L.bed[0]; x = L.bed[1]; }
+    var i = stats.inv, st = i.house, m = placeMap(), f = 0, x = 26;
+    if (focus) ROOM.slots(st).forEach(function (q) { if (m[q.id] === "desk") { f = q.f; x = q.x - 3; } });
     return { f: f, x: x };
   }
-  function roomHtml(focus) {
-    var i = stats.inv, st = i.house, sp = roomSpot(focus), H = ROOM.H(st), fy = ROOM.floorY(st, sp.f), sc = 0.42, pw = 32 * sc, ph = 44 * sc;
-    return ROOM.render(st, i.furn) + '<div class="rm-px' + (focus ? "" : " bob") + '" style="left:' + ((sp.x - pw / 2) / ROOM.W * 100).toFixed(2) + "%;top:" + ((fy + 1 - ph) / H * 100).toFixed(2) + "%;width:" + (pw / ROOM.W * 100).toFixed(2) + "%;height:" + (ph / H * 100).toFixed(2) + '%">' + (avatar ? prevSprite({}) : "") + "</div>";
+  function roomHtml(focus, edit) {
+    var i = stats.inv, st = i.house, sp = roomSpot(focus), H = ROOM.H(st), fy = ROOM.floorY(st, sp.f), sc = 0.42, pw = 32 * sc, ph = 44 * sc, m = placeMap();
+    var h = ROOM.render(st, i.furn, { pl: m }) + '<div class="rm-px' + (focus ? "" : " bob") + '" style="left:' + ((sp.x - pw / 2) / ROOM.W * 100).toFixed(2) + "%;top:" + ((fy + 1 - ph) / H * 100).toFixed(2) + "%;width:" + (pw / ROOM.W * 100).toFixed(2) + "%;height:" + (ph / H * 100).toFixed(2) + '%">' + (avatar ? prevSprite({}) : "") + "</div>";
+    if (edit) ROOM.slots(st).forEach(function (q) {
+      var y = ROOM.floorY(st, q.f), top = q.t === "F" ? y - 15 : q.t === "W" ? y - 24 : y - 4, hh = q.t === "F" ? 15 : q.t === "W" ? 11 : 4, occ = m[q.id], ok = roomSel && ROOM.fits(roomSel, q);
+      if (!occ && !ok) return;
+      h += '<button type="button" class="rm-slot' + (occ ? " has" : "") + (ok ? " ok" : "") + (occ && occ === roomSel ? " sel" : "") + '" data-slot="' + q.id + '" aria-label="' + (occ ? ROOM.ITEMS[occ].name : "Empty spot") + '" style="left:' + (q.x / ROOM.W * 100).toFixed(2) + "%;top:" + (top / H * 100).toFixed(2) + "%;width:" + (q.w / ROOM.W * 100).toFixed(2) + "%;height:" + (hh / H * 100).toFixed(2) + '%"></button>';
+    });
+    return h;
   }
   function renderRoom() {
     if (!stats) return; var i = stats.inv;
-    $("#roomView").innerHTML = i.house ? roomHtml(false) : "";
+    if (!i.house) { $("#roomView").innerHTML = ""; return; }
+    var st = i.house, m = placeMap(), placed = {}; Object.keys(m).forEach(function (k) { placed[m[k]] = 1; });
+    $("#roomView").innerHTML = roomHtml(false, true);
     var names = ["", "TENT", "HUT", "COTTAGE", "HOUSE", "MANSION"];
-    $("#roomHint").textContent = i.house ? names[i.house] + ": " + ROOM.FLOORS[i.house] + " FLOOR" + (ROOM.FLOORS[i.house] > 1 ? "S" : "") + ". " + i.furn.length + "/" + ROOM.ORDER.length + " FURNITURE. BETTER HOMES UNLOCK MORE." : "";
+    $("#roomTray").innerHTML = i.furn.length ? i.furn.map(function (k) {
+      var it = ROOM.ITEMS[k], usable = it.st <= st;
+      return '<button type="button" class="rm-chip' + (roomSel === k ? " sel" : "") + (usable ? "" : " lock") + '" data-pick="' + k + '"' + (usable ? "" : " disabled") + ">" + ROOM.item(k).replace("<svg ", '<svg class="rm-ic" ') + "<span>" + it.name + "</span><small>" + (usable ? (placed[k] ? "PLACED" : "IN TRAY") : "NEEDS " + SHOP_HOUSE[it.st].n) + "</small></button>";
+    }).join("") + (roomSel && placed[roomSel] ? '<button type="button" class="btn alt" id="roomToTray">TO TRAY</button>' : "") : '<p class="hint">Buy furniture below, then place it in your room.</p>';
+    $("#roomHint").textContent = names[st] + ": " + ROOM.FLOORS[st] + " FLOOR" + (ROOM.FLOORS[st] > 1 ? "S" : "") + ". " + (roomSel ? "TAP A GOLD SPOT TO PLACE " + ROOM.ITEMS[roomSel].name + "." : "TAP FURNITURE BELOW, THEN A SPOT. TAP A PLACED ITEM TO MOVE IT.");
     $("#roomList").innerHTML = '<div class="shop-list">' + furnRows() + "</div>";
   }
-  function openRoom() { if (!stats || !stats.inv.house) return; rollDay(); renderRoom(); $("#shopMsg").textContent = ""; $("#roomModal").hidden = false; $("#roomClose").focus(); }
-  function closeRoom() { $("#roomModal").hidden = true; }
+  function openRoom() { if (!stats || !stats.inv.house) return; rollDay(); roomSel = ""; renderRoom(); $("#shopMsg").textContent = ""; $("#roomModal").hidden = false; $("#roomClose").focus(); }
+  function closeRoom() { $("#roomModal").hidden = true; roomSel = ""; }
   function renderPomoRoom() {
     var el = $("#pomoRoom"); if (!el || !stats) return; var i = stats.inv;
     if (!i.house) { el.hidden = true; roomKey = ""; return; }
-    var k = i.house + "|" + i.furn.join(",") + "|" + (typeof sprSig === "function" ? sprSig() : "") + "|" + avatar;
-    if (el.dataset.k !== k) { el.dataset.k = k; el.innerHTML = roomHtml(true); }
+    var k = i.house + "|" + i.furn.join(",") + "|" + JSON.stringify(placeMap()) + "|" + (typeof sprSig === "function" ? sprSig() : "") + "|" + avatar;
+    if (el.dataset.k !== k) { el.dataset.k = k; el.innerHTML = roomHtml(true, false); }
     el.hidden = false;
   }
   document.addEventListener("click", function (e) {
     var t = e.target; if (!t.closest) return;
     if (t.closest("#house") || t.closest("#pomoRoom")) { openRoom(); return; }
-    if (t.closest("#roomClose") || t.id === "roomModal") closeRoom();
-    else if (t.closest("#roomShop")) { closeRoom(); openShop(); }
-    else if (t.closest("#roomModal")) { var pv = t.closest("[data-prev]"); if (pv && !t.closest("[data-shop]")) { /* previews open the item in the shop */ } }
+    if (t.closest("#roomClose") || t.id === "roomModal") { closeRoom(); return; }
+    if (t.closest("#roomShop")) { closeRoom(); openShop(); return; }
+    if (t.closest("#roomModal")) {
+      var pk = t.closest("[data-pick]"), sl = t.closest("[data-slot]"), tr = t.closest("#roomToTray");
+      if (pk) { roomSel = roomSel === pk.dataset.pick ? "" : pk.dataset.pick; popSound(); renderRoom(); }
+      else if (tr && roomSel) { var m1 = {}, c1 = placeMap(); Object.keys(c1).forEach(function (k) { if (c1[k] !== roomSel) m1[k] = c1[k]; }); setPlace(m1); roomSel = ""; renderRoom(); }
+      else if (sl) {
+        var cur = placeMap(), m = {}; Object.keys(cur).forEach(function (k) { m[k] = cur[k]; }); var id = sl.dataset.slot;
+        if (roomSel) {
+          var q = ROOM.slots(stats.inv.house).filter(function (z) { return z.id === id; })[0];
+          if (!q || !ROOM.fits(roomSel, q)) { toast("IT DOES NOT FIT THERE", "red"); return; }
+          Object.keys(m).forEach(function (k) { if (m[k] === roomSel) delete m[k]; });
+          m[id] = roomSel; setPlace(m); roomSel = ""; coinSound(); renderRoom(); var sc = $("#pomoRoom"); if (sc) sc.dataset.k = "";
+        } else if (m[id]) { roomSel = m[id]; popSound(); renderRoom(); }
+      }
+    }
   });
   function placePets(step) {
     var st = $("#stage"); if (!st || st.hidden || !stats) return;
@@ -3339,7 +3415,7 @@ if (typeof module !== "undefined") module.exports = PET;
       stats.coins -= cost;
       if (id === "house") { i.house++; levelSound(); sysBanner("[ SYSTEM ]", "HOUSE UPGRADED!<br>" + SHOP_HOUSE[i.house].n); }
       else if (id === "dog" || id === "cat") { i[id] = 1; levelSound(); }
-      else if (fk) { i.furn.push(fk); }
+      else if (fk) { i.furn.push(fk); autoPlace(fk); }
       else { i[q.sl.own].push(q.k); i[q.sl.w] = q.k; }
       shopAfter("PURCHASED! SPENT " + cost + " R COINS.");
     } else if (op === "equip") { i[q.sl.w] = q.k; shopAfter("EQUIPPED."); }
@@ -3553,7 +3629,7 @@ if (typeof module !== "undefined") module.exports = PET;
     $("#notifTxt").textContent = st === 1 ? "Notifications are blocked for Pixel Planner, so the timer and reminders cannot show. Tap ALLOW and switch them on." : "Allow exact alarms so reminders arrive on time.";
   }
   /* in-app update notice (Android app): compares the installed version with the newest GitHub release */
-  var APP_NOTES = { "3.5": ["The notepad icon is now on a black background and also shows inside the app."], "3.4": ["New notepad app icon.", "Redesigned pixel-style Today widget, plus a new Upcoming widget that lists the next days. Add it from your widget picker.", "The running timer notification can no longer be swiped away. It has a STOP button to end the timer."], "3.3": ["A running focus timer is now remembered. Reopen the app and it shows the real time left instead of resetting."], "3.2": ["Notifications now use Android's standard layout with a live countdown for the timer, so they show reliably on new phones."], "3.1": ["The app now tells you when notifications are blocked and the ALLOW button opens the right settings screen.", "Safer fallback so the timer and reminder notifications still show."], "3.0": ["Fixed the crash when starting the focus timer."], "2.7": ["After the opening animation, new installs ask if you are new or an existing user. Existing users can restore their Google Drive backup right away."], "2.6": ["Pixel's room: tap your tent or house to step inside. Each home has its own floors, from a one-room tent up to a three-storey mansion.", "Buy a bed, desk, sofa, TV and more with R coins. They show in the shop, in your room and on the focus screen.", "Back up your progress to a file and pick Google Drive on the save screen. Restore it from the same screen after a phone change."], "2.5": ["New look for notifications: a pixel-style card with your character, a colour for each kind of reminder, and a big live countdown for the focus timer."], "2.4": ["The UPDATE button now downloads the new version inside the app and opens the installer by itself."], "2.3": ["Focus timer keeps running in the background with a live countdown notification and a ringtone when it ends.", "Home-screen widget with today's tasks, your next block, coins and streak.", "Activity calendars for fitness, study, water and protein in the report.", "Phone alarms from tasks and time-table blocks.", "Pixel gets sleepy at night, says wow on big moments, and every action has its own sound.", "Optional lo-fi music loop during focus sessions."] };
+  var APP_NOTES = { "3.6": ["Choose where each piece of furniture goes in your room. Tap a piece, then tap a gold spot. Tap a placed piece to move it or send it back to the tray.", "Rooms show every floor of your home, and the focus screen shows your room as you arranged it."], "3.5": ["The notepad icon is now on a black background and also shows inside the app."], "3.4": ["New notepad app icon.", "Redesigned pixel-style Today widget, plus a new Upcoming widget that lists the next days. Add it from your widget picker.", "The running timer notification can no longer be swiped away. It has a STOP button to end the timer."], "3.3": ["A running focus timer is now remembered. Reopen the app and it shows the real time left instead of resetting."], "3.2": ["Notifications now use Android's standard layout with a live countdown for the timer, so they show reliably on new phones."], "3.1": ["The app now tells you when notifications are blocked and the ALLOW button opens the right settings screen.", "Safer fallback so the timer and reminder notifications still show."], "3.0": ["Fixed the crash when starting the focus timer."], "2.7": ["After the opening animation, new installs ask if you are new or an existing user. Existing users can restore their Google Drive backup right away."], "2.6": ["Pixel's room: tap your tent or house to step inside. Each home has its own floors, from a one-room tent up to a three-storey mansion.", "Buy a bed, desk, sofa, TV and more with R coins. They show in the shop, in your room and on the focus screen.", "Back up your progress to a file and pick Google Drive on the save screen. Restore it from the same screen after a phone change."], "2.5": ["New look for notifications: a pixel-style card with your character, a colour for each kind of reminder, and a big live countdown for the focus timer."], "2.4": ["The UPDATE button now downloads the new version inside the app and opens the installer by itself."], "2.3": ["Focus timer keeps running in the background with a live countdown notification and a ringtone when it ends.", "Home-screen widget with today's tasks, your next block, coins and streak.", "Activity calendars for fitness, study, water and protein in the report.", "Phone alarms from tasks and time-table blocks.", "Pixel gets sleepy at night, says wow on big moments, and every action has its own sound.", "Optional lo-fi music loop during focus sessions."] };
   function notesHtml(body) {
     var lines = String(body).split(/\r?\n/).filter(function (l) { return /^\s*[-*]\s+/.test(l); }).slice(0, 6);
     return lines.length ? '<small class="wn">WHAT\'S NEW</small>' + lines.map(function (l) { return "<small>- " + esc(l.replace(/^\s*[-*]\s+/, "").slice(0, 110)) + "</small>"; }).join("") : "";

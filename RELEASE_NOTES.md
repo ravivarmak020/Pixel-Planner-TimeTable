@@ -1,1 +1,2 @@
-- The notepad icon now has a black background and also shows inside the app
+- Choose where each piece of furniture goes in Pixel's room: tap a piece, then tap a spot, and move or remove it any time
+- Each floor of your home has several spots for floor items, wall items and rugs
