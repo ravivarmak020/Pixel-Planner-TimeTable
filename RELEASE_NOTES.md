@@ -1,3 +1,1 @@
-- Pixel's room: tap your tent or house to go inside, with different floors for each home
-- Buy a bed, desk, sofa, TV and more with R coins; they show in the shop, your room and the focus screen
-- Backup to Google Drive or any file from the Goals screen, and restore it after a phone change
+- New installs ask 'new or existing user' after the opening animation, so you can restore your Google Drive backup straight away

@@ -1295,6 +1295,14 @@ body.fx .cbar .cfill::before, body.fx .chipbar i::before { content: ""; position
   </div>
 </div>
 
+<div class="modal" id="welcomeModal" role="dialog" aria-modal="true" aria-labelledby="wlTitle" hidden>
+  <div class="box">
+    <h2 id="wlTitle">WELCOME</h2>
+    <p>Are you new here, or coming back from another phone? Existing users can restore their backup from Google Drive or any file.</p>
+    <div class="row-btns"><button class="btn" id="wlNew" type="button">I'M NEW</button><button class="btn alt" id="wlOld" type="button">EXISTING USER: RESTORE BACKUP</button></div>
+  </div>
+</div>
+
 <div class="modal" id="roomModal" role="dialog" aria-modal="true" aria-labelledby="roomTitle" hidden>
   <div class="box">
     <h2 id="roomTitle">PIXEL'S ROOM</h2>
@@ -1525,8 +1533,8 @@ body.fx .cbar .cfill::before, body.fx .chipbar i::before { content: ""; position
   var reduceMotion = false; // animation always on: it is the point of ticking a task
   var actx = null;
   var avatar = null;
-  var prof = { name: "", toured: 0, sound: 1, fx: 1, sky: "auto", season: "auto", theme: "midnight", font: "classic", ab: 1, bk: 0, lofi: 0, seenVer: "", updSkip: null };
-  function normProf(o) { return { name: o && typeof o.name === "string" ? o.name.replace(/[<>&"]/g, "").trim().slice(0, 20) : "", toured: o && o.toured ? 1 : 0, sound: o && o.sound === 0 ? 0 : 1, fx: o && o.fx === 0 ? 0 : 1, sky: o && ["dawn","day","sunset","night"].indexOf(o.sky) >= 0 ? o.sky : "auto", season: o && ["spring","summer","autumn","winter","off"].indexOf(o.season) >= 0 ? o.season : "auto", theme: o && ["sakura","forest","ocean"].indexOf(o.theme) >= 0 ? o.theme : "midnight", font: o && ["crisp","soft"].indexOf(o.font) >= 0 ? o.font : "classic", ab: o && o.ab === 0 ? 0 : 1, bk: o && +o.bk > 0 ? +o.bk : 0, lofi: o && o.lofi === 1 ? 1 : 0, seenVer: o && typeof o.seenVer === "string" ? o.seenVer.slice(0, 12) : "", updSkip: o && o.updSkip && typeof o.updSkip.v === "string" ? { v: o.updSkip.v.slice(0, 12), at: +o.updSkip.at || 0 } : null }; }
+  var prof = { name: "", toured: 0, sound: 1, fx: 1, sky: "auto", season: "auto", theme: "midnight", font: "classic", ab: 1, bk: 0, lofi: 0, seenVer: "", updSkip: null, welcomed: 0 };
+  function normProf(o) { return { welcomed: o && o.welcomed ? 1 : 0, name: o && typeof o.name === "string" ? o.name.replace(/[<>&"]/g, "").trim().slice(0, 20) : "", toured: o && o.toured ? 1 : 0, sound: o && o.sound === 0 ? 0 : 1, fx: o && o.fx === 0 ? 0 : 1, sky: o && ["dawn","day","sunset","night"].indexOf(o.sky) >= 0 ? o.sky : "auto", season: o && ["spring","summer","autumn","winter","off"].indexOf(o.season) >= 0 ? o.season : "auto", theme: o && ["sakura","forest","ocean"].indexOf(o.theme) >= 0 ? o.theme : "midnight", font: o && ["crisp","soft"].indexOf(o.font) >= 0 ? o.font : "classic", ab: o && o.ab === 0 ? 0 : 1, bk: o && +o.bk > 0 ? +o.bk : 0, lofi: o && o.lofi === 1 ? 1 : 0, seenVer: o && typeof o.seenVer === "string" ? o.seenVer.slice(0, 12) : "", updSkip: o && o.updSkip && typeof o.updSkip.v === "string" ? { v: o.updSkip.v.slice(0, 12), at: +o.updSkip.at || 0 } : null }; }
   var greeted = null; // local date (YYYY-MM-DD) the daily hello was last shown
   var SPRITES = { boy: { label: "BOY" }, girl: { label: "GIRL" } };
   // Clean 16x16 retro-style sprites: dark outline, three tones per color.
@@ -3532,7 +3540,7 @@ if (typeof module !== "undefined") module.exports = PET;
     $("#notifTxt").textContent = st === 1 ? "Allow notifications so Pixel can remind you when the app is closed." : "Allow exact alarms so reminders arrive on time.";
   }
   /* in-app update notice (Android app): compares the installed version with the newest GitHub release */
-  var APP_NOTES = { "2.6": ["Pixel's room: tap your tent or house to step inside. Each home has its own floors, from a one-room tent up to a three-storey mansion.", "Buy a bed, desk, sofa, TV and more with R coins. They show in the shop, in your room and on the focus screen.", "Back up your progress to a file and pick Google Drive on the save screen. Restore it from the same screen after a phone change."], "2.5": ["New look for notifications: a pixel-style card with your character, a colour for each kind of reminder, and a big live countdown for the focus timer."], "2.4": ["The UPDATE button now downloads the new version inside the app and opens the installer by itself."], "2.3": ["Focus timer keeps running in the background with a live countdown notification and a ringtone when it ends.", "Home-screen widget with today's tasks, your next block, coins and streak.", "Activity calendars for fitness, study, water and protein in the report.", "Phone alarms from tasks and time-table blocks.", "Pixel gets sleepy at night, says wow on big moments, and every action has its own sound.", "Optional lo-fi music loop during focus sessions."] };
+  var APP_NOTES = { "2.7": ["After the opening animation, new installs ask if you are new or an existing user. Existing users can restore their Google Drive backup right away."], "2.6": ["Pixel's room: tap your tent or house to step inside. Each home has its own floors, from a one-room tent up to a three-storey mansion.", "Buy a bed, desk, sofa, TV and more with R coins. They show in the shop, in your room and on the focus screen.", "Back up your progress to a file and pick Google Drive on the save screen. Restore it from the same screen after a phone change."], "2.5": ["New look for notifications: a pixel-style card with your character, a colour for each kind of reminder, and a big live countdown for the focus timer."], "2.4": ["The UPDATE button now downloads the new version inside the app and opens the installer by itself."], "2.3": ["Focus timer keeps running in the background with a live countdown notification and a ringtone when it ends.", "Home-screen widget with today's tasks, your next block, coins and streak.", "Activity calendars for fitness, study, water and protein in the report.", "Phone alarms from tasks and time-table blocks.", "Pixel gets sleepy at night, says wow on big moments, and every action has its own sound.", "Optional lo-fi music loop during focus sessions."] };
   function notesHtml(body) {
     var lines = String(body).split(/\r?\n/).filter(function (l) { return /^\s*[-*]\s+/.test(l); }).slice(0, 6);
     return lines.length ? '<small class="wn">WHAT\'S NEW</small>' + lines.map(function (l) { return "<small>- " + esc(l.replace(/^\s*[-*]\s+/, "").slice(0, 110)) + "</small>"; }).join("") : "";
@@ -4728,7 +4736,9 @@ if (typeof module !== "undefined") module.exports = PET;
     } catch (e) { toast("NOT A VALID BACKUP", "red"); }
   }
   $("#bkImport").addEventListener("click", function () { importBackupText($("#backupText").value); });
-  window.__restoreBackup = function (t) { importBackupText(String(t || "")); };
+  window.__restoreBackup = function (t) { importBackupText(String(t || "")); if (!$("#welcomeModal").hidden && avatar) { $("#welcomeModal").hidden = true; prof.welcomed = 1; dirty = true; store.save(); } };
+  $("#wlNew").addEventListener("click", function () { $("#welcomeModal").hidden = true; prof.welcomed = 1; dirty = true; store.save(); if (!avatar) openPicker(); });
+  $("#wlOld").addEventListener("click", function () { try { window.AndroidBridge.importBackup(); } catch (e) { toast("COULD NOT OPEN THE FILE PICKER", "red"); } });
   window.__toast = function (m) { toast(m, "gold"); };
   window.__backupDone = function (ok) { if (ok) { prof.bk = Date.now(); dirty = true; store.save(); abNote(); } toast(ok ? "BACKUP SAVED. PICK GOOGLE DRIVE TO KEEP IT SAFE" : "COULD NOT SAVE THE FILE", ok ? "blue" : "red"); };
   function driveOk() { return !!(window.AndroidBridge && window.AndroidBridge.exportBackup); }
@@ -5242,7 +5252,7 @@ if (typeof module !== "undefined") module.exports = PET;
     store.save();
     render(); renderAvatar(); buildWalker();
     initDone = true; applyToggles(); setTimeout(updateCheck, 4000); setTimeout(whatsNew, 2500);
-    afterSplash(function () { if (!avatar) openPicker(); else if (!prof.toured) tourStart(); else maybeGreet(); });
+    afterSplash(function () { if (!avatar && !prof.welcomed && window.AndroidBridge && window.AndroidBridge.importBackup) { $("#welcomeModal").hidden = false; return; } if (!avatar) openPicker(); else if (!prof.toured) tourStart(); else maybeGreet(); });
   }).catch(function () { initDone = true; render(); });
 
 
