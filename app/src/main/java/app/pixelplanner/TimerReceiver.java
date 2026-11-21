@@ -60,11 +60,8 @@ public class TimerReceiver extends BroadcastReceiver {
         return PendingIntent.getBroadcast(c, ID_DONE, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
-    /** Start (or replace) the running timer. */
-    static void start(Context c, long endAt, String label, String doneTitle, String doneBody) {
+    static Notification runNotif(Context c, long endAt, String label) {
         channels(c);
-        NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
-        nm.cancel(ID_DONE);
         Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(c, CH_RUN) : new Notification.Builder(c);
         b.setSmallIcon(R.drawable.ic_mono)
                 .setContentTitle(label)
@@ -76,7 +73,23 @@ public class TimerReceiver extends BroadcastReceiver {
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
                 .setColor(Cards.accentFor(label));
-        nm.notify(ID_RUN, b.build());
+        return b.build();
+    }
+
+    /** Start (or replace) the running timer. */
+    static void start(Context c, long endAt, String label, String doneTitle, String doneBody) {
+        channels(c);
+        NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.cancel(ID_DONE);
+        // a foreground service keeps the countdown card alive even after the app is swiped from recents
+        try {
+            Intent si = new Intent(c, TimerService.class);
+            si.putExtra("endAt", endAt);
+            si.putExtra("label", label);
+            if (Build.VERSION.SDK_INT >= 26) c.startForegroundService(si); else c.startService(si);
+        } catch (Exception e) {
+            try { nm.notify(ID_RUN, runNotif(c, endAt, label)); } catch (Exception ignored) { }
+        }
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
         PendingIntent pi = alarmIntent(c, doneTitle, doneBody);
         try {
@@ -89,6 +102,7 @@ public class TimerReceiver extends BroadcastReceiver {
 
     /** Stop the timer notification and cancel the ring. */
     static void stop(Context c) {
+        try { c.stopService(new Intent(c, TimerService.class)); } catch (Exception ignored) { }
         NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
         nm.cancel(ID_RUN);
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
@@ -98,6 +112,7 @@ public class TimerReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context ctx, Intent intent) {
         channels(ctx);
+        try { ctx.stopService(new Intent(ctx, TimerService.class)); } catch (Exception ignored) { }
         NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
         nm.cancel(ID_RUN);
         String title = intent.getStringExtra("title");
