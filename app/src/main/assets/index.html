@@ -1074,6 +1074,23 @@ body.fx .cbar .cfill::before, body.fx .chipbar i::before { content: ""; position
 @keyframes pressflash { 0% { transform: scale(1); filter: brightness(1); } 25% { transform: scale(1.09); filter: brightness(1.9) saturate(1.4); box-shadow: 0 0 0 3px rgba(255,236,140,.95), 0 0 18px 6px rgba(255,210,63,.75); } 100% { transform: scale(1); filter: brightness(1); } }
 .pfx { position: fixed; z-index: 9999; pointer-events: none; image-rendering: pixelated; }
 @media (prefers-reduced-motion: reduce) { .pressflash { animation: none; } }
+/* activity calendars */
+.heat { margin: 8px 0 4px; overflow: hidden; }
+.heat-m, .heat-g { display: grid; grid-template-columns: repeat(var(--w), 1fr); gap: 2px; }
+.heat-g { grid-template-rows: repeat(7, auto); grid-auto-flow: column; }
+.heat-m span { font-size: 9px; color: #9aa; white-space: nowrap; overflow: visible; height: 12px; }
+.hc { display: block; aspect-ratio: 1; min-width: 6px; background: #2b2b4c; border-radius: 2px; }
+.hc.l1 { background: #0e4429; } .hc.l2 { background: #006d32; } .hc.l3 { background: #26a641; } .hc.l4 { background: #39d353; box-shadow: 0 0 4px #39d35388; }
+.hc.fut { background: transparent; } .hc.now { outline: 1px solid #ffd23f; }
+.heat-leg { display: flex; align-items: center; gap: 3px; justify-content: flex-end; font-size: 10px; color: #9aa; }
+.heat-leg .hc { width: 10px; min-width: 10px; }
+.heat-tabs { margin: 4px 0; }
+/* what's new */
+.updnotes { display: block; margin-top: 4px; }
+.updnotes small { display: block; font-size: 13px; line-height: 1.25; color: #cfe; }
+.updnotes .wn { color: var(--gold); margin-top: 4px; }
+.newlist { margin: 8px 0 12px 18px; padding: 0; font-size: 18px; line-height: 1.3; }
+.newlist li { margin-bottom: 6px; }
 </style>
 </head>
 <body>
@@ -1090,7 +1107,7 @@ body.fx .cbar .cfill::before, body.fx .chipbar i::before { content: ""; position
 </div>
 
 <div class="wrap">
-  <div class="box notifbar" id="updBar" hidden><span id="updTxt"></span><span class="row-btns"><button class="btn" id="updGo" type="button">UPDATE</button><button class="btn alt" id="updLater" type="button">LATER</button></span></div>
+  <div class="box notifbar" id="updBar" hidden><span><span id="updTxt"></span><span class="updnotes" id="updNotes"></span></span><span class="row-btns"><button class="btn" id="updGo" type="button">UPDATE</button><button class="btn alt" id="updLater" type="button">LATER</button></span></div>
   <div class="box notifbar" id="notifBar" hidden><span id="notifTxt"></span><button class="btn" id="notifGo" type="button">ALLOW</button></div>
   <header class="box">
     <canvas class="hdrart" id="hdrArt" width="200" height="42" aria-hidden="true"></canvas>
@@ -1209,7 +1226,7 @@ body.fx .cbar .cfill::before, body.fx .chipbar i::before { content: ""; position
         <div class="pomo-phase" id="pomoPhase">FOCUS</div><div class="pomo-time" id="pomoTime">25:00</div><div class="pomo-dots" id="pomoDots"></div></div>
         <div class="pomo-ctl">
           <label class="lab">WORKING ON<select class="field" id="pomoTarget" aria-label="What are you focusing on"></select></label>
-          <div class="row-btns"><button class="btn" id="pomoGo" type="button">START</button><button class="btn alt" id="pomoReset" type="button">RESET</button><button class="btn alt" id="pomoSkip" type="button">SKIP</button></div>
+          <div class="row-btns"><button class="btn" id="pomoGo" type="button">START</button><button class="btn alt" id="pomoReset" type="button">RESET</button><button class="btn alt" id="pomoSkip" type="button">SKIP</button><button class="btn alt" id="lofiBtn" type="button" aria-pressed="false">LO-FI: OFF</button></div>
           <p class="hint" id="pomoInfo"></p>
         </div>
       </div>
@@ -1416,6 +1433,14 @@ body.fx .cbar .cfill::before, body.fx .chipbar i::before { content: ""; position
   </div>
 </div>
 
+<div class="modal" id="newModal" role="dialog" aria-modal="true" aria-labelledby="wnTitle" hidden>
+  <div class="box">
+    <h2 id="wnTitle">WHAT'S NEW</h2>
+    <ul class="newlist" id="newList"></ul>
+    <div class="row-btns"><button class="btn" id="newClose" type="button">GOT IT</button></div>
+  </div>
+</div>
+
 <div class="modal" id="report" role="dialog" aria-modal="true" aria-labelledby="repTitle" hidden>
   <div class="box wide">
     <h2 id="repTitle">WEEKLY REPORT</h2>
@@ -1480,8 +1505,8 @@ body.fx .cbar .cfill::before, body.fx .chipbar i::before { content: ""; position
   var reduceMotion = false; // animation always on: it is the point of ticking a task
   var actx = null;
   var avatar = null;
-  var prof = { name: "", toured: 0, sound: 1, fx: 1, sky: "auto", season: "auto", theme: "midnight", font: "classic", ab: 1, bk: 0 };
-  function normProf(o) { return { name: o && typeof o.name === "string" ? o.name.replace(/[<>&"]/g, "").trim().slice(0, 20) : "", toured: o && o.toured ? 1 : 0, sound: o && o.sound === 0 ? 0 : 1, fx: o && o.fx === 0 ? 0 : 1, sky: o && ["dawn","day","sunset","night"].indexOf(o.sky) >= 0 ? o.sky : "auto", season: o && ["spring","summer","autumn","winter","off"].indexOf(o.season) >= 0 ? o.season : "auto", theme: o && ["sakura","forest","ocean"].indexOf(o.theme) >= 0 ? o.theme : "midnight", font: o && ["crisp","soft"].indexOf(o.font) >= 0 ? o.font : "classic", ab: o && o.ab === 0 ? 0 : 1, bk: o && +o.bk > 0 ? +o.bk : 0 }; }
+  var prof = { name: "", toured: 0, sound: 1, fx: 1, sky: "auto", season: "auto", theme: "midnight", font: "classic", ab: 1, bk: 0, lofi: 0, seenVer: "", updSkip: null };
+  function normProf(o) { return { name: o && typeof o.name === "string" ? o.name.replace(/[<>&"]/g, "").trim().slice(0, 20) : "", toured: o && o.toured ? 1 : 0, sound: o && o.sound === 0 ? 0 : 1, fx: o && o.fx === 0 ? 0 : 1, sky: o && ["dawn","day","sunset","night"].indexOf(o.sky) >= 0 ? o.sky : "auto", season: o && ["spring","summer","autumn","winter","off"].indexOf(o.season) >= 0 ? o.season : "auto", theme: o && ["sakura","forest","ocean"].indexOf(o.theme) >= 0 ? o.theme : "midnight", font: o && ["crisp","soft"].indexOf(o.font) >= 0 ? o.font : "classic", ab: o && o.ab === 0 ? 0 : 1, bk: o && +o.bk > 0 ? +o.bk : 0, lofi: o && o.lofi === 1 ? 1 : 0, seenVer: o && typeof o.seenVer === "string" ? o.seenVer.slice(0, 12) : "", updSkip: o && o.updSkip && typeof o.updSkip.v === "string" ? { v: o.updSkip.v.slice(0, 12), at: +o.updSkip.at || 0 } : null }; }
   var greeted = null; // local date (YYYY-MM-DD) the daily hello was last shown
   var SPRITES = { boy: { label: "BOY" }, girl: { label: "GIRL" } };
   // Clean 16x16 retro-style sprites: dark outline, three tones per color.
@@ -1675,7 +1700,7 @@ var HD = (function () {
   function faceFront(g, o) {
     var mood = o.mood || "", girl = o.girl, tk = o.mouth || 0, arc = mood === "happy" || mood === "cheer";
     [11, 19].forEach(function (x, ix) {
-      if (arc || o.blink) {
+      if (arc || o.blink || mood === "sleepy") {
         if (arc) { g.px(x - 1, 15, "lash"); g.px(x, 14, "lash"); g.px(x + 1, 14, "lash"); g.px(x + 2, 15, "lash"); }
         else g.rect(x - 1, 15, 4, 1, "lash");
       } else if (mood === "wow") { g.rect(x, 13, 2, 3, "eye"); g.px(x, 13, "white"); g.px(x + 1, 15, "iris"); g.px(x, 15, "iris"); }
@@ -1692,6 +1717,7 @@ var HD = (function () {
     else if (mood === "sad") { g.rect(15, 17, 2, 1, "mouth"); g.px(14, 18, "mouth"); g.px(17, 18, "mouth"); }
     else if (mood === "wow") g.rect(15, 17, 2, 2, "mouthD");
     else if (mood === "focus") g.rect(14, 18, 4, 1, "mouth");
+    else if (mood === "sleepy") { g.rect(15, 17, 2, 2, "mouthD"); g.px(23, 10, "white"); g.px(24, 10, "white"); g.px(24, 9, "white"); g.px(23, 8, "white"); g.px(24, 8, "white"); }
     else { g.px(14, 17, "mouth"); g.px(17, 17, "mouth"); g.rect(15, 18, 2, 1, "mouth"); }
     if (arc) { g.rect(9, 17, 2, 1, "blush"); g.rect(21, 17, 2, 1, "blush"); } else { g.px(10, 17, "blush"); g.px(21, 17, "blush"); }
   }
@@ -1882,9 +1908,12 @@ var HD = (function () {
 if (typeof module !== "undefined") module.exports = HD;
   var hdCache = {};
   var moodNow = "";
+  function baseMood() { var h = new Date().getHours(); return h >= 23 || h < 5 ? "sleepy" : ""; }
+  var lastBase = baseMood();
+  setInterval(function () { var b = baseMood(); if (b !== lastBase) { lastBase = b; try { if (!moodNow) repaintFront(); } catch (e) {} } }, 60000);
   function hdOpts(key, plain, mood) {
     var pal = palFor(key), c = custom[key] || {}, e = plain ? { f: 0, s: 0 } : evoNow();
-    return { girl: key === "girl" ? 1 : 0, hair: pal[key === "boy" ? "h" : "y"], shirt: pal.b, pants: pal.p, eyes: pal.e, style: c.style || 0, f: e.f, s: e.s, hat: plain ? "" : ((stats && stats.inv && stats.inv.hat) || ""), outfit: plain ? "" : ((stats && stats.inv && stats.inv.outfit) || ""), face: plain ? "" : ((stats && stats.inv && stats.inv.face) || ""), back: plain ? "" : ((stats && stats.inv && stats.inv.back) || ""), mood: plain ? "" : (mood == null ? moodNow : mood) };
+    return { girl: key === "girl" ? 1 : 0, hair: pal[key === "boy" ? "h" : "y"], shirt: pal.b, pants: pal.p, eyes: pal.e, style: c.style || 0, f: e.f, s: e.s, hat: plain ? "" : ((stats && stats.inv && stats.inv.hat) || ""), outfit: plain ? "" : ((stats && stats.inv && stats.inv.outfit) || ""), face: plain ? "" : ((stats && stats.inv && stats.inv.face) || ""), back: plain ? "" : ((stats && stats.inv && stats.inv.back) || ""), mood: plain ? "" : (mood == null ? (moodNow || baseMood()) : mood) };
   }
   function spriteImg(key, frame, plain, mood) {
     if (key === "boy" || key === "girl") {
@@ -1899,7 +1928,7 @@ if (typeof module !== "undefined") module.exports = HD;
   }
   function portraitSvg(mood) { return spriteImg(avatar, "front", false, mood).replace(/viewBox="[^"]*"/, 'viewBox="6 1 20 20"').replace(' data-f="front"', ""); }
   var talkT = null, talkEnd = 0, moodT = null;
-  function moodFor(kind) { return kind === "cheer" ? "cheer" : kind === "nudge" ? "focus" : "happy"; }
+  function moodFor(kind) { return kind === "cheer" ? "cheer" : kind === "wow" ? "wow" : kind === "nudge" ? "focus" : "happy"; }
   var PSMOOD = { focus: "focus", idle: "", pause: "sad", brew: "happy", sip: "happy", rest0: "happy", done: "cheer" };
   function repaintFront() {
     if (!avatar || (avatar !== "boy" && avatar !== "girl")) return;
@@ -1940,7 +1969,7 @@ if (typeof module !== "undefined") module.exports = HD;
     renderAvatar(); try { buildWalker(); } catch (x) {} var sc = $("#pomoScene"); if (sc) sc.dataset.k = "";
     if (upF || upS) {
       var t = upF ? FIT_N[avatar === "girl" ? "girl" : "boy"][e.f] + " FORM" : STU_N[e.s];
-      setTimeout(function () { levelSound(); evoFlash(); sysBanner("[ SYSTEM ]", "PIXEL EVOLVED!<br>" + t); evoFlex(); if (upS) booksFx(); pixelSay(upF ? "Look at me now! I feel stronger!" : "All that studying is paying off!", 3200, "cheer"); }, 1500);
+      setTimeout(function () { evoSound(); evoFlash(); sysBanner("[ SYSTEM ]", "PIXEL EVOLVED!<br>" + t); evoFlex(); if (upS) booksFx(); pixelSay(upF ? "Wow! Look at me now! I feel stronger!" : "Wow! All that studying is paying off!", 3200, "wow"); }, 1500);
     } else if (dn) { toast("PIXEL'S LOOK CHANGED BACK", ""); evoFlex(); }
     if (!$("#viewTT").hidden) renderPomo();
   }
@@ -2034,7 +2063,7 @@ if (typeof module !== "undefined") module.exports = HD;
   function newInv() { return { house: 0, dog: 0, cat: 0, hats: [], hat: "", outs: [], outfit: "", faces: [], face: "", backs: [], back: "", paccs: [], pacc: "" }; }
   function normLog(o) {
     var r = {}; if (!o || typeof o !== "object") return r;
-    var keys = Object.keys(o).filter(function (k) { return /^\d{4}-\d{2}-\d{2}$/.test(k); }).sort().slice(-120);
+    var keys = Object.keys(o).filter(function (k) { return /^\d{4}-\d{2}-\d{2}$/.test(k); }).sort().slice(-400);
     keys.forEach(function (k) {
       var e = o[k] || {}, n = { f: Math.max(0, +e.f || 0), s: Math.max(0, +e.s || 0), h: Math.max(0, +e.h || 0), p: Math.max(0, +e.p || 0), c: Math.max(0, +e.c || 0), m: Math.max(0, +e.m || 0), t: Math.max(0, +e.t || 0), pf: e.pf ? 1 : 0, sj: {} };
       if (e.sj && typeof e.sj === "object") Object.keys(e.sj).slice(0, 40).forEach(function (q) { n.sj[String(q).slice(0, 40)] = Math.max(0, +e.sj[q] || 0); });
@@ -2085,7 +2114,7 @@ if (typeof module !== "undefined") module.exports = HD;
       stats.streak = stats.lastPerfect === yesterdayIso() ? stats.streak + 1 : 1;
       stats.lastPerfect = todayIso(); stats.best = Math.max(stats.best, stats.streak); logAdd("pf", 1);
       addCoins(COIN_PERFECT + 5 * Math.min(stats.streak, 10), true);
-      setTimeout(function () { levelSound(); sysBanner("[ SYSTEM ]", "PERFECT DAY!<br>STREAK " + stats.streak); }, 900);
+      setTimeout(function () { perfectSound(); sysBanner("[ SYSTEM ]", "PERFECT DAY!<br>STREAK " + stats.streak); pixelSay(stats.streak >= 3 ? "Streak " + stats.streak + "! Unstoppable!" : "Perfect day! Yes!", 3000, "cheer"); }, 900);
     }
   }
   function lvOf(k) { return Math.floor(stats[k] / stats.goals.perLevel) + 1; }
@@ -2253,7 +2282,7 @@ if (typeof module !== "undefined") module.exports = HD;
     var c = CATS[k], before = stats[k];
     stats[k] = Math.max(0, before + n);
     logAdd(k === "fitness" ? "f" : k === "study" ? "s" : k === "hydration" ? "h" : "p", n);
-    renderStats();
+    renderStats(); if (n > 0) statSound(k);
     var el = document.querySelector('.stat[data-stat="' + k + '"]');
     if (el && n > 0) {
       el.classList.add("flash"); setTimeout(function () { el.classList.remove("flash"); }, 800);
@@ -2490,6 +2519,19 @@ if (typeof module !== "undefined") module.exports = HD;
     o.connect(g); g.connect(actx.destination);
     o.start(actx.currentTime + t0); o.stop(actx.currentTime + t0 + dur + 0.02);
   }
+  function sfxGo(fn) { if (prof.sound === 0) return; try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === "suspended") actx.resume(); fn(); } catch (e) {} }
+  function evoSound() { sfxGo(function () { [392, 494, 587, 784, 988, 1175, 1568].forEach(function (f, i) { tone("square", f, f, i * 0.1, 0.14, 0.12); tone("triangle", f / 2, f / 2, i * 0.1, 0.3, 0.1); }); tone("sine", 600, 2400, 0.7, 0.9, 0.12); tone("triangle", 196, 196, 0.1, 1.2, 0.18); }); }
+  function buySound() { sfxGo(function () { tone("square", 1319, 1319, 0, 0.07, 0.1); tone("square", 1760, 1760, 0.07, 0.07, 0.1); tone("square", 2637, 2637, 0.14, 0.22, 0.1); tone("sine", 3136, 3136, 0.16, 0.25, 0.05); }); }
+  function perfectSound() { sfxGo(function () { [523, 659, 784, 659, 784, 1047].forEach(function (f, i) { tone("square", f, f, i * 0.12, 0.12, 0.11); }); tone("triangle", 262, 262, 0, 0.9, 0.16); tone("triangle", 392, 392, 0.3, 0.7, 0.12); }); }
+  function errSound() { sfxGo(function () { tone("sawtooth", 196, 130, 0, 0.18, 0.06); tone("sawtooth", 147, 98, 0.12, 0.22, 0.06); }); }
+  function statSound(k) {
+    sfxGo(function () {
+      if (k === "hydration") { tone("sine", 300, 700, 0, 0.12, 0.2); tone("sine", 420, 900, 0.1, 0.12, 0.16); tone("sine", 500, 1100, 0.2, 0.14, 0.12); }
+      else if (k === "protein") { tone("square", 180, 120, 0, 0.07, 0.1); tone("square", 220, 150, 0.09, 0.07, 0.1); tone("triangle", 330, 330, 0.18, 0.12, 0.1); }
+      else if (k === "fitness") { tone("sawtooth", 140, 280, 0, 0.14, 0.07); tone("square", 392, 392, 0.14, 0.1, 0.09); tone("square", 523, 523, 0.22, 0.14, 0.09); }
+      else { tone("triangle", 1047, 1047, 0, 0.1, 0.14); tone("triangle", 1319, 1319, 0.09, 0.2, 0.14); }
+    });
+  }
   function popSound() {
     try {
       actx = actx || new (window.AudioContext || window.webkitAudioContext)();
@@ -2562,7 +2604,7 @@ if (typeof module !== "undefined") module.exports = HD;
   function toast(msg, kind) {
     var box = $("#toasts"); if (!box) return;
     var t = document.createElement("div");
-    t.className = "toast " + (kind || "");
+    t.className = "toast " + (kind || ""); if (kind === "red") errSound();
     t.innerHTML = "<i></i><span></span>"; t.lastChild.textContent = msg;
     box.appendChild(t);
     while (box.children.length > 3) box.removeChild(box.firstChild);
@@ -3109,6 +3151,7 @@ if (typeof module !== "undefined") module.exports = PET;
     showPrev(shopSel);
   }
   function shopAfter(msg) {
+    if (/^PURCHASED/.test(msg)) { buySound(); setMood("wow", 2600); }
     dirty = true; store.save(); renderShop(); renderCoins(); renderScenery(); renderAvatar(); try { buildWalker(); } catch (e) {} $("#shopMsg").textContent = msg;
     var sc = $("#pomoScene"); if (sc) sc.dataset.k = ""; if (!$("#viewTT").hidden) renderPomo();
   }
@@ -3225,7 +3268,7 @@ if (typeof module !== "undefined") module.exports = PET;
     var now = Date.now(), name = prof.name || "friend", out = [], smile = "😊";
     function add(key, at, title, body, actions) { if (at > now + 2000) { var o = { id: hash31(key), at: at, title: title, body: body }; if (actions) o.actions = actions; out.push(o); } }
     function atMin(date, m) { var d = parseIso(date); return new Date(d.getFullYear(), d.getMonth(), d.getDate(), Math.floor(m / 60), m % 60).getTime(); }
-    if (pomo.running && pomo.endAt > now) {
+    if (pomo.running && pomo.endAt > now && !(window.AndroidBridge && window.AndroidBridge.timerSet)) {
       if (pomo.phase === "focus") add("timer", pomo.endAt, "Focus session done " + smile, "Great work, " + name + "! Take your break.");
       else add("timer", pomo.endAt, "Break over", "Ready for the next focus session, " + name + "?");
     }
@@ -3266,8 +3309,22 @@ if (typeof module !== "undefined") module.exports = PET;
       if (j !== lastRemJson || force) { lastRemJson = j; B.schedule(j); }
     } catch (e) {}
   }
-  window.__syncReminders = function (away) { pushIcon(); if (away === true) { awayAt = Date.now(); syncReminders(true, true); } else { awayAt = 0; pullActions(); syncReminders(false, true); notifCheck(); } };
+  window.__syncReminders = function (away) { pushIcon(); pushWidget(); if (away === true) { awayAt = Date.now(); syncReminders(true, true); } else { awayAt = 0; pullActions(); syncReminders(false, true); notifCheck(); } };
   var lastIconSig = "";
+  /* home-screen widget data (Android app) */
+  var lastWidgetSig = "";
+  function pushWidget() {
+    var B = window.AndroidBridge; if (!B || !B.widgetData || !stats || !initDone) return;
+    try {
+      var td = todayIso(), nm = nowMin(), di = dayIdx(new Date());
+      var blocks = (tt.blocks || []).filter(function (b) { return b.type !== "break" && (b.date ? b.date === td : b.day === di) && !isDone(b, td) && b.end > nm; }).sort(function (a, b) { return a.start - b.start; });
+      var nb = blocks[0], hm = function (m) { return pad2(Math.floor(m / 60)) + ":" + pad2(m % 60); };
+      var next = nb ? (nb.start <= nm ? "NOW: " : "NEXT " + hm(nb.start) + "  ") + blockName(nb) : "No more time-table blocks today";
+      var tasks = state.tasks.filter(function (t) { return !t.done && (!t.due || t.due <= td); }).sort(function (a, b) { return b.pri - a.pri; }).slice(0, 5).map(function (t) { return t.title.slice(0, 40) + (t.at ? "  (" + t.at + ")" : ""); });
+      var data = { title: "PIXEL PLANNER", coins: stats.coins | 0, streak: curStreak(), best: stats.best | 0, next: next, tasks: tasks }, js = JSON.stringify(data);
+      if (js === lastWidgetSig) return; lastWidgetSig = js; B.widgetData(js);
+    } catch (e) {}
+  }
   function pushIcon() {
     var B = window.AndroidBridge; if (!B || !B.setIcon || !avatar) return;
     var sig = avatar + "|" + sprSig() + "|" + JSON.stringify(custom[avatar] || {}); if (sig === lastIconSig) return; lastIconSig = sig;
@@ -3281,7 +3338,7 @@ if (typeof module !== "undefined") module.exports = PET;
     };
     img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
   }
-  setInterval(function () { if (!awayAt) { syncReminders(false); pushIcon(); } }, 15000);
+  setInterval(function () { if (!awayAt) { syncReminders(false); pushIcon(); pushWidget(); } }, 15000);
   setTimeout(pushIcon, 2500);
   function pullActions() {
     var B = window.AndroidBridge; if (!B || !B.takeActions || !stats) return;
@@ -3303,6 +3360,18 @@ if (typeof module !== "undefined") module.exports = PET;
     $("#notifTxt").textContent = st === 1 ? "Allow notifications so Pixel can remind you when the app is closed." : "Allow exact alarms so reminders arrive on time.";
   }
   /* in-app update notice (Android app): compares the installed version with the newest GitHub release */
+  var APP_NOTES = { "2.3": ["Focus timer keeps running in the background with a live countdown notification and a ringtone when it ends.", "Home-screen widget with today's tasks, your next block, coins and streak.", "Activity calendars for fitness, study, water and protein in the report.", "Phone alarms from tasks and time-table blocks.", "Pixel gets sleepy at night, says wow on big moments, and every action has its own sound.", "Optional lo-fi music loop during focus sessions."] };
+  function notesHtml(body) {
+    var lines = String(body).split(/\r?\n/).filter(function (l) { return /^\s*[-*]\s+/.test(l); }).slice(0, 6);
+    return lines.length ? '<small class="wn">WHAT\'S NEW</small>' + lines.map(function (l) { return "<small>- " + esc(l.replace(/^\s*[-*]\s+/, "").slice(0, 110)) + "</small>"; }).join("") : "";
+  }
+  function whatsNew() {
+    var B = window.AndroidBridge; if (!B || !B.appVersion || !prof.toured) return;
+    var cur = ""; try { cur = String(B.appVersion() || ""); } catch (e) {} if (!cur || prof.seenVer === cur) return;
+    var n = APP_NOTES[cur]; prof.seenVer = cur; try { store.save(); } catch (e) {} if (!n) return;
+    $("#wnTitle").textContent = "WHAT'S NEW IN v" + cur; $("#newList").innerHTML = n.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join(""); $("#newModal").hidden = false;
+  }
+  $("#newClose").addEventListener("click", function () { $("#newModal").hidden = true; });
   var UPD_REPO = "ravivarmak020/Pixel-Planner-TimeTable", updNew = "";
   function verCmp(a, b) { var x = String(a).split("."), y = String(b).split("."); for (var i = 0; i < Math.max(x.length, y.length); i++) { var d = (+x[i] || 0) - (+y[i] || 0); if (d) return d < 0 ? -1 : 1; } return 0; }
   function updateCheck() {
@@ -3311,7 +3380,7 @@ if (typeof module !== "undefined") module.exports = PET;
     fetch("https://api.github.com/repos/" + UPD_REPO + "/releases/tags/latest", { headers: { Accept: "application/vnd.github+json" } }).then(function (r) { return r.json(); }).then(function (j) {
       var m = /v(\d+(?:\.\d+)*)/i.exec(((j && j.name) || "") + " " + ((j && j.body) || "")); if (!m || verCmp(m[1], cur) <= 0) return;
       var sk = prof.updSkip; if (sk && sk.v === m[1] && Date.now() - sk.at < 864e5) return;
-      updNew = m[1]; $("#updTxt").textContent = "NEW VERSION AVAILABLE: v" + m[1] + " (you have v" + cur + "). Please update to get the latest features."; $("#updBar").hidden = false;
+      updNew = m[1]; $("#updNotes").innerHTML = notesHtml(j.body || ""); $("#updTxt").textContent = "NEW VERSION AVAILABLE: v" + m[1] + " (you have v" + cur + "). Please update to get the latest features."; $("#updBar").hidden = false;
     }).catch(function () {});
   }
   $("#updGo").addEventListener("click", function () { try { window.AndroidBridge.openUrl("https://github.com/" + UPD_REPO + "/releases/download/latest/PixelPlanner.apk"); } catch (e) {} });
@@ -4152,7 +4221,65 @@ if (typeof module !== "undefined") module.exports = PET;
     if (key !== psKey) { psKey = key; psIdx = 0; psSay(true); }
   }
   setInterval(function () { if ($("#viewTT") && !$("#viewTT").hidden) { psIdx++; psSay(false); } }, 6500);
+  /* optional lo-fi loop while a focus session runs (made live with Web Audio, no files) */
+  var lofi = { timer: null, nextT: 0, step: 0, master: null, noise: null };
+  var LOFI_CH = [[48, 55, 59, 64], [45, 52, 57, 60], [41, 48, 52, 57], [43, 50, 55, 59]], LOFI_SC = [72, 74, 76, 79, 81, 84, 79, 76];
+  function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+  function lt(type, f, t, dur, vol, att) {
+    var o = actx.createOscillator(), g = actx.createGain(); o.type = type; o.frequency.value = f; att = att || 0.01;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + att); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(lofi.master); o.start(t); o.stop(t + dur + 0.05);
+  }
+  function lnoise(t, dur, vol, hp) {
+    var src = actx.createBufferSource(), g = actx.createGain(), f = actx.createBiquadFilter(); src.buffer = lofi.noise; f.type = "highpass"; f.frequency.value = hp;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); src.connect(f); f.connect(g); g.connect(lofi.master); src.start(t); src.stop(t + dur + 0.02);
+  }
+  function lofiTick() {
+    var beat = 60 / 72;
+    while (lofi.nextT < actx.currentTime + 0.7) {
+      var st = lofi.step % 8, ch = LOFI_CH[Math.floor(lofi.step / 8) % 4], t = lofi.nextT + (st % 2 ? 0.035 : 0);
+      if (st === 0) ch.forEach(function (m) { lt("triangle", mtof(m + 12), t, beat * 4.2, 0.045, 0.5); });
+      if (st === 0 || st === 3 || st === 6) lt("sine", mtof(ch[0] - 12), t, beat * 1.4, 0.16, 0.02);
+      if (st === 0 || st === 4) { var k = actx.createOscillator(), kg = actx.createGain(); k.type = "sine"; k.frequency.setValueAtTime(130, t); k.frequency.exponentialRampToValueAtTime(42, t + 0.14); kg.gain.setValueAtTime(0.28, t); kg.gain.exponentialRampToValueAtTime(0.0001, t + 0.18); k.connect(kg); kg.connect(lofi.master); k.start(t); k.stop(t + 0.2); }
+      if (st === 2 || st === 6) lnoise(t, 0.12, 0.09, 1500);
+      if (st % 2 === 1) lnoise(t, 0.03, 0.025, 7000);
+      if (st % 2 === 0 && Math.random() < 0.4) lt("sine", mtof(LOFI_SC[Math.floor(Math.random() * LOFI_SC.length)]), t, beat * 0.9, 0.05, 0.02);
+      lofi.step++; lofi.nextT += beat / 2;
+    }
+  }
+  function lofiStart() {
+    if (lofi.timer || prof.sound === 0) return;
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === "suspended") actx.resume();
+      if (!lofi.noise) { var b = actx.createBuffer(1, actx.sampleRate, actx.sampleRate), d = b.getChannelData(0); for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; lofi.noise = b; }
+      var lp = actx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 1500; var g = actx.createGain(); g.gain.value = 0.55; lp.connect(g); g.connect(actx.destination); lofi.master = lp; lofi.out = g;
+      lofi.step = 0; lofi.nextT = actx.currentTime + 0.15; lofiTick(); lofi.timer = setInterval(lofiTick, 250);
+    } catch (e) { lofi.timer = null; }
+  }
+  function lofiStop() {
+    if (!lofi.timer) return; clearInterval(lofi.timer); lofi.timer = null;
+    try { var o = lofi.out, m = lofi.master; o.gain.setValueAtTime(o.gain.value, actx.currentTime); o.gain.linearRampToValueAtTime(0.0001, actx.currentTime + 0.4); setTimeout(function () { try { m.disconnect(); o.disconnect(); } catch (e) {} }, 700); } catch (e) {}
+    lofi.master = null; lofi.out = null;
+  }
+  function lofiSync() {
+    var want = prof.lofi === 1 && pomo.running && pomo.phase === "focus" && prof.sound !== 0;
+    if (want) lofiStart(); else lofiStop();
+    var b = $("#lofiBtn"); if (b) { b.textContent = "LO-FI: " + (prof.lofi === 1 ? "ON" : "OFF"); b.setAttribute("aria-pressed", String(prof.lofi === 1)); }
+  }
+  /* background timer: keeps the phone notification countdown + ringtone in step with the timer */
+  var tmSig = "";
+  function timerSync() {
+    var B = window.AndroidBridge; if (!B || !B.timerSet) return;
+    var sig = pomo.running ? pomo.endAt + "|" + pomo.phase + "|" + pomo.target : "";
+    if (sig === tmSig) return; tmSig = sig;
+    try {
+      if (!pomo.running) { B.timerClear(); return; }
+      var nm = (prof.name || "friend"), focus = pomo.phase === "focus", lab = (focus ? "FOCUS" : pomo.phase === "short" ? "SHORT BREAK" : "LONG BREAK"), tg = pomoTargetLabel();
+      B.timerSet(pomo.endAt, lab + (focus && tg ? " - " + String(tg).slice(0, 30) : ""), focus ? "Focus session done" : "Break over", focus ? "Great work, " + nm + "! Time for a break." : "Ready for the next focus session, " + nm + "?");
+    } catch (e) {}
+  }
   function renderPomo() {
+    timerSync(); lofiSync();
     var left = pomo.running ? pomo.endAt - Date.now() : pomo.left;
     $("#pomoTime").textContent = fmtMs(left);
     $("#pomoPhase").textContent = pomo.phase === "focus" ? "FOCUS" : pomo.phase === "short" ? "SHORT BREAK" : "LONG BREAK";
@@ -4194,7 +4321,7 @@ if (typeof module !== "undefined") module.exports = PET;
     popSound(); if (typeof levelSound === "function") setTimeout(levelSound, 250);
   }
   function pomoComplete() {
-    pomo.running = false;
+    pomo.running = false; timerSync();
     pomoBeep();
     if (pomo.phase === "focus") {
       var n = pomoCount() + 1; tt.pomoDay = { date: todayIso(), count: n };
@@ -4455,8 +4582,32 @@ if (typeof module !== "undefined") module.exports = PET;
     var dm = Math.max.apply(null, a.perDay.concat([30]));
     html += '<div class="rep-h">FOCUS BY DAY</div><div class="rep-days">' + a.days.map(function (k, i) { var d = new Date(k + "T00:00:00"); return '<div class="' + (k === todayIso() ? "today" : "") + '"><i style="height:' + Math.max(3, Math.round(a.perDay[i] / dm * 70)) + 'px"></i>' + ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"][d.getDay()] + "</div>"; }).join("") + "</div>";
     html += '<div class="rep-foot">STREAK ' + curStreak() + " DAY" + (curStreak() === 1 ? "" : "S") + " / BEST " + stats.best + ". WATER GOAL HIT " + a.hydDays + " OF 7 DAYS, PROTEIN GOAL HIT " + a.proDays + " OF 7 DAYS.<br>" + (a.m >= b.m && a.m > 0 ? "NICE WORK, " + esc(nm.toUpperCase()) + ". YOU FOCUSED AT LEAST AS MUCH AS LAST WEEK." : "A NEW WEEK IS A NEW START, " + esc(nm.toUpperCase()) + ". ONE SESSION AT A TIME.") + "</div>";
+    html += heatHtml();
     $("#repBody").innerHTML = html;
   }
+  /* GitHub-style activity calendars */
+  var heatKey = "f", HEAT_MON = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+  var HEATS = { f: { n: "FITNESS", u: "XP" }, s: { n: "STUDY", u: "XP" }, h: { n: "WATER", u: "ML" }, p: { n: "PROTEIN", u: "G" } };
+  function heatHtml() {
+    var W = 24, today = new Date(); today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    var mon = new Date(today); mon.setDate(mon.getDate() - ((today.getDay() + 6) % 7) - 7 * (W - 1));
+    var log = stats.log || {}, key = heatKey, days = [], max = 1, tot = 0, act = 0, best = 0, bestK = "", i;
+    for (i = 0; i < W * 7; i++) { var d = new Date(mon); d.setDate(mon.getDate() + i); var k = iso(d), v = d > today ? -1 : ((log[k] && +log[k][key]) || 0); days.push([k, v, d]); if (v > max) max = v; if (v > 0) { tot += v; act++; if (v > best) { best = v; bestK = k; } } }
+    var goal = key === "h" ? (stats.goals.hydration || 3000) : key === "p" ? (stats.goals.protein || 100) : max;
+    function lvl(v) { if (v <= 0) return 0; var r = v / goal; return r >= 1 ? 4 : r >= .6 ? 3 : r >= .3 ? 2 : 1; }
+    var months = "", cells = "";
+    for (var w = 0; w < W; w++) { var d0 = days[w * 7][2], prev = w ? days[(w - 1) * 7][2] : null; months += "<span>" + (!prev || prev.getMonth() !== d0.getMonth() ? HEAT_MON[d0.getMonth()] : "") + "</span>"; }
+    days.forEach(function (x) { cells += x[1] < 0 ? '<i class="hc fut"></i>' : '<i class="hc l' + lvl(x[1]) + (x[0] === iso(today) ? " now" : "") + '" data-hd="' + x[0] + '" data-v="' + x[1] + '"></i>'; });
+    var U = HEATS[key].u;
+    return '<div class="rep-h">ACTIVITY CALENDAR</div><div class="chips heat-tabs">' + Object.keys(HEATS).map(function (k) { return '<button class="chip" aria-pressed="' + (k === key) + '" type="button" data-heat="' + k + '">' + HEATS[k].n + "</button>"; }).join("") + "</div>" +
+      '<div class="heat" style="--w:' + W + '"><div class="heat-m">' + months + '</div><div class="heat-g">' + cells + "</div></div>" +
+      '<div class="heat-leg"><span>LESS</span><i class="hc l0"></i><i class="hc l1"></i><i class="hc l2"></i><i class="hc l3"></i><i class="hc l4"></i><span>MORE</span></div>' +
+      '<p class="hint" id="heatTip">' + act + " ACTIVE DAYS / " + tot + " " + U + " TOTAL" + (bestK ? " / BEST " + best + " " + U + " ON " + fmt(bestK) : "") + ". TAP A SQUARE FOR THAT DAY.</p>";
+  }
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest("[data-heat]"); if (t && $("#report") && !$("#report").hidden) { heatKey = t.dataset.heat; renderReport(); return; }
+    var c = e.target.closest && e.target.closest("[data-hd]"); if (c) { $("#heatTip").textContent = fmt(c.dataset.hd) + ": " + c.dataset.v + " " + HEATS[heatKey].u + " " + HEATS[heatKey].n; }
+  });
   function openReport() { renderReport(); $("#report").hidden = false; $("#repClose").focus(); }
   function closeReport() { $("#report").hidden = true; $("#repBtn").focus(); }
   $("#repBtn").addEventListener("click", openReport);
@@ -4497,6 +4648,7 @@ if (typeof module !== "undefined") module.exports = PET;
   });
   abNote();
 
+  $("#lofiBtn").addEventListener("click", function () { prof.lofi = prof.lofi === 1 ? 0 : 1; try { store.save(); } catch (e) {} lofiSync(); toast(prof.lofi === 1 ? "LO-FI MUSIC ON DURING FOCUS" : "LO-FI MUSIC OFF", ""); });
   $("#pomoGo").addEventListener("click", function () { if (pomo.running) pomoPause(); else pomoStart(); });
   $("#pomoReset").addEventListener("click", function () { pomo.running = false; pomo.left = pomoMs(pomo.phase); renderPomo(); });
   $("#pomoSkip").addEventListener("click", function () {
@@ -4910,7 +5062,7 @@ if (typeof module !== "undefined") module.exports = PET;
     if (saved && saved.tt && !dirty) { tt = normTT(saved.tt); plans = Array.isArray(saved.plans) ? saved.plans.map(normTT) : []; }
     store.save();
     render(); renderAvatar(); buildWalker();
-    initDone = true; applyToggles(); setTimeout(updateCheck, 4000);
+    initDone = true; applyToggles(); setTimeout(updateCheck, 4000); setTimeout(whatsNew, 2500);
     afterSplash(function () { if (!avatar) openPicker(); else if (!prof.toured) tourStart(); else maybeGreet(); });
   }).catch(function () { initDone = true; render(); });
 

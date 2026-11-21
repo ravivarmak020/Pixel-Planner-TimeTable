@@ -344,6 +344,33 @@ public class MainActivity extends Activity {
             });
         }
 
+        /** Data for the home-screen widget (JSON: title, coins, streak, best, next, tasks[]). */
+        @JavascriptInterface
+        public void widgetData(String json) {
+            try {
+                if (json != null && json.length() < 20000) PlannerWidget.save(MainActivity.this, json);
+            } catch (Exception ignored) {
+            }
+        }
+
+        /** Background timer: live countdown notification now, ring at endAt. */
+        @JavascriptInterface
+        public void timerSet(long endAt, String label, String doneTitle, String doneBody) {
+            try {
+                TimerReceiver.start(MainActivity.this, endAt, label == null ? "Focus timer" : label,
+                        doneTitle == null ? "Timer finished" : doneTitle, doneBody == null ? "" : doneBody);
+            } catch (Exception ignored) {
+            }
+        }
+
+        @JavascriptInterface
+        public void timerClear() {
+            try {
+                TimerReceiver.stop(MainActivity.this);
+            } catch (Exception ignored) {
+            }
+        }
+
         /** The installed app's versionName, used by the in-app update notice. */
         @JavascriptInterface
         public String appVersion() {

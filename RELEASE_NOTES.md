@@ -1,0 +1,6 @@
+- Focus timer runs in the background with a live countdown notification and rings when it ends
+- Home-screen widget: today's tasks, next block, coins and streak
+- Activity calendars for fitness, study, water and protein
+- Phone alarms from tasks and time-table blocks
+- Pixel gets sleepy at night and says wow on big moments, with new sounds
+- Optional lo-fi music during focus sessions

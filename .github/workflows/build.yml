@@ -34,5 +34,6 @@ jobs:
         run: |
           cp app/build/outputs/apk/debug/app-debug.apk PixelPlanner.apk
           VER=$(grep -oP "versionName '\K[^']+" app/build.gradle)
+          { echo "Version v$VER"; echo; cat RELEASE_NOTES.md; echo; echo "Download PixelPlanner.apk and install it on your Android phone."; } > /tmp/notes.md
           gh release delete latest --cleanup-tag --yes || true
-          gh release create latest PixelPlanner.apk --target "${{ github.sha }}" --title "Pixel Planner v$VER" --notes "Version v$VER. Download PixelPlanner.apk and install it on your Android phone."
+          gh release create latest PixelPlanner.apk --target "${{ github.sha }}" --title "Pixel Planner v$VER" --notes-file /tmp/notes.md
