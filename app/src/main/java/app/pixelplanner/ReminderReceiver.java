@@ -40,10 +40,13 @@ public class ReminderReceiver extends BroadcastReceiver {
         b.setSmallIcon(R.drawable.ic_mono)
                 .setContentTitle(title == null ? "Pixel Planner" : title)
                 .setContentText(body == null ? "" : body)
-                .setStyle(new Notification.BigTextStyle().bigText(body == null ? "" : body))
+                .setStyle(new Notification.DecoratedCustomViewStyle())
+                .setCustomContentView(Cards.card(ctx, title, body, Cards.accentFor(title)))
+                .setCustomBigContentView(Cards.card(ctx, title, body, Cards.accentFor(title)))
+                .setSubText("Pixel Planner")
                 .setContentIntent(pi)
                 .setAutoCancel(true)
-                .setColor(0xFF6B5BD6);
+                .setColor(Cards.accentFor(title));
         try {
             String acts = intent.getStringExtra("actions");
             if (acts != null && acts.length() > 2) {

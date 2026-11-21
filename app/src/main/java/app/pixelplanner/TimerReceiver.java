@@ -69,14 +69,13 @@ public class TimerReceiver extends BroadcastReceiver {
         b.setSmallIcon(R.drawable.ic_mono)
                 .setContentTitle(label)
                 .setContentText("Time left - tap to open Pixel Planner")
+                .setStyle(new Notification.DecoratedCustomViewStyle())
+                .setCustomContentView(Cards.timerCard(c, label, endAt, Cards.accentFor(label)))
+                .setCustomBigContentView(Cards.timerCard(c, label, endAt, Cards.accentFor(label)))
                 .setContentIntent(openApp(c, ID_RUN))
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
-                .setShowWhen(true)
-                .setWhen(endAt)
-                .setUsesChronometer(true)
-                .setColor(0xFF6B5BD6);
-        if (Build.VERSION.SDK_INT >= 24) b.setChronometerCountDown(true);
+                .setColor(Cards.accentFor(label));
         nm.notify(ID_RUN, b.build());
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
         PendingIntent pi = alarmIntent(c, doneTitle, doneBody);
@@ -107,10 +106,14 @@ public class TimerReceiver extends BroadcastReceiver {
         b.setSmallIcon(R.drawable.ic_mono)
                 .setContentTitle(title == null ? "Timer finished" : title)
                 .setContentText(body == null ? "" : body)
+                .setStyle(new Notification.DecoratedCustomViewStyle())
+                .setCustomContentView(Cards.card(ctx, title == null ? "Timer finished" : title, body, 0xFF39D353))
+                .setCustomBigContentView(Cards.card(ctx, title == null ? "Timer finished" : title, body, 0xFF39D353))
+                .setSubText("Pixel Planner")
                 .setContentIntent(openApp(ctx, ID_DONE))
                 .setAutoCancel(true)
                 .setCategory(Notification.CATEGORY_ALARM)
-                .setColor(0xFF6B5BD6);
+                .setColor(0xFF39D353);
         if (Build.VERSION.SDK_INT < 26) {
             b.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)).setVibrate(new long[]{0, 400, 200, 400});
         }

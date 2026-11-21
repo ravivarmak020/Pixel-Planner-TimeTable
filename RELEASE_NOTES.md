@@ -1,1 +1,1 @@
-- The UPDATE button now downloads the new version inside the app and opens the installer by itself
+- New notification look: a pixel-style card with your character, a colour for each reminder type, and a big live countdown for the focus timer
