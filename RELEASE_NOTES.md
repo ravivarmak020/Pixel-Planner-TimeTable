@@ -1,1 +1,1 @@
-- Fire Streaks now have a category, Fitness or Study; each completed day gives +10 XP in that category
+- Undo on the Fitness and Study bars now also undoes XP earned from Fire Streaks and un-ticks that streak day
