@@ -1,1 +1,1 @@
-- Fire Streaks cards have a roomier layout so the text is no longer squeezed
+- Fire Streaks can now be set to NONE so a habit gives no XP
