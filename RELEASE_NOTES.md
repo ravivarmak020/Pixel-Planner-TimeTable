@@ -1,1 +1,1 @@
-- Undo on the Fitness and Study bars now also undoes XP earned from Fire Streaks and un-ticks that streak day
+- Fire Streaks cards have a roomier layout so the text is no longer squeezed
