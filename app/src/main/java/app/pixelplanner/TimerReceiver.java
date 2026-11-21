@@ -68,13 +68,16 @@ public class TimerReceiver extends BroadcastReceiver {
         b.setSmallIcon(R.drawable.ic_mono)
                 .setContentTitle(label)
                 .setContentText("Time left - tap to open Pixel Planner")
-                .setStyle(new Notification.DecoratedCustomViewStyle())
-                .setCustomContentView(Cards.timerCard(c, label, endAt, Cards.accentFor(label)))
-                .setCustomBigContentView(Cards.timerCard(c, label, endAt, Cards.accentFor(label)))
+                .setWhen(endAt)
+                .setShowWhen(true)
+                .setUsesChronometer(true)
+                .setChronometerCountDown(true)
                 .setContentIntent(openApp(c, ID_RUN))
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
                 .setColor(Cards.accentFor(label));
+        android.graphics.Bitmap li = Cards.largeIcon(c);
+        if (li != null) b.setLargeIcon(li);
         return b.build();
     }
 
@@ -121,9 +124,7 @@ public class TimerReceiver extends BroadcastReceiver {
         b.setSmallIcon(R.drawable.ic_mono)
                 .setContentTitle(title == null ? "Timer finished" : title)
                 .setContentText(body == null ? "" : body)
-                .setStyle(new Notification.DecoratedCustomViewStyle())
-                .setCustomContentView(Cards.card(ctx, title == null ? "Timer finished" : title, body, 0xFF39D353))
-                .setCustomBigContentView(Cards.card(ctx, title == null ? "Timer finished" : title, body, 0xFF39D353))
+                .setStyle(new Notification.BigTextStyle().bigText(body == null ? "" : body))
                 .setSubText("Pixel Planner")
                 .setContentIntent(openApp(ctx, ID_DONE))
                 .setAutoCancel(true)
@@ -132,6 +133,8 @@ public class TimerReceiver extends BroadcastReceiver {
         if (Build.VERSION.SDK_INT < 26) {
             b.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)).setVibrate(new long[]{0, 400, 200, 400});
         }
+        android.graphics.Bitmap li2 = Cards.largeIcon(ctx);
+        if (li2 != null) b.setLargeIcon(li2);
         nm.notify(ID_DONE, b.build());
     }
 }

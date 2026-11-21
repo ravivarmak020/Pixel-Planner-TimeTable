@@ -32,6 +32,17 @@ final class Cards {
         return null;
     }
 
+    /** Small copy of the character icon for the notification's large icon (a huge bitmap can make Android drop the notification). */
+    static Bitmap largeIcon(Context ctx) {
+        try {
+            Bitmap b = avatar(ctx);
+            if (b == null) return null;
+            return Bitmap.createScaledBitmap(b, 96, 96, false);
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
     /** A normal card (title + message). */
     static RemoteViews card(Context c, String title, String body, int accent) {
         RemoteViews rv = new RemoteViews(c.getPackageName(), R.layout.notif_card);

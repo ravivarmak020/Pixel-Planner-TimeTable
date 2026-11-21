@@ -1,2 +1,1 @@
-- The app now detects when notifications are blocked for it and shows an ALLOW button that opens the right settings screen
-- Safer fallback so timer and reminder notifications still show if the pixel card can't be drawn
+- Notifications now use Android's standard layout with a live countdown, so they show reliably on new phones and Android versions

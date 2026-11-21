@@ -40,9 +40,7 @@ public class ReminderReceiver extends BroadcastReceiver {
         b.setSmallIcon(R.drawable.ic_mono)
                 .setContentTitle(title == null ? "Pixel Planner" : title)
                 .setContentText(body == null ? "" : body)
-                .setStyle(new Notification.DecoratedCustomViewStyle())
-                .setCustomContentView(Cards.card(ctx, title, body, Cards.accentFor(title)))
-                .setCustomBigContentView(Cards.card(ctx, title, body, Cards.accentFor(title)))
+                .setStyle(new Notification.BigTextStyle().bigText(body == null ? "" : body))
                 .setSubText("Pixel Planner")
                 .setContentIntent(pi)
                 .setAutoCancel(true)
@@ -82,7 +80,7 @@ public class ReminderReceiver extends BroadcastReceiver {
         try {
             java.io.File icon = new java.io.File(ctx.getFilesDir(), "pixel-icon.png");
             if (icon.exists()) {
-                android.graphics.Bitmap bmp = android.graphics.BitmapFactory.decodeFile(icon.getAbsolutePath());
+                android.graphics.Bitmap bmp = Cards.largeIcon(ctx);
                 if (bmp != null) b.setLargeIcon(bmp);
             }
         } catch (Exception ignored) { }
