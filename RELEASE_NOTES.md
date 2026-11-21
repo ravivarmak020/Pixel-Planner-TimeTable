@@ -1,1 +1,1 @@
-- Fixes a crash when starting the focus timer; the countdown stays in the notification bar after you close the app
+- Fixes the crash when starting the focus timer (back to the stable timer notification)

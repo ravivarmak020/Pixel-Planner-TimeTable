@@ -81,15 +81,7 @@ public class TimerReceiver extends BroadcastReceiver {
         channels(c);
         NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
         nm.cancel(ID_DONE);
-        // a foreground service keeps the countdown card alive even after the app is swiped from recents
-        try {
-            Intent si = new Intent(c, TimerService.class);
-            si.putExtra("endAt", endAt);
-            si.putExtra("label", label);
-            if (Build.VERSION.SDK_INT >= 26) c.startForegroundService(si); else c.startService(si);
-        } catch (Throwable e) {
-            try { nm.notify(ID_RUN, runNotif(c, endAt, label)); } catch (Throwable ignored) { }
-        }
+        try { nm.notify(ID_RUN, runNotif(c, endAt, label)); } catch (Throwable ignored) { }
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
         PendingIntent pi = alarmIntent(c, doneTitle, doneBody);
         try {
@@ -102,12 +94,6 @@ public class TimerReceiver extends BroadcastReceiver {
 
     /** Stop the timer notification and cancel the ring. */
     static void stop(Context c) {
-        try {
-            // ask the service to stop itself (a bare stopService right after a start can crash the app)
-            Intent si = new Intent(c, TimerService.class);
-            si.putExtra("stop", true);
-            if (Build.VERSION.SDK_INT >= 26) c.startForegroundService(si); else c.startService(si);
-        } catch (Throwable ignored) { try { c.stopService(new Intent(c, TimerService.class)); } catch (Throwable ig) { } }
         NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
         nm.cancel(ID_RUN);
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
@@ -117,7 +103,6 @@ public class TimerReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context ctx, Intent intent) {
         channels(ctx);
-        try { ctx.stopService(new Intent(ctx, TimerService.class)); } catch (Exception ignored) { }
         NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
         nm.cancel(ID_RUN);
         String title = intent.getStringExtra("title");
