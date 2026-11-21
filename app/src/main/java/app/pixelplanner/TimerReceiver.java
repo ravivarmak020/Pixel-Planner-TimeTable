@@ -62,6 +62,22 @@ public class TimerReceiver extends BroadcastReceiver {
         return PendingIntent.getBroadcast(c, ID_DONE, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
+    private static PendingIntent cmd(Context c, String action, int rc) {
+        Intent i = new Intent(c, TimerReceiver.class);
+        i.setAction(action);
+        return PendingIntent.getBroadcast(c, rc, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+    }
+
+    private static final String PREFS = "pixel_timer";
+
+    private static void remember(Context c, long endAt, String label) {
+        c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putLong("endAt", endAt).putString("label", label).apply();
+    }
+
+    private static void forget(Context c) {
+        c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().clear().apply();
+    }
+
     static Notification runNotif(Context c, long endAt, String label) {
         channels(c);
         Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(c, CH_RUN) : new Notification.Builder(c);
@@ -73,6 +89,8 @@ public class TimerReceiver extends BroadcastReceiver {
                 .setUsesChronometer(true)
                 .setChronometerCountDown(true)
                 .setContentIntent(openApp(c, ID_RUN))
+                .setDeleteIntent(cmd(c, "app.pixelplanner.TIMER_REPOST", 7011))
+                .addAction(new Notification.Action.Builder(android.graphics.drawable.Icon.createWithResource(c, R.drawable.ic_mono), "STOP", cmd(c, "app.pixelplanner.TIMER_STOP", 7012)).build())
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
                 .setColor(Cards.accentFor(label));
@@ -94,6 +112,7 @@ public class TimerReceiver extends BroadcastReceiver {
         channels(c);
         NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
         nm.cancel(ID_DONE);
+        remember(c, endAt, label);
         try { nm.notify(ID_RUN, runNotif(c, endAt, label)); } catch (Throwable e) { plain(c, nm, label); }
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
         PendingIntent pi = alarmIntent(c, doneTitle, doneBody);
@@ -107,6 +126,7 @@ public class TimerReceiver extends BroadcastReceiver {
 
     /** Stop the timer notification and cancel the ring. */
     static void stop(Context c) {
+        forget(c);
         NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
         nm.cancel(ID_RUN);
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
@@ -116,6 +136,24 @@ public class TimerReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context ctx, Intent intent) {
         channels(ctx);
+        String act = intent.getAction();
+        if ("app.pixelplanner.TIMER_REPOST".equals(act)) {
+            // the notification was swiped away while the timer is still running: put it back
+            android.content.SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+            long end = sp.getLong("endAt", 0);
+            if (end > System.currentTimeMillis()) {
+                try {
+                    ((NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE)).notify(ID_RUN, runNotif(ctx, end, sp.getString("label", "FOCUS")));
+                } catch (Throwable ignored) { }
+            }
+            return;
+        }
+        if ("app.pixelplanner.TIMER_STOP".equals(act)) {
+            stop(ctx);
+            Reminders.queue(ctx, "timerstop", 0, null, null);
+            return;
+        }
+        forget(ctx);
         NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
         nm.cancel(ID_RUN);
         String title = intent.getStringExtra("title");

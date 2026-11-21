@@ -1,1 +1,1 @@
-- A running focus timer is now remembered: reopen the app and it shows the real time left
+- The running timer notification can no longer be swiped away and has a STOP button
