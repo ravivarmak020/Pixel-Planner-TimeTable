@@ -1,3 +1,1 @@
-- New MENU button opens Buy List, Subscriptions and Fire Streaks
-- Subscriptions: currency (rupee, dollar, pound), start date, and history with year, month and day filters
-- New Fire Streaks: daily habits with an animated flame, calendar with struck-off days, coin rewards at 7, 30 and 100 days
+- Fire Streaks now have a category, Fitness or Study; each completed day gives +10 XP in that category
