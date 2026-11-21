@@ -1,2 +1,2 @@
-- All furniture redrawn with much more detail (bed, desk with glowing monitor, bookshelf, sofa, TV, fridge, plant, lamp, rug, poster)
-- Focus screen: Pixel sits at the desk reading with page turns, a nodding head, steam from the mug and a flickering monitor; music notes float when lo-fi is on
+- You can now switch your home back to any smaller house you have already built, free, from the shop (furniture is kept)
+- Room screen: one button to open the shop for more items instead of the long furniture list

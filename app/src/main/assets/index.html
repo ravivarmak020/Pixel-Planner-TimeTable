@@ -2119,6 +2119,7 @@ if (typeof module !== "undefined") module.exports = HD;
   var SHOP_PACC = { collar: { n: "RED COLLAR", c: 30 }, bow: { n: "PINK BOW TIE", c: 30 }, scarf: { n: "TEAL SCARF", c: 40 } };
   var SLOTS = { hat: { t: SHOP_HATS, own: "hats", w: "hat" }, out: { t: SHOP_OUTS, own: "outs", w: "outfit" }, face: { t: SHOP_FACES, own: "faces", w: "face" }, back: { t: SHOP_BACKS, own: "backs", w: "back" }, pet: { t: SHOP_PACC, own: "paccs", w: "pacc" } };
   function slotOf(id) { var p = id.indexOf("-"); if (p < 0) return null; var sl = SLOTS[id.slice(0, p)]; return sl ? { sl: sl, k: id.slice(p + 1), item: sl.t[id.slice(p + 1)] } : null; }
+  function hmx(i) { return Math.max(i.house || 0, i.hmax || 0); }
   function newInv() { return { house: 0, dog: 0, cat: 0, hats: [], hat: "", outs: [], outfit: "", faces: [], face: "", backs: [], back: "", paccs: [], pacc: "", furn: [], pl: {} }; }
   function normLog(o) {
     var r = {}; if (!o || typeof o !== "object") return r;
@@ -2145,7 +2146,7 @@ if (typeof module !== "undefined") module.exports = HD;
     r.coins = Math.max(0, Math.floor(+o.coins || 0)); r.paid = {};
     if (o.paid && typeof o.paid === "object") ["hydration", "protein"].forEach(function (k) { if (typeof o.paid[k] === "string") r.paid[k] = o.paid[k]; });
     var iv = o.inv || {}; r.inv = newInv();
-    r.inv.house = Math.min(5, Math.max(0, Math.floor(+iv.house || 0))); r.inv.dog = iv.dog ? 1 : 0; r.inv.cat = iv.cat ? 1 : 0;
+    r.inv.house = Math.min(5, Math.max(0, Math.floor(+iv.house || 0))); r.inv.hmax = Math.max(r.inv.house, Math.min(5, Math.max(0, Math.floor(+iv.hmax || 0)))); r.inv.dog = iv.dog ? 1 : 0; r.inv.cat = iv.cat ? 1 : 0;
     r.inv.hats = (Array.isArray(iv.hats) ? iv.hats : []).filter(function (h) { return SHOP_HATS[h]; }); r.inv.hat = r.inv.hats.indexOf(iv.hat) >= 0 ? iv.hat : "";
     r.inv.outs = (Array.isArray(iv.outs) ? iv.outs : []).filter(function (h) { return SHOP_OUTS[h]; }); r.inv.outfit = r.inv.outs.indexOf(iv.outfit) >= 0 ? iv.outfit : "";
     [["faces", "face", SHOP_FACES], ["backs", "back", SHOP_BACKS], ["paccs", "pacc", SHOP_PACC]].forEach(function (q) {
@@ -2302,7 +2303,7 @@ if (typeof module !== "undefined") module.exports = HD;
     if (pop && n > 0) toast("+" + n + " R COINS", "gold");
   }
   function nextGoal() {
-    var h = stats.inv.house; if (h < 5) return { n: SHOP_HOUSE[h + 1].n, c: SHOP_HOUSE[h + 1].c };
+    var h = hmx(stats.inv); if (h < 5) return { n: SHOP_HOUSE[h + 1].n, c: SHOP_HOUSE[h + 1].c };
     return null;
   }
   function renderChip() {
@@ -3366,9 +3367,9 @@ if (typeof module !== "undefined") module.exports = PET;
     $("#roomTray").innerHTML = i.furn.length ? i.furn.map(function (k) {
       var it = ROOM.ITEMS[k], usable = it.st <= st;
       return '<button type="button" class="rm-chip' + (roomSel === k ? " sel" : "") + (usable ? "" : " lock") + '" data-pick="' + k + '"' + (usable ? "" : " disabled") + ">" + ROOM.item(k).replace("<svg ", '<svg class="rm-ic" ') + "<span>" + it.name + "</span><small>" + (usable ? (placed[k] ? "PLACED" : "IN TRAY") : "NEEDS " + SHOP_HOUSE[it.st].n) + "</small></button>";
-    }).join("") + (roomSel && placed[roomSel] ? '<button type="button" class="btn alt" id="roomToTray">TO TRAY</button>' : "") : '<p class="hint">Buy furniture below, then place it in your room.</p>';
-    $("#roomHint").textContent = names[st] + ": " + ROOM.FLOORS[st] + " FLOOR" + (ROOM.FLOORS[st] > 1 ? "S" : "") + ". " + (roomSel ? "TAP A GOLD SPOT TO PLACE " + ROOM.ITEMS[roomSel].name + "." : "TAP FURNITURE BELOW, THEN A SPOT. TAP A PLACED ITEM TO MOVE IT.");
-    $("#roomList").innerHTML = '<div class="shop-list">' + furnRows() + "</div>";
+    }).join("") + (roomSel && placed[roomSel] ? '<button type="button" class="btn alt" id="roomToTray">TO TRAY</button>' : "") : '<p class="hint">Open the shop to buy furniture, then place it here.</p>';
+    $("#roomHint").textContent = names[st] + ": " + ROOM.FLOORS[st] + " FLOOR" + (ROOM.FLOORS[st] > 1 ? "S" : "") + ". " + (roomSel ? "TAP A GOLD SPOT TO PLACE " + ROOM.ITEMS[roomSel].name + "." : "TAP FURNITURE ABOVE, THEN A SPOT. TAP A PLACED ITEM TO MOVE IT.");
+    $("#roomList").innerHTML = '<button type="button" class="btn" id="roomShopBtn" style="width:100%;margin-top:8px">OPEN SHOP FOR MORE ITEMS</button>';
   }
   function openRoom() { if (!stats || !stats.inv.house) return; rollDay(); roomSel = ""; renderRoom(); $("#shopMsg").textContent = ""; $("#roomModal").hidden = false; $("#roomClose").focus(); }
   function closeRoom() { $("#roomModal").hidden = true; roomSel = ""; }
@@ -3471,7 +3472,7 @@ if (typeof module !== "undefined") module.exports = PET;
   }
   function prevHtml(id) {
     var i = stats.inv;
-    if (id === "house") return houseSvg(i.house + 1 > 5 ? 5 : i.house + 1);
+    if (id === "house") return houseSvg(hmx(i) + 1 > 5 ? 5 : hmx(i) + 1);
     if (id === "dog" || id === "cat") return petSvg(id).replace("<svg ", '<svg class="pvpet" ');
     if (id.indexOf("furn-") === 0) return ROOM.item(id.slice(5)).replace("<svg ", '<svg class="pvfurn" ');
     var q = slotOf(id); if (!q) return "";
@@ -3480,7 +3481,7 @@ if (typeof module !== "undefined") module.exports = PET;
   }
   function prevInfo(id) {
     var i = stats.inv;
-    if (id === "house") return i.house < 5 ? { n: SHOP_HOUSE[i.house + 1].n + " (STAGE " + (i.house + 1) + "/5)", c: SHOP_HOUSE[i.house + 1].c } : { n: "MANSION", c: 0 };
+    if (id === "house") return hmx(i) < 5 ? { n: SHOP_HOUSE[hmx(i) + 1].n + " (STAGE " + (hmx(i) + 1) + "/5)", c: SHOP_HOUSE[hmx(i) + 1].c } : { n: "MANSION", c: 0 };
     if (id === "dog" || id === "cat") return { n: id.toUpperCase(), c: PET_COST[id] };
     if (id.indexOf("furn-") === 0) { var fi = ROOM.ITEMS[id.slice(5)]; return { n: fi.name, c: fi.cost }; }
     var q = slotOf(id); return { n: q.item.n, c: q.item.c };
@@ -3509,8 +3510,14 @@ if (typeof module !== "undefined") module.exports = PET;
     var i = stats.inv, h = "";
     $("#shopCoins").textContent = stats.coins;
     h += "<h3>HOUSE</h3>";
-    if (i.house < 5) h += shopRow("house", "BUILD: " + SHOP_HOUSE[i.house + 1].n, SHOP_HOUSE[i.house + 1].c, "buy", ' <small>(STAGE ' + (i.house + 1) + "/5)</small>");
+    var hm = hmx(i);
+    if (hm < 5) h += shopRow("house", "BUILD: " + SHOP_HOUSE[hm + 1].n, SHOP_HOUSE[hm + 1].c, "buy", ' <small>(STAGE ' + (hm + 1) + "/5)</small>");
     else h += '<div class="shop-row"><span class="shop-name">MANSION BUILT!</span></div>';
+    if (hm > 1) {
+      h += '<p class="hint">YOUR HOME (free to switch, furniture is kept):</p><div class="shop-row" style="flex-wrap:wrap;gap:4px">';
+      for (var n = 1; n <= hm; n++) h += '<button class="btn' + (i.house === n ? "" : " alt") + '" data-shop="home:' + n + '"' + (i.house === n ? " disabled" : "") + ">" + SHOP_HOUSE[n].n + "</button>";
+      h += "</div>";
+    }
     h += "<h3>PETS</h3>" + shopRow("dog", "DOG", PET_COST.dog, i.dog ? "own" : "buy") + shopRow("cat", "CAT", PET_COST.cat, i.cat ? "own" : "buy");
     h += "<h3>HATS</h3>" + Object.keys(SHOP_HATS).map(function (k) { return shopRow("hat-" + k, SHOP_HATS[k].n, SHOP_HATS[k].c, i.hats.indexOf(k) < 0 ? "buy" : i.hat === k ? "worn" : "equip"); }).join("");
     h += '<p class="hint">Hats are hidden once your study cap is unlocked.</p>';
@@ -3520,7 +3527,7 @@ if (typeof module !== "undefined") module.exports = PET;
     h += '<p class="hint">Pet style is worn by both your dog and cat.</p>';
     h += "<h3>PIXEL'S ROOM</h3>" + furnRows() + '<p class="hint">' + (i.house ? "Tap your house to step inside." : "Build a tent first, then you can furnish it.") + "</p>";
     $("#shopList").innerHTML = h;
-    if (shopSel === "house" && i.house >= 5) shopSel = "dog";
+    if (shopSel === "house" && hmx(i) >= 5) shopSel = "dog";
     showPrev(shopSel);
   }
   function shopAfter(msg) {
@@ -3535,15 +3542,16 @@ if (typeof module !== "undefined") module.exports = PET;
       var cost;
       var fk = id.indexOf("furn-") === 0 ? id.slice(5) : "";
       if (fk) { var fit = ROOM.ITEMS[fk]; if (!fit || i.furn.indexOf(fk) >= 0 || !i.house || i.house < fit.st) return; }
-      if (id === "house") cost = SHOP_HOUSE[i.house + 1].c; else if (id === "dog" || id === "cat") cost = PET_COST[id]; else if (fk) cost = ROOM.ITEMS[fk].cost; else cost = q.item.c;
+      if (id === "house") { if (hmx(i) >= 5) return; cost = SHOP_HOUSE[hmx(i) + 1].c; } else if (id === "dog" || id === "cat") cost = PET_COST[id]; else if (fk) cost = ROOM.ITEMS[fk].cost; else cost = q.item.c;
       if (stats.coins < cost) { $("#shopMsg").textContent = "NOT ENOUGH R COINS YET."; return; }
       stats.coins -= cost;
-      if (id === "house") { i.house++; levelSound(); sysBanner("[ SYSTEM ]", "HOUSE UPGRADED!<br>" + SHOP_HOUSE[i.house].n); }
+      if (id === "house") { i.house = i.hmax = hmx(i) + 1; levelSound(); sysBanner("[ SYSTEM ]", "HOUSE UPGRADED!<br>" + SHOP_HOUSE[i.house].n); }
       else if (id === "dog" || id === "cat") { i[id] = 1; levelSound(); }
       else if (fk) { i.furn.push(fk); autoPlace(fk); }
       else { i[q.sl.own].push(q.k); i[q.sl.w] = q.k; }
       shopAfter("PURCHASED! SPENT " + cost + " R COINS.");
-    } else if (op === "equip") { i[q.sl.w] = q.k; shopAfter("EQUIPPED."); }
+    } else if (op === "home") { var n = +id; if (n >= 1 && n <= hmx(i)) { i.house = n; levelSound(); shopAfter("MOVED TO " + SHOP_HOUSE[n].n + "."); } }
+    else if (op === "equip") { i[q.sl.w] = q.k; shopAfter("EQUIPPED."); }
     else if (op === "unequip") { i[q.sl.w] = ""; shopAfter("TAKEN OFF."); }
   }
   function openShop() { rollDay(); shopSel = "house"; renderShop(); $("#shopMsg").textContent = "Earn R coins by finishing tasks, focus sessions, daily goals and streaks."; $("#shop").hidden = false; $("#shopDone").focus(); }
@@ -3552,6 +3560,7 @@ if (typeof module !== "undefined") module.exports = PET;
     var b = e.target.closest && e.target.closest("[data-shop]");
     if (b && !b.disabled) { shopAct(b.dataset.shop); return; }
     var pv = e.target.closest && e.target.closest("[data-prev]"); if (pv && !$("#shop").hidden) { showPrev(pv.dataset.prev); return; }
+    if (e.target.closest && e.target.closest("#roomShopBtn")) { $("#roomModal").hidden = true; roomSel = ""; openShop(); return; }
     if (e.target.closest && (e.target.closest("#shopBtn") || e.target.closest("#coinShop") || e.target.closest("#coinChip"))) openShop();
     else if (e.target.closest && (e.target.closest("#coinHelp") || e.target.closest("#shopGuide"))) $("#coinGuide").hidden = false;
     else if (e.target.closest && e.target.closest("#cgDone") || e.target.id === "coinGuide") $("#coinGuide").hidden = true;
@@ -3754,7 +3763,7 @@ if (typeof module !== "undefined") module.exports = PET;
     $("#notifTxt").textContent = st === 1 ? "Notifications are blocked for Pixel Planner, so the timer and reminders cannot show. Tap ALLOW and switch them on." : "Allow exact alarms so reminders arrive on time.";
   }
   /* in-app update notice (Android app): compares the installed version with the newest GitHub release */
-  var APP_NOTES = { "3.7": ["All furniture is redrawn with much more detail: bed, desk with a glowing monitor, bookshelf, sofa, TV, fridge, plant, lamp, rug and poster.", "On the focus screen Pixel now sits at the desk reading a book with page turns, a nodding head, rising steam from the mug and a flickering monitor. Music notes float when lo-fi is on."], "3.6": ["Choose where each piece of furniture goes in your room. Tap a piece, then tap a gold spot. Tap a placed piece to move it or send it back to the tray.", "Rooms show every floor of your home, and the focus screen shows your room as you arranged it."], "3.5": ["The notepad icon is now on a black background and also shows inside the app."], "3.4": ["New notepad app icon.", "Redesigned pixel-style Today widget, plus a new Upcoming widget that lists the next days. Add it from your widget picker.", "The running timer notification can no longer be swiped away. It has a STOP button to end the timer."], "3.3": ["A running focus timer is now remembered. Reopen the app and it shows the real time left instead of resetting."], "3.2": ["Notifications now use Android's standard layout with a live countdown for the timer, so they show reliably on new phones."], "3.1": ["The app now tells you when notifications are blocked and the ALLOW button opens the right settings screen.", "Safer fallback so the timer and reminder notifications still show."], "3.0": ["Fixed the crash when starting the focus timer."], "2.7": ["After the opening animation, new installs ask if you are new or an existing user. Existing users can restore their Google Drive backup right away."], "2.6": ["Pixel's room: tap your tent or house to step inside. Each home has its own floors, from a one-room tent up to a three-storey mansion.", "Buy a bed, desk, sofa, TV and more with R coins. They show in the shop, in your room and on the focus screen.", "Back up your progress to a file and pick Google Drive on the save screen. Restore it from the same screen after a phone change."], "2.5": ["New look for notifications: a pixel-style card with your character, a colour for each kind of reminder, and a big live countdown for the focus timer."], "2.4": ["The UPDATE button now downloads the new version inside the app and opens the installer by itself."], "2.3": ["Focus timer keeps running in the background with a live countdown notification and a ringtone when it ends.", "Home-screen widget with today's tasks, your next block, coins and streak.", "Activity calendars for fitness, study, water and protein in the report.", "Phone alarms from tasks and time-table blocks.", "Pixel gets sleepy at night, says wow on big moments, and every action has its own sound.", "Optional lo-fi music loop during focus sessions."] };
+  var APP_NOTES = { "3.8": ["You can now switch your home back to any smaller house you have already built, free of charge, from the shop. Furniture is kept.", "The room screen now has a single button to open the shop for more items instead of the long list."], "3.7": ["All furniture is redrawn with much more detail: bed, desk with a glowing monitor, bookshelf, sofa, TV, fridge, plant, lamp, rug and poster.", "On the focus screen Pixel now sits at the desk reading a book with page turns, a nodding head, rising steam from the mug and a flickering monitor. Music notes float when lo-fi is on."], "3.6": ["Choose where each piece of furniture goes in your room. Tap a piece, then tap a gold spot. Tap a placed piece to move it or send it back to the tray.", "Rooms show every floor of your home, and the focus screen shows your room as you arranged it."], "3.5": ["The notepad icon is now on a black background and also shows inside the app."], "3.4": ["New notepad app icon.", "Redesigned pixel-style Today widget, plus a new Upcoming widget that lists the next days. Add it from your widget picker.", "The running timer notification can no longer be swiped away. It has a STOP button to end the timer."], "3.3": ["A running focus timer is now remembered. Reopen the app and it shows the real time left instead of resetting."], "3.2": ["Notifications now use Android's standard layout with a live countdown for the timer, so they show reliably on new phones."], "3.1": ["The app now tells you when notifications are blocked and the ALLOW button opens the right settings screen.", "Safer fallback so the timer and reminder notifications still show."], "3.0": ["Fixed the crash when starting the focus timer."], "2.7": ["After the opening animation, new installs ask if you are new or an existing user. Existing users can restore their Google Drive backup right away."], "2.6": ["Pixel's room: tap your tent or house to step inside. Each home has its own floors, from a one-room tent up to a three-storey mansion.", "Buy a bed, desk, sofa, TV and more with R coins. They show in the shop, in your room and on the focus screen.", "Back up your progress to a file and pick Google Drive on the save screen. Restore it from the same screen after a phone change."], "2.5": ["New look for notifications: a pixel-style card with your character, a colour for each kind of reminder, and a big live countdown for the focus timer."], "2.4": ["The UPDATE button now downloads the new version inside the app and opens the installer by itself."], "2.3": ["Focus timer keeps running in the background with a live countdown notification and a ringtone when it ends.", "Home-screen widget with today's tasks, your next block, coins and streak.", "Activity calendars for fitness, study, water and protein in the report.", "Phone alarms from tasks and time-table blocks.", "Pixel gets sleepy at night, says wow on big moments, and every action has its own sound.", "Optional lo-fi music loop during focus sessions."] };
   function notesHtml(body) {
     var lines = String(body).split(/\r?\n/).filter(function (l) { return /^\s*[-*]\s+/.test(l); }).slice(0, 6);
     return lines.length ? '<small class="wn">WHAT\'S NEW</small>' + lines.map(function (l) { return "<small>- " + esc(l.replace(/^\s*[-*]\s+/, "").slice(0, 110)) + "</small>"; }).join("") : "";
@@ -5500,7 +5509,7 @@ if (typeof module !== "undefined") module.exports = PET;
     "hat-beanie": "Warm and cosy for late study nights.", "hat-party": "Every finished task deserves a celebration!", "hat-cowboy": "Yeehaw! Perfect for a long study day.", "hat-wizard": "Adds at least one spell to your knowledge.", "hat-crown": "Pure gold with a ruby and a heart gem. Study royalty only.", "face-shades": "Too cool for school. Deadlines fear these.", "face-hearts": "Pink heart lenses. See your goals with love!", "back-pack": "A sturdy brown backpack packed with notes and snacks.", "back-cape": "A flowing red cape. Every task is a heroic mission.", "back-wings": "Fluffy angel wings. Your focus is heavenly.", "pet-collar": "A red collar with a shiny gold tag for your pet.", "pet-bow": "A dapper pink bow tie. Looking sharp!", "pet-scarf": "A cosy teal scarf with golden stripes.",
     "out-hoodie": "A soft grey hoodie for deep focus sessions.", "out-sunset": "A bright orange tee, the colour of a sunset.", "out-ninja": "Silent, dark and very productive.", "out-royal": "A purple robe fit for a study king."
   };
-  function infoText(id) { if (id.indexOf("furn-") === 0) return ROOM.ITEMS[id.slice(5)].info; if (id === "house") return ITEM_INFO["house:" + Math.min(5, stats.inv.house + 1)]; return ITEM_INFO[id] || ""; }
+  function infoText(id) { if (id.indexOf("furn-") === 0) return ROOM.ITEMS[id.slice(5)].info; if (id === "house") return ITEM_INFO["house:" + Math.min(5, hmx(stats.inv) + 1)]; return ITEM_INFO[id] || ""; }
   var dlgEl = null, dlgT = null;
   function dlgBox() {
     if (dlgEl) return dlgEl; dlgEl = document.createElement("div"); dlgEl.className = "dlg"; dlgEl.hidden = true; dlgEl.setAttribute("role", "tooltip");
