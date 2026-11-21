@@ -167,6 +167,43 @@ li.task.cs { box-shadow: inset 6px 0 0 var(--c); }
 .bl-chk { width: 28px; height: 28px; flex: none; background: #1d1b30; box-shadow: 0 0 0 3px #000; color: #7dff9a; font-family: var(--font-display); font-size: 14px; cursor: pointer; border: 0; padding: 0; }
 .bl-x { flex: none; font-size: 9px; padding: 8px; }
 .bl-ic { width: 40px; height: 40px; flex: none; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 16px; color: #1a1830; box-shadow: 0 0 0 3px #000, inset -4px -4px 0 rgba(0,0,0,.22), inset 4px 4px 0 rgba(255,255,255,.3); }
+.mainnav .menu-btn { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; justify-content: center; }
+.mainnav .menu-btn .pxi { width: 22px; height: 22px; }
+.mainnav .menu-btn .chev { font-size: 9px; opacity: .7; transition: transform .2s; }
+.mainnav .menu-btn[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.more-menu { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 8px; padding: 10px; background: rgba(0,0,0,.28); box-shadow: 0 0 0 3px #000; }
+.more-menu[hidden] { display: none; }
+.more-item { display: flex; align-items: center; gap: 12px; text-align: left; border: 0; cursor: pointer; padding: 10px; background: var(--panel, #2a2840); color: var(--ink); box-shadow: 0 0 0 3px #000; font-family: var(--font-display); font-size: 10px; }
+.more-item.on { background: #3b9fd6; color: #05121c; }
+.more-item .mi-ic .pxi { width: 30px; height: 30px; display: block; }
+.more-item small { display: block; font-family: var(--font-body); font-size: 17px; margin-top: 4px; opacity: .8; }
+.sub-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+.sub-form .btn { min-height: 40px; }
+.fl-l { display: flex; flex-direction: column; gap: 4px; flex: 1 1 130px; font-family: var(--font-display); font-size: 8px; opacity: .9; }
+.bl-tag { font-family: var(--font-display); font-size: 8px; padding: 3px 5px; background: #3a3860; margin-left: 6px; vertical-align: middle; }
+.bl-sum { background: #1d1b30; padding: 10px; box-shadow: 0 0 0 3px #000; font-family: var(--font-display); font-size: 10px; line-height: 1.7; color: #ffd34e; }
+.flame { flex: none; display: block; filter: drop-shadow(0 0 5px rgba(255,122,69,.7)); image-rendering: pixelated; }
+.flame.out { filter: none; }
+.flame .fb { opacity: 0; }
+body.fx .flame:not(.out) .fa { animation: fla .5s steps(1) infinite; } body.fx .flame:not(.out) .fb { animation: flb .5s steps(1) infinite; }
+body.fx .flame:not(.out) { animation: flbob 1s steps(2) infinite; }
+@keyframes fla { 0% { opacity: 1; } 50% { opacity: 0; } } @keyframes flb { 0% { opacity: 0; } 50% { opacity: 1; } } @keyframes flbob { 0% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+.stk { background: rgba(0,0,0,.22); box-shadow: 0 0 0 3px #000; padding: 10px; }
+.stk-head { display: flex; align-items: center; gap: 10px; }
+.stk-name { flex: 1; min-width: 0; word-break: break-word; font-family: var(--font-body); font-size: 22px; line-height: 1.1; }
+.stk-name small { display: block; font-size: 17px; opacity: .8; color: #ffd34e; }
+.stk-btns { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.stk-btns .btn { font-size: 9px; padding: 8px; }
+.cal { margin-top: 10px; }
+.cal-h { display: flex; align-items: center; justify-content: space-between; font-family: var(--font-display); font-size: 10px; margin-bottom: 8px; }
+.cal-g { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-w { font-family: var(--font-display); font-size: 7px; text-align: center; opacity: .7; padding-bottom: 2px; }
+.cal-d { position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border: 0; padding: 0; cursor: pointer; background: #1d1b30; color: var(--ink); font-family: var(--font-body); font-size: 18px; }
+.cal-d.e { visibility: hidden; } .cal-d.fut { opacity: .35; cursor: default; }
+.cal-d.today { box-shadow: 0 0 0 3px #ffd34e; }
+.cal-d.done { background: #3a2230; color: #ff9a9a; }
+.cal-d.done::before, .cal-d.done::after { content: ""; position: absolute; left: 12%; right: 12%; top: 50%; height: 4px; background: #ff4d4d; box-shadow: 0 0 0 1px #000; transform: rotate(45deg); }
+.cal-d.done::after { transform: rotate(-45deg); }
 .bl-price { flex: none; font-family: var(--font-display); font-size: 10px; color: #ffd34e; }
 .tab.big { font-size: 11px; padding: 12px 16px; flex: 1; }
 .exam { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; }
@@ -1171,8 +1208,12 @@ body.fx .cbar .cfill::before, body.fx .chipbar i::before { content: ""; position
   <nav class="box mainnav" aria-label="Windows">
     <button class="tab big" data-view="planner" type="button" aria-pressed="true">PLANNER</button>
     <button class="tab big" data-view="tt" type="button" aria-pressed="false">TIME TABLE</button>
-    <button class="tab big" data-view="buy" type="button" aria-pressed="false">BUY LIST</button>
-    <button class="tab big" data-view="subs" type="button" aria-pressed="false">SUBS</button>
+    <button class="tab big menu-btn" id="moreBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="moreMenu">MENU</button>
+    <div id="moreMenu" class="more-menu" hidden role="menu">
+      <button class="more-item" data-view="buy" type="button" role="menuitem"><span class="mi-ic"></span><span class="mi-t">BUY LIST<small>Things to buy</small></span></button>
+      <button class="more-item" data-view="subs" type="button" role="menuitem"><span class="mi-ic"></span><span class="mi-t">SUBSCRIPTIONS<small>Costs, dates and history</small></span></button>
+      <button class="more-item" data-view="streaks" type="button" role="menuitem"><span class="mi-ic"></span><span class="mi-t">FIRE STREAKS<small>Daily habits and calendar</small></span></button>
+    </div>
   </nav>
 
   <div id="viewBuy" class="view" hidden>
@@ -1190,14 +1231,30 @@ body.fx .cbar .cfill::before, body.fx .chipbar i::before { content: ""; position
   <div id="viewSubs" class="view" hidden>
     <section class="box">
       <h2 class="sec">SUBSCRIPTIONS</h2>
-      <form id="subForm" class="subj-form" style="display:flex;gap:8px;flex-wrap:wrap">
-        <input class="field" id="subName" type="text" maxlength="40" placeholder="NAME" autocomplete="off" aria-label="Subscription name" required>
+      <form id="subForm" class="sub-form">
+        <input class="field" id="subName" type="text" maxlength="40" placeholder="NAME" autocomplete="off" aria-label="Subscription name" required style="flex:1 1 100%">
+        <select class="field" id="subCur" aria-label="Currency" style="flex:0 0 76px"><option>&#8377;</option><option>$</option><option>&pound;</option></select>
         <input class="field" id="subPrice" type="number" min="0" max="9999999" step="any" placeholder="PRICE" aria-label="Price" required style="flex:1 1 90px">
-        <input class="field" id="subEnd" type="date" aria-label="End date" required style="flex:1 1 150px">
-        <button class="btn" type="submit">ADD</button>
+        <label class="fl-l">STARTS<input class="field" id="subStart" type="date" aria-label="Start date" required></label>
+        <label class="fl-l">ENDS<input class="field" id="subEnd" type="date" aria-label="End date" required></label>
+        <button class="btn" type="submit" style="flex:1 1 100%">ADD SUBSCRIPTION</button>
       </form>
       <div id="subList" class="bl-list"></div>
       <div id="subFoot" class="hint"></div>
+    </section>
+    <section class="box" style="margin-top:16px">
+      <h2 class="sec">HISTORY</h2>
+      <div class="sub-form"><select class="field" id="hYear" aria-label="Year" style="flex:1"></select><select class="field" id="hMon" aria-label="Month" style="flex:1"></select><select class="field" id="hDay" aria-label="Day" style="flex:1"></select></div>
+      <div id="hRes" class="bl-list"></div>
+    </section>
+  </div>
+
+  <div id="viewStreaks" class="view" hidden>
+    <section class="box">
+      <h2 class="sec">FIRE STREAKS</h2>
+      <form id="stkForm" class="sub-form"><input class="field" id="stkIn" type="text" maxlength="40" placeholder="NEW HABIT, E.G. GYM" autocomplete="off" aria-label="Habit name" required style="flex:1 1 180px"><button class="btn" type="submit">ADD</button></form>
+      <div id="stkList" class="bl-list"></div>
+      <div id="stkFoot" class="hint"></div>
     </section>
   </div>
 
@@ -2152,7 +2209,7 @@ if (typeof module !== "undefined") module.exports = HD;
   var SHOP_OUTS = { hoodie: { n: "GREY HOODIE", c: 60, col: "#8d8d99" }, sunset: { n: "SUNSET TEE", c: 70, col: "#ff8a3d" }, ninja: { n: "NINJA SUIT", c: 90, col: "#2a2a35" }, royal: { n: "ROYAL ROBE", c: 150, col: "#7b3fc4" } };
   var PET_COST = { dog: 120, cat: 100 };
   var COIN_TASK = 5, COIN_GOAL = 10, COIN_PERFECT = 15;
-  function newStats() { return { log: {}, fitness: 0, study: 0, hydration: 0, protein: 0, day: null, today: { fitness: 0, study: 0 }, goals: { hydration: 3000, protein: 100, perLevel: 100 }, streak: 0, best: 0, lastPerfect: null, yday: null, lastQuick: {}, coins: 0, paid: {}, inv: newInv(), buy: [], subs: [] }; }
+  function newStats() { return { log: {}, fitness: 0, study: 0, hydration: 0, protein: 0, day: null, today: { fitness: 0, study: 0 }, goals: { hydration: 3000, protein: 100, perLevel: 100 }, streak: 0, best: 0, lastPerfect: null, yday: null, lastQuick: {}, coins: 0, paid: {}, inv: newInv(), buy: [], subs: [], streaks: [] }; }
   var SHOP_FACES = { shades: { n: "COOL SHADES", c: 60 }, hearts: { n: "HEART GLASSES", c: 60 } };
   var SHOP_BACKS = { pack: { n: "BACKPACK", c: 80 }, cape: { n: "HERO CAPE", c: 130 }, wings: { n: "ANGEL WINGS", c: 200 } };
   var SHOP_PACC = { collar: { n: "RED COLLAR", c: 30 }, bow: { n: "PINK BOW TIE", c: 30 }, scarf: { n: "TEAL SCARF", c: 40 } };
@@ -2203,7 +2260,8 @@ if (typeof module !== "undefined") module.exports = HD;
       var v = o.lastQuick[k]; r.lastQuick[k] = Array.isArray(v) ? v.map(function (n) { return n && typeof n === "object" ? { n: +n.n, t: String(n.t || ""), b: String(n.b || ""), tk: String(n.tk || ""), tm: n.tm ? 1 : 0, mins: +n.mins || 0, auto: n.auto ? 1 : 0, d: /^\d{4}-\d{2}-\d{2}$/.test(n.d || "") ? n.d : "" } : +n; }).filter(function (n) { return (typeof n === "object" ? n.n : n) > 0; }).slice(-50) : (+v > 0 ? [+v] : []);
     });
     r.buy = (Array.isArray(o.buy) ? o.buy : []).slice(0, 300).filter(function (b) { return b && typeof b.t === "string" && b.t; }).map(function (b) { return { id: String(b.id || uid()), t: b.t.slice(0, 80), d: b.d ? 1 : 0 }; });
-    r.subs = (Array.isArray(o.subs) ? o.subs : []).slice(0, 100).filter(function (b) { return b && typeof b.n === "string" && b.n; }).map(function (b) { return { id: String(b.id || uid()), n: b.n.slice(0, 40), p: Math.max(0, +b.p || 0), e: /^\d{4}-\d{2}-\d{2}$/.test(b.e || "") ? b.e : "" }; });
+    r.subs = (Array.isArray(o.subs) ? o.subs : []).slice(0, 300).filter(function (b) { return b && typeof b.n === "string" && b.n; }).map(function (b) { var dt = /^\d{4}-\d{2}-\d{2}$/; return { id: String(b.id || uid()), n: b.n.slice(0, 40), p: Math.max(0, +b.p || 0), c: ["\u20b9", "$", "\u00a3"].indexOf(b.c) >= 0 ? b.c : "\u20b9", s: dt.test(b.s || "") ? b.s : (dt.test(b.e || "") ? b.e : ""), e: dt.test(b.e || "") ? b.e : (dt.test(b.s || "") ? b.s : "") }; }).filter(function (b) { return b.e; });
+    r.streaks = (Array.isArray(o.streaks) ? o.streaks : []).slice(0, 60).filter(function (b) { return b && typeof b.n === "string" && b.n; }).map(function (b) { var seen = {}; return { id: String(b.id || uid()), n: b.n.slice(0, 40), d: (Array.isArray(b.d) ? b.d : []).filter(function (x) { if (typeof x !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(x) || seen[x]) return false; seen[x] = 1; return true; }).sort(), m: (Array.isArray(b.m) ? b.m : []).filter(function (x) { return x === 7 || x === 30 || x === 100; }) }; });
     return r;
   }
   function goalsHit(st) {
@@ -2260,6 +2318,10 @@ if (typeof module !== "undefined") module.exports = HD;
     PXI.fxon = spark("#ffd23f"); PXI.fxoff = spark("#6f6aa0");
     PXI.chart = build(cat(B(2, 2, 12, 12, "#f4f1ff", "#ffffff", "#b9b4e0"), [[4, 9, 2, 4, "#5cc8ff"], [7, 6, 2, 7, "#5fd068"], [10, 4, 2, 9, "#ffd23f"]]));
     PXI.disk = build(cat(B(2, 2, 12, 12, "#5cc8ff", "#a8e4ff", "#2a82b8"), B(4, 2, 8, 5, "#f4f1ff", "#ffffff", "#b9b4e0"), B(5, 9, 6, 5, "#2a2a50", "#4a4a80", "#16162e"), [[9, 3, 1, 3, "#2a2a50"]]));
+    PXI.menu = build([[2, 3, 12, 2, G], [2, 7, 12, 2, G], [2, 11, 12, 2, G]]);
+    PXI.cart = build(cat(B(3, 4, 11, 6, "#ffb347", "#ffd9a0", "#b8741a"), [[1, 2, 3, 1, G], [3, 3, 1, 2, G]], D(5, 13, 1, "#f4f1ff"), D(11, 13, 1, "#f4f1ff")));
+    PXI.card = build(cat(B(1, 3, 14, 10, "#6be6ff", "#b8f3ff", "#2a82b8"), [[1, 6, 14, 2, "#1b1a2e"], [3, 10, 4, 1, "#f4f1ff"]]));
+    PXI.flame = build(cat([[7, 1, 2, 2, "#ff7a45"], [6, 3, 4, 3, "#ff7a45"], [4, 6, 8, 6, "#ff7a45"], [5, 12, 6, 2, "#ff7a45"], [6, 7, 4, 5, "#ffd34e"]]));
     PXI.help = build(cat(D(8, 8, 7, "#5cc8ff"), [[6, 4, 4, 2, "#ffffff"], [9, 6, 2, 2, "#ffffff"], [7, 8, 2, 2, "#ffffff"], [7, 11, 2, 2, "#ffffff"]]));
   })();
   function pxi(n, cls) { var s = PXI[n] || ""; return cls ? s.replace('class="pxi"', 'class="pxi ' + cls + '"') : s; }
@@ -3804,7 +3866,7 @@ if (typeof module !== "undefined") module.exports = PET;
     $("#notifTxt").textContent = st === 1 ? "Notifications are blocked for Pixel Planner, so the timer and reminders cannot show. Tap ALLOW and switch them on." : "Allow exact alarms so reminders arrive on time.";
   }
   /* in-app update notice (Android app): compares the installed version with the newest GitHub release */
-  var APP_NOTES = { "3.10": ["The main tabs are now in a roomier 2 by 2 grid so nothing is squeezed."], "3.9": ["New BUY LIST tab: add things to buy and tick them off.", "New SUBS tab: track subscriptions with a name, price and end date, each with a coloured letter icon."], "3.8": ["You can now switch your home back to any smaller house you have already built, free of charge, from the shop. Furniture is kept.", "The room screen now has a single button to open the shop for more items instead of the long list."], "3.7": ["All furniture is redrawn with much more detail: bed, desk with a glowing monitor, bookshelf, sofa, TV, fridge, plant, lamp, rug and poster.", "On the focus screen Pixel now sits at the desk reading a book with page turns, a nodding head, rising steam from the mug and a flickering monitor. Music notes float when lo-fi is on."], "3.6": ["Choose where each piece of furniture goes in your room. Tap a piece, then tap a gold spot. Tap a placed piece to move it or send it back to the tray.", "Rooms show every floor of your home, and the focus screen shows your room as you arranged it."], "3.5": ["The notepad icon is now on a black background and also shows inside the app."], "3.4": ["New notepad app icon.", "Redesigned pixel-style Today widget, plus a new Upcoming widget that lists the next days. Add it from your widget picker.", "The running timer notification can no longer be swiped away. It has a STOP button to end the timer."], "3.3": ["A running focus timer is now remembered. Reopen the app and it shows the real time left instead of resetting."], "3.2": ["Notifications now use Android's standard layout with a live countdown for the timer, so they show reliably on new phones."], "3.1": ["The app now tells you when notifications are blocked and the ALLOW button opens the right settings screen.", "Safer fallback so the timer and reminder notifications still show."], "3.0": ["Fixed the crash when starting the focus timer."], "2.7": ["After the opening animation, new installs ask if you are new or an existing user. Existing users can restore their Google Drive backup right away."], "2.6": ["Pixel's room: tap your tent or house to step inside. Each home has its own floors, from a one-room tent up to a three-storey mansion.", "Buy a bed, desk, sofa, TV and more with R coins. They show in the shop, in your room and on the focus screen.", "Back up your progress to a file and pick Google Drive on the save screen. Restore it from the same screen after a phone change."], "2.5": ["New look for notifications: a pixel-style card with your character, a colour for each kind of reminder, and a big live countdown for the focus timer."], "2.4": ["The UPDATE button now downloads the new version inside the app and opens the installer by itself."], "2.3": ["Focus timer keeps running in the background with a live countdown notification and a ringtone when it ends.", "Home-screen widget with today's tasks, your next block, coins and streak.", "Activity calendars for fitness, study, water and protein in the report.", "Phone alarms from tasks and time-table blocks.", "Pixel gets sleepy at night, says wow on big moments, and every action has its own sound.", "Optional lo-fi music loop during focus sessions."] };
+  var APP_NOTES = { "3.11": ["New MENU button opens Buy List, Subscriptions and Fire Streaks.", "Subscriptions now have a currency (rupee, dollar, pound), a start date and a history with year, month and day filters.", "New Fire Streaks: track daily habits with an animated flame, a calendar with struck-off days, and coin rewards at 7, 30 and 100 days."], "3.10": ["The main tabs are now in a roomier 2 by 2 grid so nothing is squeezed."], "3.9": ["New BUY LIST tab: add things to buy and tick them off.", "New SUBS tab: track subscriptions with a name, price and end date, each with a coloured letter icon."], "3.8": ["You can now switch your home back to any smaller house you have already built, free of charge, from the shop. Furniture is kept.", "The room screen now has a single button to open the shop for more items instead of the long list."], "3.7": ["All furniture is redrawn with much more detail: bed, desk with a glowing monitor, bookshelf, sofa, TV, fridge, plant, lamp, rug and poster.", "On the focus screen Pixel now sits at the desk reading a book with page turns, a nodding head, rising steam from the mug and a flickering monitor. Music notes float when lo-fi is on."], "3.6": ["Choose where each piece of furniture goes in your room. Tap a piece, then tap a gold spot. Tap a placed piece to move it or send it back to the tray.", "Rooms show every floor of your home, and the focus screen shows your room as you arranged it."], "3.5": ["The notepad icon is now on a black background and also shows inside the app."], "3.4": ["New notepad app icon.", "Redesigned pixel-style Today widget, plus a new Upcoming widget that lists the next days. Add it from your widget picker.", "The running timer notification can no longer be swiped away. It has a STOP button to end the timer."], "3.3": ["A running focus timer is now remembered. Reopen the app and it shows the real time left instead of resetting."], "3.2": ["Notifications now use Android's standard layout with a live countdown for the timer, so they show reliably on new phones."], "3.1": ["The app now tells you when notifications are blocked and the ALLOW button opens the right settings screen.", "Safer fallback so the timer and reminder notifications still show."], "3.0": ["Fixed the crash when starting the focus timer."], "2.7": ["After the opening animation, new installs ask if you are new or an existing user. Existing users can restore their Google Drive backup right away."], "2.6": ["Pixel's room: tap your tent or house to step inside. Each home has its own floors, from a one-room tent up to a three-storey mansion.", "Buy a bed, desk, sofa, TV and more with R coins. They show in the shop, in your room and on the focus screen.", "Back up your progress to a file and pick Google Drive on the save screen. Restore it from the same screen after a phone change."], "2.5": ["New look for notifications: a pixel-style card with your character, a colour for each kind of reminder, and a big live countdown for the focus timer."], "2.4": ["The UPDATE button now downloads the new version inside the app and opens the installer by itself."], "2.3": ["Focus timer keeps running in the background with a live countdown notification and a ringtone when it ends.", "Home-screen widget with today's tasks, your next block, coins and streak.", "Activity calendars for fitness, study, water and protein in the report.", "Phone alarms from tasks and time-table blocks.", "Pixel gets sleepy at night, says wow on big moments, and every action has its own sound.", "Optional lo-fi music loop during focus sessions."] };
   function notesHtml(body) {
     var lines = String(body).split(/\r?\n/).filter(function (l) { return /^\s*[-*]\s+/.test(l); }).slice(0, 6);
     return lines.length ? '<small class="wn">WHAT\'S NEW</small>' + lines.map(function (l) { return "<small>- " + esc(l.replace(/^\s*[-*]\s+/, "").slice(0, 110)) + "</small>"; }).join("") : "";
@@ -4425,15 +4487,19 @@ if (typeof module !== "undefined") module.exports = PET;
   var curV = "planner";
   function setView(v) {
     var isTT = v === "tt"; curV = v;
-    $("#viewPlanner").hidden = v !== "planner"; $("#viewTT").hidden = !isTT; $("#viewBuy").hidden = v !== "buy"; $("#viewSubs").hidden = v !== "subs";
+    $("#viewPlanner").hidden = v !== "planner"; $("#viewTT").hidden = !isTT; $("#viewBuy").hidden = v !== "buy"; $("#viewSubs").hidden = v !== "subs"; $("#viewStreaks").hidden = v !== "streaks";
     document.querySelector(".wrap").classList.toggle("wide", isTT);
-    $("#titleTxt").textContent = { tt: "PIXEL TIME TABLE", buy: "PIXEL BUY LIST", subs: "PIXEL SUBSCRIPTIONS" }[v] || "PIXEL PLANNER";
+    $("#titleTxt").textContent = { tt: "PIXEL TIME TABLE", buy: "PIXEL BUY LIST", subs: "PIXEL SUBSCRIPTIONS", streaks: "PIXEL FIRE STREAKS" }[v] || "PIXEL PLANNER";
     document.querySelectorAll(".mainnav .tab").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.view === v)); });
-    if (isTT) renderTT(); else if (v === "buy") renderBuy(); else if (v === "subs") renderSubs(); else { render(); buildWalker(); }
+    var mb = $("#moreBtn"); if (mb) { mb.setAttribute("aria-pressed", String(!!MORE_V[v])); $("#moreLbl").textContent = MORE_V[v] ? "MENU: " + MORE_V[v] : "MENU"; }
+    document.querySelectorAll(".more-item").forEach(function (b) { b.classList.toggle("on", b.dataset.view === v); });
+    if (isTT) renderTT(); else if (v === "buy") renderBuy(); else if (v === "subs") { if (!$("#subStart").value) $("#subStart").value = todayIso(); renderSubs(); } else if (v === "streaks") renderStreaks(); else { render(); buildWalker(); }
     if (isTT) setTimeout(syncExamBar, 50);
   }
 
-  /* buy list + subscriptions */
+  /* buy list + subscriptions + streaks */
+  var MORE_V = { buy: "BUY LIST", subs: "SUBSCRIPTIONS", streaks: "FIRE STREAKS" };
+  function saveNow() { dirty = true; store.save(); }
   function renderBuy() {
     var L = stats.buy, el = $("#buyList"), h = "";
     var open = L.filter(function (b) { return !b.d; }), done = L.filter(function (b) { return b.d; });
@@ -4444,29 +4510,121 @@ if (typeof module !== "undefined") module.exports = PET;
     $("#buyFoot").innerHTML = open.length + " TO BUY" + (done.length ? ' <button type="button" class="btn alt bl-x" id="buyClear">CLEAR BOUGHT</button>' : "");
   }
   var SUB_COL = ["#ff8a8a", "#ffb86b", "#ffe36b", "#8aff9f", "#6be6ff", "#8ab4ff", "#c79bff", "#ff9be0"];
+  var MON3 = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+  var hY = "", hM = "", hD = "";
   function subCol(n) { var x = 0; for (var i = 0; i < n.length; i++) x = (x * 31 + n.charCodeAt(i)) % 997; return SUB_COL[x % SUB_COL.length]; }
   function subDays(e) { if (!e) return null; var a = e.split("-"), t = new Date(+a[0], +a[1] - 1, +a[2]), n = new Date(); n.setHours(0, 0, 0, 0); return Math.round((t - n) / 864e5); }
+  function money(c, p) { return c + (Math.round(p * 100) / 100); }
+  function sumBy(list) { var o = {}; list.forEach(function (b) { o[b.c] = (o[b.c] || 0) + b.p; }); var k = Object.keys(o); return k.length ? k.map(function (c) { return money(c, o[c]); }).join(" + ") : "0"; }
+  function subIcon(b) { return '<span class="bl-ic" style="background:' + subCol(b.n) + '">' + esc(b.n.trim().charAt(0).toUpperCase() || "?") + "</span>"; }
   function renderSubs() {
-    var L = stats.subs.slice().sort(function (a, b) { return (a.e || "9") < (b.e || "9") ? -1 : 1; }), tot = 0;
-    $("#subList").innerHTML = L.map(function (b) {
-      var d = subDays(b.e), txt = d === null ? "" : d < 0 ? "ENDED " + fmt(b.e) : d === 0 ? "ENDS TODAY" : d === 1 ? "ENDS TOMORROW" : "ENDS " + fmt(b.e) + " (" + d + " DAYS)";
-      if (d === null || d >= 0) tot += b.p;
-      return '<div class="bl-row"><span class="bl-ic" style="background:' + subCol(b.n) + '">' + esc(b.n.trim().charAt(0).toUpperCase() || "?") + '</span><span class="bl-name">' + esc(b.n) + '<small class="' + (d !== null && d < 0 ? "late" : d !== null && d <= 7 ? "soon" : "") + '">' + txt + '</small></span><span class="bl-price">' + b.p + '</span><button type="button" class="btn alt bl-x" data-sdel="' + b.id + '" aria-label="Delete">DEL</button></div>';
-    }).join("") || '<p class="hint">No subscriptions yet. Add one above.</p>';
-    $("#subFoot").textContent = L.length ? L.length + " SUBSCRIPTIONS. ACTIVE TOTAL: " + tot : "";
+    var act = stats.subs.filter(function (b) { var d = subDays(b.e); return d === null || d >= 0; }).sort(function (a, b) { return a.e < b.e ? -1 : 1; });
+    $("#subList").innerHTML = act.map(function (b) {
+      var d = subDays(b.e), txt = d === 0 ? "ENDS TODAY" : d === 1 ? "ENDS TOMORROW" : "ENDS " + fmt(b.e) + " (" + d + " DAYS)";
+      return '<div class="bl-row">' + subIcon(b) + '<span class="bl-name">' + esc(b.n) + '<small class="' + (d <= 7 ? "soon" : "") + '">' + txt + '</small></span><span class="bl-price">' + money(b.c, b.p) + '</span><button type="button" class="btn alt bl-x" data-sdel="' + b.id + '" aria-label="Delete">DEL</button></div>';
+    }).join("") || '<p class="hint">No active subscriptions. Add one above.</p>';
+    $("#subFoot").textContent = act.length ? act.length + " ACTIVE. TOTAL: " + sumBy(act) : "";
+    renderHist();
+  }
+  function renderHist() {
+    var all = stats.subs.slice().sort(function (a, b) { return (a.s || a.e) < (b.s || b.e) ? 1 : -1; });
+    var yrs = {}; all.forEach(function (b) { yrs[(b.s || b.e).slice(0, 4)] = 1; });
+    var ys = Object.keys(yrs).sort().reverse();
+    if (hY && !yrs[hY]) hY = "";
+    if (!hY && ys.length && !hM) hY = ys.indexOf(String(new Date().getFullYear())) >= 0 ? String(new Date().getFullYear()) : ys[0];
+    var o = '<option value="">YEAR</option>' + ys.map(function (y) { return '<option value="' + y + '"' + (hY === y ? " selected" : "") + ">" + y + "</option>"; }).join("");
+    $("#hYear").innerHTML = o;
+    var mo = '<option value="">MONTH</option>'; for (var m = 1; m <= 12; m++) mo += '<option value="' + m + '"' + (hM === String(m) ? " selected" : "") + ">" + MON3[m - 1] + "</option>";
+    $("#hMon").innerHTML = mo; $("#hMon").disabled = !hY;
+    var dd = '<option value="">DAY</option>'; for (var d = 1; d <= 31; d++) dd += '<option value="' + d + '"' + (hD === String(d) ? " selected" : "") + ">" + d + "</option>";
+    $("#hDay").innerHTML = dd; $("#hDay").disabled = !hY || !hM;
+    var f = all.filter(function (b) { var p = (b.s || b.e).split("-"); return (!hY || p[0] === hY) && (!hM || +p[1] === +hM) && (!hD || +p[2] === +hD); });
+    var h = '<div class="bl-sum">TOTAL SPENT: ' + sumBy(f) + "<br>" + f.length + " SUBSCRIPTION" + (f.length === 1 ? "" : "S") + "</div>";
+    if (hY && !hM) {
+      for (var mm2 = 12; mm2 >= 1; mm2--) { var g = f.filter(function (b) { return +(b.s || b.e).split("-")[1] === mm2; }); if (g.length) h += '<div class="bl-row"><span class="bl-name">' + MON3[mm2 - 1] + " " + hY + "<small>" + g.length + " ITEM" + (g.length === 1 ? "" : "S") + '</small></span><span class="bl-price">' + sumBy(g) + "</span></div>"; }
+    }
+    h += f.map(function (b) {
+      var ended = subDays(b.e) < 0;
+      return '<div class="bl-row">' + subIcon(b) + '<span class="bl-name">' + esc(b.n) + '<span class="bl-tag">' + (ended ? "ENDED" : "ACTIVE") + "</span><small>" + fmt(b.s || b.e) + " " + (b.s || b.e).slice(0, 4) + " TO " + fmt(b.e) + " " + b.e.slice(0, 4) + '</small></span><span class="bl-price">' + money(b.c, b.p) + '</span><button type="button" class="btn alt bl-x" data-sdel="' + b.id + '" aria-label="Delete">DEL</button></div>';
+    }).join("") || '<p class="hint">Nothing in this period.</p>';
+    $("#hRes").innerHTML = h;
+  }
+  /* streaks */
+  var stkOpen = "", stkMon = "", stkArm = "";
+  function dShift(isoS, n) { var a = isoS.split("-"); return iso(new Date(+a[0], +a[1] - 1, +a[2] + n)); }
+  function stkCalc(list) {
+    var set = {}; list.forEach(function (d) { set[d] = 1; });
+    var t = todayIso(), st = set[t] ? t : dShift(t, -1), cur = 0; while (set[st]) { cur++; st = dShift(st, -1); }
+    var best = 0, run = 0, prev = ""; list.slice().sort().forEach(function (d) { run = prev && dShift(prev, 1) === d ? run + 1 : 1; prev = d; if (run > best) best = run; });
+    return { cur: cur, best: Math.max(best, cur), set: set };
+  }
+  function flameSvg(n) {
+    var w = n >= 30 ? 46 : n >= 7 ? 36 : n >= 1 ? 28 : 22;
+    var A = ["....#...", "...##...", "...###..", "..####.#", ".#######", ".#######", ".#######", "..######", "...####."], B = ["...#....", "...##...", "..###...", "#.####..", "#######.", ".#######", ".#######", "..######", "...####."];
+    var IA = ["...##...", "..####..", "..####..", "...###..", "...##..."], IB = ["..##....", "..####..", "..####..", "..###...", "...##..."];
+    function g(rows, y0, col, cls) { var o = '<g class="' + cls + '" fill="' + col + '">'; rows.forEach(function (r, y) { for (var x = 0; x < 8; x++) if (r.charAt(x) === "#") o += '<rect x="' + x + '" y="' + (y + y0) + '" width="1" height="1"/>'; }); return o + "</g>"; }
+    var out = n < 1;
+    return '<svg class="flame' + (out ? " out" : "") + '" viewBox="0 0 8 9" width="' + w + '" height="' + Math.round(w * 9 / 8) + '" shape-rendering="crispEdges" aria-hidden="true">' + g(A, 0, out ? "#5b5880" : "#ff5a1f", "fa") + g(B, 0, out ? "#5b5880" : "#ff5a1f", "fb") + (out ? "" : g(IA, 4, "#ffd34e", "fa") + g(IB, 4, "#ffd34e", "fb")) + "</svg>";
+  }
+  function calHtml(h) {
+    var set = stkCalc(h.d).set, a = stkMon.split("-"), y = +a[0], m = +a[1] - 1, first = new Date(y, m, 1), pad = (first.getDay() + 6) % 7, dim = new Date(y, m + 1, 0).getDate(), t = todayIso();
+    var MN = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+    var o = '<div class="cal"><div class="cal-h"><button type="button" class="btn alt bl-x" data-cmon="-1" aria-label="Previous month">&lt;</button><span>' + MN[m] + " " + y + '</span><button type="button" class="btn alt bl-x" data-cmon="1" aria-label="Next month">&gt;</button></div><div class="cal-g">';
+    ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"].forEach(function (w) { o += '<div class="cal-w">' + w + "</div>"; });
+    for (var i = 0; i < pad; i++) o += '<span class="cal-d e"></span>';
+    for (var d = 1; d <= dim; d++) { var ds = y + "-" + ("0" + (m + 1)).slice(-2) + "-" + ("0" + d).slice(-2), fut = ds > t; o += '<button type="button" class="cal-d' + (set[ds] ? " done" : "") + (ds === t ? " today" : "") + (fut ? " fut" : "") + '"' + (fut ? " disabled" : ' data-cday="' + ds + '"') + ' aria-label="' + ds + (set[ds] ? " done" : "") + '">' + d + "</button>"; }
+    return o + "</div></div>";
+  }
+  function renderStreaks() {
+    var L = stats.streaks, t = todayIso();
+    $("#stkList").innerHTML = L.map(function (h) {
+      var c = stkCalc(h.d), doneToday = !!c.set[t], open = stkOpen === h.id;
+      return '<div class="stk"><div class="stk-head">' + flameSvg(c.cur) + '<span class="stk-name">' + esc(h.n) + "<small>" + c.cur + " DAY STREAK. BEST " + c.best + '</small></span><div class="stk-btns"><button type="button" class="btn' + (doneToday ? " alt" : "") + '" data-stoday="' + h.id + '">' + (doneToday ? "UNDO" : "DONE TODAY") + '</button><button type="button" class="btn alt" data-scal="' + h.id + '">' + (open ? "HIDE" : "CALENDAR") + '</button><button type="button" class="btn alt" data-sdelh="' + h.id + '">' + (stkArm === h.id ? "SURE?" : "DEL") + "</button></div></div>" + (open ? calHtml(h) : "") + "</div>";
+    }).join("") || '<p class="hint">No habits yet. Add one above and tick it each day to grow your flame.</p>';
+    $("#stkFoot").textContent = L.length ? "MILESTONES: 7 DAYS +15, 30 DAYS +60, 100 DAYS +200 R COINS." : "";
+  }
+  function stkReward(h) {
+    var c = stkCalc(h.d).cur, R = { 7: 15, 30: 60, 100: 200 };
+    [7, 30, 100].forEach(function (n) { if (c >= n && h.m.indexOf(n) < 0) { h.m.push(n); stats.coins += R[n]; try { renderCoins(); } catch (e) {} toast(h.n + ": " + n + " DAY STREAK! +" + R[n] + " R COINS", "ok"); } });
   }
   document.addEventListener("submit", function (e) {
-    if (e.target.id === "buyForm") { e.preventDefault(); var t = $("#buyIn").value.trim(); if (!t) return; stats.buy.unshift({ id: uid(), t: t.slice(0, 80), d: 0 }); $("#buyIn").value = ""; dirty = true; store.save(); renderBuy(); }
-    else if (e.target.id === "subForm") { e.preventDefault(); var n = $("#subName").value.trim(), en = $("#subEnd").value; if (!n || !en) return; stats.subs.push({ id: uid(), n: n.slice(0, 40), p: Math.max(0, +$("#subPrice").value || 0), e: en }); $("#subName").value = ""; $("#subPrice").value = ""; $("#subEnd").value = ""; dirty = true; store.save(); renderSubs(); }
+    if (e.target.id === "buyForm") { e.preventDefault(); var t = $("#buyIn").value.trim(); if (!t) return; stats.buy.unshift({ id: uid(), t: t.slice(0, 80), d: 0 }); $("#buyIn").value = ""; saveNow(); renderBuy(); }
+    else if (e.target.id === "subForm") { e.preventDefault(); var n = $("#subName").value.trim(), en = $("#subEnd").value, sd = $("#subStart").value || todayIso(); if (!n || !en) return; if (en < sd) { toast("END DATE IS BEFORE THE START DATE", "bad"); return; } stats.subs.push({ id: uid(), n: n.slice(0, 40), p: Math.max(0, +$("#subPrice").value || 0), c: $("#subCur").value, s: sd, e: en }); $("#subName").value = ""; $("#subPrice").value = ""; $("#subEnd").value = ""; $("#subStart").value = todayIso(); saveNow(); renderSubs(); }
+    else if (e.target.id === "stkForm") { e.preventDefault(); var hn = $("#stkIn").value.trim(); if (!hn) return; stats.streaks.push({ id: uid(), n: hn.slice(0, 40), d: [], m: [] }); $("#stkIn").value = ""; saveNow(); renderStreaks(); }
+  });
+  document.addEventListener("change", function (e) {
+    if (e.target.id === "hYear") { hY = e.target.value; hM = ""; hD = ""; renderHist(); }
+    else if (e.target.id === "hMon") { hM = e.target.value; hD = ""; renderHist(); }
+    else if (e.target.id === "hDay") { hD = e.target.value; renderHist(); }
   });
   document.addEventListener("click", function (e) {
-    var t = e.target.closest && e.target.closest("[data-bchk],[data-bdel],[data-sdel],#buyClear"); if (!t) return;
-    if (t.dataset.bchk) stats.buy.forEach(function (b) { if (b.id === t.dataset.bchk) b.d = b.d ? 0 : 1; });
-    else if (t.dataset.bdel) stats.buy = stats.buy.filter(function (b) { return b.id !== t.dataset.bdel; });
-    else if (t.dataset.sdel) { stats.subs = stats.subs.filter(function (b) { return b.id !== t.dataset.sdel; }); dirty = true; store.save(); renderSubs(); return; }
+    var t = e.target.closest && e.target.closest("[data-bchk],[data-bdel],[data-sdel],#buyClear,[data-stoday],[data-scal],[data-sdelh],[data-cmon],[data-cday]"); if (!t) return;
+    var D = t.dataset;
+    if (D.bchk) stats.buy.forEach(function (b) { if (b.id === D.bchk) b.d = b.d ? 0 : 1; });
+    else if (D.bdel) stats.buy = stats.buy.filter(function (b) { return b.id !== D.bdel; });
     else if (t.id === "buyClear") stats.buy = stats.buy.filter(function (b) { return !b.d; });
-    dirty = true; store.save(); renderBuy();
+    else if (D.sdel) { stats.subs = stats.subs.filter(function (b) { return b.id !== D.sdel; }); saveNow(); renderSubs(); return; }
+    else if (D.stoday || D.cday) {
+      var hid = D.stoday || stkOpen, day = D.cday || todayIso(), h = stats.streaks.filter(function (x) { return x.id === hid; })[0]; if (!h) return;
+      var ix = h.d.indexOf(day); if (ix >= 0) h.d.splice(ix, 1); else { h.d.push(day); h.d.sort(); if (day === todayIso()) stkReward(h); }
+      saveNow(); renderStreaks(); return;
+    }
+    else if (D.scal) { stkOpen = stkOpen === D.scal ? "" : D.scal; stkMon = todayIso().slice(0, 7); renderStreaks(); return; }
+    else if (D.sdelh) { if (stkArm === D.sdelh) { stats.streaks = stats.streaks.filter(function (x) { return x.id !== D.sdelh; }); stkArm = ""; saveNow(); } else stkArm = D.sdelh; renderStreaks(); return; }
+    else if (D.cmon) { var a = stkMon.split("-"), nd = new Date(+a[0], +a[1] - 1 + (+D.cmon), 1); stkMon = nd.getFullYear() + "-" + ("0" + (nd.getMonth() + 1)).slice(-2); renderStreaks(); return; }
+    saveNow(); renderBuy();
   });
+  (function moreMenu() {
+    var btn = $("#moreBtn"), menu = $("#moreMenu");
+    var ic = { buy: "cart", subs: "card", streaks: "flame" };
+    menu.querySelectorAll(".more-item").forEach(function (b) { b.querySelector(".mi-ic").innerHTML = pxi(ic[b.dataset.view]); });
+    btn.innerHTML = pxi("menu") + '<span id="moreLbl">MENU</span><span class="chev">&#9660;</span>';
+    function set(o) { menu.hidden = !o; btn.setAttribute("aria-expanded", String(o)); }
+    btn.addEventListener("click", function (e) { e.stopPropagation(); set(menu.hidden); });
+    document.addEventListener("click", function (e) { if (!menu.hidden && !e.target.closest(".mainnav")) set(false); });
+    menu.addEventListener("click", function () { set(false); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !menu.hidden) { set(false); btn.focus(); } });
+  })();
 
   /* block editor */
   var bEdit = null, bDaysSel = [], bType = "subject", bWhen = "weekly", bColor = TT_COLORS[1];
