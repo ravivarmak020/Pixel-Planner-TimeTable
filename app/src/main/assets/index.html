@@ -156,7 +156,18 @@ li.task.cs { box-shadow: inset 6px 0 0 var(--c); }
 .wrap.wide { max-width: 1040px; }
 .view[hidden] { display: none; }
 .view { display: flex; flex-direction: column; gap: 24px; }
-.mainnav { display: flex; gap: 10px; padding: 12px 14px; }
+.mainnav { display: flex; gap: 6px; padding: 12px 10px; }
+.mainnav .tab.big { font-size: 9px; padding: 12px 4px; justify-content: center; min-width: 0; }
+.bl-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.bl-row { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,.22); padding: 8px 10px; box-shadow: 0 0 0 3px #000; }
+.bl-row.done .bl-name { text-decoration: line-through; opacity: .5; }
+.bl-name { flex: 1; min-width: 0; word-break: break-word; font-family: var(--font-body); font-size: 22px; line-height: 1.1; }
+.bl-name small { display: block; font-family: var(--font-body); font-size: 17px; opacity: .75; }
+.bl-name small.soon { color: #ffd34e; opacity: 1; } .bl-name small.late { color: #ff7a7a; opacity: 1; }
+.bl-chk { width: 28px; height: 28px; flex: none; background: #1d1b30; box-shadow: 0 0 0 3px #000; color: #7dff9a; font-family: var(--font-display); font-size: 14px; cursor: pointer; border: 0; padding: 0; }
+.bl-x { flex: none; font-size: 9px; padding: 8px; }
+.bl-ic { width: 40px; height: 40px; flex: none; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 16px; color: #1a1830; box-shadow: 0 0 0 3px #000, inset -4px -4px 0 rgba(0,0,0,.22), inset 4px 4px 0 rgba(255,255,255,.3); }
+.bl-price { flex: none; font-family: var(--font-display); font-size: 10px; color: #ffd34e; }
 .tab.big { font-size: 11px; padding: 12px 16px; flex: 1; }
 .exam { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; }
 .exam-days { font-family: var(--font-display); font-size: 22px; color: var(--gold); text-shadow: 3px 3px 0 #000; line-height: 1.5; }
@@ -1160,7 +1171,35 @@ body.fx .cbar .cfill::before, body.fx .chipbar i::before { content: ""; position
   <nav class="box mainnav" aria-label="Windows">
     <button class="tab big" data-view="planner" type="button" aria-pressed="true">PLANNER</button>
     <button class="tab big" data-view="tt" type="button" aria-pressed="false">TIME TABLE</button>
+    <button class="tab big" data-view="buy" type="button" aria-pressed="false">BUY LIST</button>
+    <button class="tab big" data-view="subs" type="button" aria-pressed="false">SUBS</button>
   </nav>
+
+  <div id="viewBuy" class="view" hidden>
+    <section class="box">
+      <h2 class="sec">BUY LIST</h2>
+      <form id="buyForm" class="subj-form" style="display:flex;gap:8px;flex-wrap:wrap">
+        <input class="field" id="buyIn" type="text" maxlength="80" placeholder="WHAT TO BUY?" autocomplete="off" aria-label="Item to buy" required>
+        <button class="btn" type="submit">ADD</button>
+      </form>
+      <div id="buyList" class="bl-list"></div>
+      <div id="buyFoot" class="hint"></div>
+    </section>
+  </div>
+
+  <div id="viewSubs" class="view" hidden>
+    <section class="box">
+      <h2 class="sec">SUBSCRIPTIONS</h2>
+      <form id="subForm" class="subj-form" style="display:flex;gap:8px;flex-wrap:wrap">
+        <input class="field" id="subName" type="text" maxlength="40" placeholder="NAME" autocomplete="off" aria-label="Subscription name" required>
+        <input class="field" id="subPrice" type="number" min="0" max="9999999" step="any" placeholder="PRICE" aria-label="Price" required style="flex:1 1 90px">
+        <input class="field" id="subEnd" type="date" aria-label="End date" required style="flex:1 1 150px">
+        <button class="btn" type="submit">ADD</button>
+      </form>
+      <div id="subList" class="bl-list"></div>
+      <div id="subFoot" class="hint"></div>
+    </section>
+  </div>
 
   <div id="viewPlanner" class="view">
   <section class="box stats" id="stats" aria-label="Progress bars"></section>
@@ -2113,7 +2152,7 @@ if (typeof module !== "undefined") module.exports = HD;
   var SHOP_OUTS = { hoodie: { n: "GREY HOODIE", c: 60, col: "#8d8d99" }, sunset: { n: "SUNSET TEE", c: 70, col: "#ff8a3d" }, ninja: { n: "NINJA SUIT", c: 90, col: "#2a2a35" }, royal: { n: "ROYAL ROBE", c: 150, col: "#7b3fc4" } };
   var PET_COST = { dog: 120, cat: 100 };
   var COIN_TASK = 5, COIN_GOAL = 10, COIN_PERFECT = 15;
-  function newStats() { return { log: {}, fitness: 0, study: 0, hydration: 0, protein: 0, day: null, today: { fitness: 0, study: 0 }, goals: { hydration: 3000, protein: 100, perLevel: 100 }, streak: 0, best: 0, lastPerfect: null, yday: null, lastQuick: {}, coins: 0, paid: {}, inv: newInv() }; }
+  function newStats() { return { log: {}, fitness: 0, study: 0, hydration: 0, protein: 0, day: null, today: { fitness: 0, study: 0 }, goals: { hydration: 3000, protein: 100, perLevel: 100 }, streak: 0, best: 0, lastPerfect: null, yday: null, lastQuick: {}, coins: 0, paid: {}, inv: newInv(), buy: [], subs: [] }; }
   var SHOP_FACES = { shades: { n: "COOL SHADES", c: 60 }, hearts: { n: "HEART GLASSES", c: 60 } };
   var SHOP_BACKS = { pack: { n: "BACKPACK", c: 80 }, cape: { n: "HERO CAPE", c: 130 }, wings: { n: "ANGEL WINGS", c: 200 } };
   var SHOP_PACC = { collar: { n: "RED COLLAR", c: 30 }, bow: { n: "PINK BOW TIE", c: 30 }, scarf: { n: "TEAL SCARF", c: 40 } };
@@ -2163,6 +2202,8 @@ if (typeof module !== "undefined") module.exports = HD;
     if (o.lastQuick && typeof o.lastQuick === "object") ["hydration", "protein", "fitness", "study"].forEach(function (k) {
       var v = o.lastQuick[k]; r.lastQuick[k] = Array.isArray(v) ? v.map(function (n) { return n && typeof n === "object" ? { n: +n.n, t: String(n.t || ""), b: String(n.b || ""), tk: String(n.tk || ""), tm: n.tm ? 1 : 0, mins: +n.mins || 0, auto: n.auto ? 1 : 0, d: /^\d{4}-\d{2}-\d{2}$/.test(n.d || "") ? n.d : "" } : +n; }).filter(function (n) { return (typeof n === "object" ? n.n : n) > 0; }).slice(-50) : (+v > 0 ? [+v] : []);
     });
+    r.buy = (Array.isArray(o.buy) ? o.buy : []).slice(0, 300).filter(function (b) { return b && typeof b.t === "string" && b.t; }).map(function (b) { return { id: String(b.id || uid()), t: b.t.slice(0, 80), d: b.d ? 1 : 0 }; });
+    r.subs = (Array.isArray(o.subs) ? o.subs : []).slice(0, 100).filter(function (b) { return b && typeof b.n === "string" && b.n; }).map(function (b) { return { id: String(b.id || uid()), n: b.n.slice(0, 40), p: Math.max(0, +b.p || 0), e: /^\d{4}-\d{2}-\d{2}$/.test(b.e || "") ? b.e : "" }; });
     return r;
   }
   function goalsHit(st) {
@@ -3763,7 +3804,7 @@ if (typeof module !== "undefined") module.exports = PET;
     $("#notifTxt").textContent = st === 1 ? "Notifications are blocked for Pixel Planner, so the timer and reminders cannot show. Tap ALLOW and switch them on." : "Allow exact alarms so reminders arrive on time.";
   }
   /* in-app update notice (Android app): compares the installed version with the newest GitHub release */
-  var APP_NOTES = { "3.8": ["You can now switch your home back to any smaller house you have already built, free of charge, from the shop. Furniture is kept.", "The room screen now has a single button to open the shop for more items instead of the long list."], "3.7": ["All furniture is redrawn with much more detail: bed, desk with a glowing monitor, bookshelf, sofa, TV, fridge, plant, lamp, rug and poster.", "On the focus screen Pixel now sits at the desk reading a book with page turns, a nodding head, rising steam from the mug and a flickering monitor. Music notes float when lo-fi is on."], "3.6": ["Choose where each piece of furniture goes in your room. Tap a piece, then tap a gold spot. Tap a placed piece to move it or send it back to the tray.", "Rooms show every floor of your home, and the focus screen shows your room as you arranged it."], "3.5": ["The notepad icon is now on a black background and also shows inside the app."], "3.4": ["New notepad app icon.", "Redesigned pixel-style Today widget, plus a new Upcoming widget that lists the next days. Add it from your widget picker.", "The running timer notification can no longer be swiped away. It has a STOP button to end the timer."], "3.3": ["A running focus timer is now remembered. Reopen the app and it shows the real time left instead of resetting."], "3.2": ["Notifications now use Android's standard layout with a live countdown for the timer, so they show reliably on new phones."], "3.1": ["The app now tells you when notifications are blocked and the ALLOW button opens the right settings screen.", "Safer fallback so the timer and reminder notifications still show."], "3.0": ["Fixed the crash when starting the focus timer."], "2.7": ["After the opening animation, new installs ask if you are new or an existing user. Existing users can restore their Google Drive backup right away."], "2.6": ["Pixel's room: tap your tent or house to step inside. Each home has its own floors, from a one-room tent up to a three-storey mansion.", "Buy a bed, desk, sofa, TV and more with R coins. They show in the shop, in your room and on the focus screen.", "Back up your progress to a file and pick Google Drive on the save screen. Restore it from the same screen after a phone change."], "2.5": ["New look for notifications: a pixel-style card with your character, a colour for each kind of reminder, and a big live countdown for the focus timer."], "2.4": ["The UPDATE button now downloads the new version inside the app and opens the installer by itself."], "2.3": ["Focus timer keeps running in the background with a live countdown notification and a ringtone when it ends.", "Home-screen widget with today's tasks, your next block, coins and streak.", "Activity calendars for fitness, study, water and protein in the report.", "Phone alarms from tasks and time-table blocks.", "Pixel gets sleepy at night, says wow on big moments, and every action has its own sound.", "Optional lo-fi music loop during focus sessions."] };
+  var APP_NOTES = { "3.9": ["New BUY LIST tab: add things to buy and tick them off.", "New SUBS tab: track subscriptions with a name, price and end date, each with a coloured letter icon."], "3.8": ["You can now switch your home back to any smaller house you have already built, free of charge, from the shop. Furniture is kept.", "The room screen now has a single button to open the shop for more items instead of the long list."], "3.7": ["All furniture is redrawn with much more detail: bed, desk with a glowing monitor, bookshelf, sofa, TV, fridge, plant, lamp, rug and poster.", "On the focus screen Pixel now sits at the desk reading a book with page turns, a nodding head, rising steam from the mug and a flickering monitor. Music notes float when lo-fi is on."], "3.6": ["Choose where each piece of furniture goes in your room. Tap a piece, then tap a gold spot. Tap a placed piece to move it or send it back to the tray.", "Rooms show every floor of your home, and the focus screen shows your room as you arranged it."], "3.5": ["The notepad icon is now on a black background and also shows inside the app."], "3.4": ["New notepad app icon.", "Redesigned pixel-style Today widget, plus a new Upcoming widget that lists the next days. Add it from your widget picker.", "The running timer notification can no longer be swiped away. It has a STOP button to end the timer."], "3.3": ["A running focus timer is now remembered. Reopen the app and it shows the real time left instead of resetting."], "3.2": ["Notifications now use Android's standard layout with a live countdown for the timer, so they show reliably on new phones."], "3.1": ["The app now tells you when notifications are blocked and the ALLOW button opens the right settings screen.", "Safer fallback so the timer and reminder notifications still show."], "3.0": ["Fixed the crash when starting the focus timer."], "2.7": ["After the opening animation, new installs ask if you are new or an existing user. Existing users can restore their Google Drive backup right away."], "2.6": ["Pixel's room: tap your tent or house to step inside. Each home has its own floors, from a one-room tent up to a three-storey mansion.", "Buy a bed, desk, sofa, TV and more with R coins. They show in the shop, in your room and on the focus screen.", "Back up your progress to a file and pick Google Drive on the save screen. Restore it from the same screen after a phone change."], "2.5": ["New look for notifications: a pixel-style card with your character, a colour for each kind of reminder, and a big live countdown for the focus timer."], "2.4": ["The UPDATE button now downloads the new version inside the app and opens the installer by itself."], "2.3": ["Focus timer keeps running in the background with a live countdown notification and a ringtone when it ends.", "Home-screen widget with today's tasks, your next block, coins and streak.", "Activity calendars for fitness, study, water and protein in the report.", "Phone alarms from tasks and time-table blocks.", "Pixel gets sleepy at night, says wow on big moments, and every action has its own sound.", "Optional lo-fi music loop during focus sessions."] };
   function notesHtml(body) {
     var lines = String(body).split(/\r?\n/).filter(function (l) { return /^\s*[-*]\s+/.test(l); }).slice(0, 6);
     return lines.length ? '<small class="wn">WHAT\'S NEW</small>' + lines.map(function (l) { return "<small>- " + esc(l.replace(/^\s*[-*]\s+/, "").slice(0, 110)) + "</small>"; }).join("") : "";
@@ -4381,15 +4422,51 @@ if (typeof module !== "undefined") module.exports = PET;
     if (b && !$("#viewTT").hidden) document.documentElement.style.setProperty("--examBar", b.offsetHeight + "px");
   }
   window.addEventListener("resize", syncExamBar);
+  var curV = "planner";
   function setView(v) {
-    var isTT = v === "tt";
-    $("#viewPlanner").hidden = isTT; $("#viewTT").hidden = !isTT;
+    var isTT = v === "tt"; curV = v;
+    $("#viewPlanner").hidden = v !== "planner"; $("#viewTT").hidden = !isTT; $("#viewBuy").hidden = v !== "buy"; $("#viewSubs").hidden = v !== "subs";
     document.querySelector(".wrap").classList.toggle("wide", isTT);
-    $("#titleTxt").textContent = isTT ? "PIXEL TIME TABLE" : "PIXEL PLANNER";
+    $("#titleTxt").textContent = { tt: "PIXEL TIME TABLE", buy: "PIXEL BUY LIST", subs: "PIXEL SUBSCRIPTIONS" }[v] || "PIXEL PLANNER";
     document.querySelectorAll(".mainnav .tab").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.view === v)); });
-    if (isTT) renderTT(); else { render(); buildWalker(); }
+    if (isTT) renderTT(); else if (v === "buy") renderBuy(); else if (v === "subs") renderSubs(); else { render(); buildWalker(); }
     if (isTT) setTimeout(syncExamBar, 50);
   }
+
+  /* buy list + subscriptions */
+  function renderBuy() {
+    var L = stats.buy, el = $("#buyList"), h = "";
+    var open = L.filter(function (b) { return !b.d; }), done = L.filter(function (b) { return b.d; });
+    function row(b) { return '<div class="bl-row' + (b.d ? " done" : "") + '"><button type="button" class="bl-chk" data-bchk="' + b.id + '" aria-label="' + (b.d ? "Mark not bought" : "Mark bought") + '">' + (b.d ? "X" : "") + '</button><span class="bl-name">' + esc(b.t) + '</span><button type="button" class="btn alt bl-x" data-bdel="' + b.id + '" aria-label="Delete">DEL</button></div>'; }
+    h += open.map(row).join("") || '<p class="hint">Nothing to buy. Add something above.</p>';
+    if (done.length) h += '<p class="hint">BOUGHT</p>' + done.map(row).join("");
+    el.innerHTML = h;
+    $("#buyFoot").innerHTML = open.length + " TO BUY" + (done.length ? ' <button type="button" class="btn alt bl-x" id="buyClear">CLEAR BOUGHT</button>' : "");
+  }
+  var SUB_COL = ["#ff8a8a", "#ffb86b", "#ffe36b", "#8aff9f", "#6be6ff", "#8ab4ff", "#c79bff", "#ff9be0"];
+  function subCol(n) { var x = 0; for (var i = 0; i < n.length; i++) x = (x * 31 + n.charCodeAt(i)) % 997; return SUB_COL[x % SUB_COL.length]; }
+  function subDays(e) { if (!e) return null; var a = e.split("-"), t = new Date(+a[0], +a[1] - 1, +a[2]), n = new Date(); n.setHours(0, 0, 0, 0); return Math.round((t - n) / 864e5); }
+  function renderSubs() {
+    var L = stats.subs.slice().sort(function (a, b) { return (a.e || "9") < (b.e || "9") ? -1 : 1; }), tot = 0;
+    $("#subList").innerHTML = L.map(function (b) {
+      var d = subDays(b.e), txt = d === null ? "" : d < 0 ? "ENDED " + fmt(b.e) : d === 0 ? "ENDS TODAY" : d === 1 ? "ENDS TOMORROW" : "ENDS " + fmt(b.e) + " (" + d + " DAYS)";
+      if (d === null || d >= 0) tot += b.p;
+      return '<div class="bl-row"><span class="bl-ic" style="background:' + subCol(b.n) + '">' + esc(b.n.trim().charAt(0).toUpperCase() || "?") + '</span><span class="bl-name">' + esc(b.n) + '<small class="' + (d !== null && d < 0 ? "late" : d !== null && d <= 7 ? "soon" : "") + '">' + txt + '</small></span><span class="bl-price">' + b.p + '</span><button type="button" class="btn alt bl-x" data-sdel="' + b.id + '" aria-label="Delete">DEL</button></div>';
+    }).join("") || '<p class="hint">No subscriptions yet. Add one above.</p>';
+    $("#subFoot").textContent = L.length ? L.length + " SUBSCRIPTIONS. ACTIVE TOTAL: " + tot : "";
+  }
+  document.addEventListener("submit", function (e) {
+    if (e.target.id === "buyForm") { e.preventDefault(); var t = $("#buyIn").value.trim(); if (!t) return; stats.buy.unshift({ id: uid(), t: t.slice(0, 80), d: 0 }); $("#buyIn").value = ""; dirty = true; store.save(); renderBuy(); }
+    else if (e.target.id === "subForm") { e.preventDefault(); var n = $("#subName").value.trim(), en = $("#subEnd").value; if (!n || !en) return; stats.subs.push({ id: uid(), n: n.slice(0, 40), p: Math.max(0, +$("#subPrice").value || 0), e: en }); $("#subName").value = ""; $("#subPrice").value = ""; $("#subEnd").value = ""; dirty = true; store.save(); renderSubs(); }
+  });
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest("[data-bchk],[data-bdel],[data-sdel],#buyClear"); if (!t) return;
+    if (t.dataset.bchk) stats.buy.forEach(function (b) { if (b.id === t.dataset.bchk) b.d = b.d ? 0 : 1; });
+    else if (t.dataset.bdel) stats.buy = stats.buy.filter(function (b) { return b.id !== t.dataset.bdel; });
+    else if (t.dataset.sdel) { stats.subs = stats.subs.filter(function (b) { return b.id !== t.dataset.sdel; }); dirty = true; store.save(); renderSubs(); return; }
+    else if (t.id === "buyClear") stats.buy = stats.buy.filter(function (b) { return !b.d; });
+    dirty = true; store.save(); renderBuy();
+  });
 
   /* block editor */
   var bEdit = null, bDaysSel = [], bType = "subject", bWhen = "weekly", bColor = TT_COLORS[1];
@@ -5349,7 +5426,7 @@ if (typeof module !== "undefined") module.exports = PET;
     { view: "tt", sel: "#secPomo", text: "To start a focus timer, press START here, or tap START TIMER on a task, or FOCUS on a block. Choose what you're working on so your minutes are logged. Let it run to zero to complete a session. You earn Study XP and R coins, a break begins, and a block ticks itself off once its focus target is reached.", again: "Start from this card, a task or a block. Run to zero to finish a session and earn XP. Enough sessions tick the block off." },
     { view: "tt", sel: "#pomoScene", text: "While you focus I read at the desk, with the lamp lighting my book and a little speech bubble cheering me on. In breaks I brew a fresh coffee and sip it. A lightbulb pops up when a session finishes. That's the full tour, {n}. There's a lot more to explore in your free time: customise my look, set goals, back up your data and plan more exams. Replay this any time with the ? button.", finish: true }
   ];
-  function curView() { return $("#viewTT").hidden ? "planner" : "tt"; }
+  function curView() { return curV === "tt" ? "tt" : "planner"; }
   function tourShowBtns(list) {
     var box = $("#tourBtns"); box.innerHTML = "";
     list.forEach(function (b) {

@@ -1,2 +1,2 @@
-- You can now switch your home back to any smaller house you have already built, free, from the shop (furniture is kept)
-- Room screen: one button to open the shop for more items instead of the long furniture list
+- New BUY LIST tab: add things to buy and tick them off
+- New SUBS tab: track subscriptions with name, price and end date, each with a coloured letter icon
