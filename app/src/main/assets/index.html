@@ -3360,7 +3360,7 @@ if (typeof module !== "undefined") module.exports = PET;
     $("#notifTxt").textContent = st === 1 ? "Allow notifications so Pixel can remind you when the app is closed." : "Allow exact alarms so reminders arrive on time.";
   }
   /* in-app update notice (Android app): compares the installed version with the newest GitHub release */
-  var APP_NOTES = { "2.3": ["Focus timer keeps running in the background with a live countdown notification and a ringtone when it ends.", "Home-screen widget with today's tasks, your next block, coins and streak.", "Activity calendars for fitness, study, water and protein in the report.", "Phone alarms from tasks and time-table blocks.", "Pixel gets sleepy at night, says wow on big moments, and every action has its own sound.", "Optional lo-fi music loop during focus sessions."] };
+  var APP_NOTES = { "2.4": ["The UPDATE button now downloads the new version inside the app and opens the installer by itself."], "2.3": ["Focus timer keeps running in the background with a live countdown notification and a ringtone when it ends.", "Home-screen widget with today's tasks, your next block, coins and streak.", "Activity calendars for fitness, study, water and protein in the report.", "Phone alarms from tasks and time-table blocks.", "Pixel gets sleepy at night, says wow on big moments, and every action has its own sound.", "Optional lo-fi music loop during focus sessions."] };
   function notesHtml(body) {
     var lines = String(body).split(/\r?\n/).filter(function (l) { return /^\s*[-*]\s+/.test(l); }).slice(0, 6);
     return lines.length ? '<small class="wn">WHAT\'S NEW</small>' + lines.map(function (l) { return "<small>- " + esc(l.replace(/^\s*[-*]\s+/, "").slice(0, 110)) + "</small>"; }).join("") : "";
@@ -3383,7 +3383,7 @@ if (typeof module !== "undefined") module.exports = PET;
       updNew = m[1]; $("#updNotes").innerHTML = notesHtml(j.body || ""); $("#updTxt").textContent = "NEW VERSION AVAILABLE: v" + m[1] + " (you have v" + cur + "). Please update to get the latest features."; $("#updBar").hidden = false;
     }).catch(function () {});
   }
-  $("#updGo").addEventListener("click", function () { try { window.AndroidBridge.openUrl("https://github.com/" + UPD_REPO + "/releases/download/latest/PixelPlanner.apk"); } catch (e) {} });
+  $("#updGo").addEventListener("click", function () { var u = "https://github.com/" + UPD_REPO + "/releases/download/latest/PixelPlanner.apk", B = window.AndroidBridge; try { if (B.installUpdate) B.installUpdate(u); else B.openUrl(u); } catch (e) {} });
   $("#updLater").addEventListener("click", function () { prof.updSkip = { v: updNew, at: Date.now() }; $("#updBar").hidden = true; try { store.save(); } catch (e) {} });
   $("#notifGo").addEventListener("click", function () { try { window.AndroidBridge.askNotif(); } catch (e) {} setTimeout(notifCheck, 2000); });
   setTimeout(notifCheck, 1500);

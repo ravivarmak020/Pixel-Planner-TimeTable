@@ -1,6 +1,12 @@
 package app.pixelplanner;
 
 import android.app.Activity;
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.IntentFilter;
+import android.provider.Settings;
+import android.widget.Toast;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -379,6 +385,73 @@ public class MainActivity extends Activity {
             } catch (Exception e) {
                 return "";
             }
+        }
+
+        /** Downloads the new APK inside the app and opens the installer when it finishes. */
+        @JavascriptInterface
+        public void installUpdate(final String url) {
+            if (url == null || !url.startsWith("https://")) {
+                return;
+            }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        if (Build.VERSION.SDK_INT >= 26 && !getPackageManager().canRequestPackageInstalls()) {
+                            Toast.makeText(MainActivity.this, "Allow Pixel Planner to install updates, then tap UPDATE again", Toast.LENGTH_LONG).show();
+                            Intent s = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + getPackageName()));
+                            s.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(s);
+                            return;
+                        }
+                        final DownloadManager dm = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                        File old = new File(getExternalFilesDir(null), "PixelPlanner-update.apk");
+                        if (old.exists()) {
+                            old.delete();
+                        }
+                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(url));
+                        r.setTitle("Pixel Planner update");
+                        r.setMimeType("application/vnd.android.package-archive");
+                        r.setDestinationInExternalFilesDir(MainActivity.this, null, "PixelPlanner-update.apk");
+                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                        final long id = dm.enqueue(r);
+                        Toast.makeText(MainActivity.this, "Downloading the update...", Toast.LENGTH_SHORT).show();
+                        BroadcastReceiver rc = new BroadcastReceiver() {
+                            @Override
+                            public void onReceive(Context c, Intent i) {
+                                if (i.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1) != id) {
+                                    return;
+                                }
+                                try {
+                                    unregisterReceiver(this);
+                                } catch (Exception ignored) {
+                                }
+                                Uri u = dm.getUriForDownloadedFile(id);
+                                if (u == null) {
+                                    Toast.makeText(MainActivity.this, "Update download failed. Please try again.", Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+                                Intent inst = new Intent(Intent.ACTION_VIEW);
+                                inst.setDataAndType(u, "application/vnd.android.package-archive");
+                                inst.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                try {
+                                    startActivity(inst);
+                                } catch (Exception e) {
+                                    Toast.makeText(MainActivity.this, "Open the downloaded update from your notifications", Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        };
+                        IntentFilter f = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+                        if (Build.VERSION.SDK_INT >= 33) {
+                            registerReceiver(rc, f, Context.RECEIVER_EXPORTED);
+                        } else {
+                            registerReceiver(rc, f);
+                        }
+                    } catch (Exception e) {
+                        Toast.makeText(MainActivity.this, "Could not start the update download", Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
         }
 
         /** Opens a web address (used to download the new APK). Only https links are allowed. */
