@@ -171,6 +171,39 @@ public class MainActivity extends Activity {
     }
 
     /** Called from the page (window.AndroidBridge). */
+    private String pendingBackup = "";
+
+    private void toastJs(String m) {
+        final String q = m.replace("'", "");
+        if (web != null) web.post(new Runnable() { public void run() { web.evaluateJavascript("window.__toast && window.__toast('" + q + "');", null); } });
+    }
+
+    @Override
+    protected void onActivityResult(int req, int res, Intent data) {
+        super.onActivityResult(req, res, data);
+        if ((req != 7101 && req != 7102) || res != RESULT_OK || data == null || data.getData() == null) return;
+        Uri u = data.getData();
+        try {
+            if (req == 7101) {
+                java.io.OutputStream os = getContentResolver().openOutputStream(u, "wt");
+                os.write(pendingBackup.getBytes(StandardCharsets.UTF_8));
+                os.close();
+                web.evaluateJavascript("window.__backupDone && window.__backupDone(true);", null);
+            } else {
+                InputStream in = getContentResolver().openInputStream(u);
+                ByteArrayOutputStream bo = new ByteArrayOutputStream();
+                byte[] b = new byte[8192]; int n;
+                while ((n = in.read(b)) > 0 && bo.size() < 8000000) bo.write(b, 0, n);
+                in.close();
+                String t = new String(bo.toByteArray(), StandardCharsets.UTF_8);
+                String js = "window.__restoreBackup && window.__restoreBackup(" + org.json.JSONObject.quote(t) + ");";
+                web.evaluateJavascript(js, null);
+            }
+        } catch (Exception e) {
+            web.evaluateJavascript("window.__backupDone && window.__backupDone(false);", null);
+        }
+    }
+
     private class Bridge {
         @JavascriptInterface
         public String load() {
@@ -240,6 +273,36 @@ public class MainActivity extends Activity {
             } catch (Exception e) {
                 return "";
             }
+        }
+
+        @JavascriptInterface
+        public boolean exportBackup(String json, String name) {
+            if (json == null || json.length() < 2) return false;
+            pendingBackup = json;
+            final String fn = (name == null || name.length() == 0) ? "PixelPlanner-backup.json" : name.replaceAll("[^A-Za-z0-9._-]", "_");
+            runOnUiThread(new Runnable() { public void run() {
+                try {
+                    Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                    i.addCategory(Intent.CATEGORY_OPENABLE);
+                    i.setType("application/json");
+                    i.putExtra(Intent.EXTRA_TITLE, fn);
+                    startActivityForResult(i, 7101);
+                } catch (Exception e) { toastJs("NO FILE PICKER FOUND"); }
+            } });
+            return true;
+        }
+
+        @JavascriptInterface
+        public boolean importBackup() {
+            runOnUiThread(new Runnable() { public void run() {
+                try {
+                    Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    i.addCategory(Intent.CATEGORY_OPENABLE);
+                    i.setType("*/*");
+                    startActivityForResult(i, 7102);
+                } catch (Exception e) { toastJs("NO FILE PICKER FOUND"); }
+            } });
+            return true;
         }
 
         @JavascriptInterface

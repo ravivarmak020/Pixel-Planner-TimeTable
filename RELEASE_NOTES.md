@@ -1,1 +1,3 @@
-- New notification look: a pixel-style card with your character, a colour for each reminder type, and a big live countdown for the focus timer
+- Pixel's room: tap your tent or house to go inside, with different floors for each home
+- Buy a bed, desk, sofa, TV and more with R coins; they show in the shop, your room and the focus screen
+- Backup to Google Drive or any file from the Goals screen, and restore it after a phone change

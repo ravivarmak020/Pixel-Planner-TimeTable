@@ -533,7 +533,15 @@ h2 { line-height: 1.5; }
 .shop-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 0; }
 .shop-name { font-size: 18px; } .shop-name small { font-size: 14px; color: #bbb; }
 #shopList { max-height: 56vh; overflow: auto; }
-.house { position: absolute; right: 4px; bottom: 20px; width: 96px; height: 72px; pointer-events: none; }
+.roomview, .pomo-room { flex: none; position: relative; background: #0d0a14; box-shadow: 0 0 0 2px #000; border-radius: 8px; overflow: hidden; line-height: 0; }
+.roomview > svg, .pomo-room > svg { width: 100%; height: auto; display: block; image-rendering: pixelated; }
+.pomo-room { max-width: 300px; margin: 10px auto 0; cursor: pointer; }
+.rm-px { position: absolute; pointer-events: none; }
+.rm-px svg { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+.rm-px.bob { animation: rmbob 1.8s steps(2) infinite; }
+@keyframes rmbob { 50% { transform: translateY(-2%); } }
+.shop-prev svg.pvfurn { width: 100%; height: 100%; }
+.house { cursor: pointer; position: absolute; right: 4px; bottom: 20px; width: 96px; height: 72px; pointer-events: none; }
 .house svg { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
 .house[hidden], .pet[hidden] { display: none; }
 .pet { position: absolute; left: 0; bottom: 22px; width: 32px; height: 24px; pointer-events: none; will-change: transform; }
@@ -1223,6 +1231,7 @@ body.fx .cbar .cfill::before, body.fx .chipbar i::before { content: ""; position
           <div class="ps-bulb"><i></i><b class="sp s1"></b><b class="sp s2"></b><b class="sp s3"></b><b class="sp s4"></b></div>
           <div class="ps-desk"></div>
         </div>
+        <div class="pomo-room" id="pomoRoom" hidden></div>
         <div class="pomo-phase" id="pomoPhase">FOCUS</div><div class="pomo-time" id="pomoTime">25:00</div><div class="pomo-dots" id="pomoDots"></div></div>
         <div class="pomo-ctl">
           <label class="lab">WORKING ON<select class="field" id="pomoTarget" aria-label="What are you focusing on"></select></label>
@@ -1283,6 +1292,16 @@ body.fx .cbar .cfill::before, body.fx .chipbar i::before { content: ""; position
     <p>Pick the character that goes with your tasks.</p>
     <div class="picks" id="picks"></div>
     <button class="btn alt" id="pickClose" type="button" hidden>CLOSE</button>
+  </div>
+</div>
+
+<div class="modal" id="roomModal" role="dialog" aria-modal="true" aria-labelledby="roomTitle" hidden>
+  <div class="box">
+    <h2 id="roomTitle">PIXEL'S ROOM</h2>
+    <div class="roomview" id="roomView"></div>
+    <p class="hint" id="roomHint"></p>
+    <div id="roomList"></div>
+    <div class="row-btns"><button class="btn alt" id="roomShop" type="button">OPEN SHOP</button><button class="btn" id="roomClose" type="button">CLOSE</button></div>
   </div>
 </div>
 
@@ -1427,6 +1446,7 @@ body.fx .cbar .cfill::before, body.fx .chipbar i::before { content: ""; position
       <p>EXPORT fills the box with your data to copy. To restore, paste a backup here and press IMPORT.</p>
       <textarea class="field" id="backupText" rows="6" spellcheck="false" aria-label="Backup data"></textarea>
       <div class="row-btns" style="margin-top:8px"><button class="btn alt" id="bkExport" type="button">EXPORT</button><button class="btn alt" id="bkImport" type="button">IMPORT</button></div>
+      <div class="row-btns" style="margin-top:8px"><button class="btn" id="bkDrive" type="button">BACKUP TO DRIVE / FILE</button><button class="btn alt" id="bkRestore" type="button">RESTORE FROM FILE</button></div>
       <div class="row-btns" style="margin-top:8px"><button class="btn" id="bkFile" type="button"></button><button class="btn alt" id="bkLoad" type="button">LOAD FROM DOWNLOADS</button></div>
     </div>
     <div class="row-btns"><button class="btn alt" id="goalsClose" type="button">CLOSE</button></div>
@@ -1576,7 +1596,7 @@ body.fx .cbar .cfill::before, body.fx .chipbar i::before { content: ""; position
   function tierOf(lv) { return lv >= 25 ? 4 : lv >= 15 ? 3 : lv >= 10 ? 2 : lv >= 4 ? 1 : 0; }
   var evoDemo = null;
   function evoNow() { if (evoDemo) return { f: evoDemo.f, s: evoDemo.s }; return stats ? { f: tierOf(lvOf("fitness")), s: tierOf(lvOf("study")) } : { f: 0, s: 0 }; }
-  function sprSig() { var e = evoNow(), i = stats && stats.inv || {}; return e.f + "" + e.s + (i.hat || "") + (i.outfit || "") + (i.face || "") + (i.back || "") + (i.pacc || ""); }
+  function sprSig() { var e = evoNow(), i = stats && stats.inv || {}; return e.f + "" + e.s + (i.hat || "") + (i.outfit || "") + (i.face || "") + (i.back || "") + (i.pacc || "") + (i.house || 0) + (i.furn || []).join(","); }
   function evoSvg(key, frame, e) {
     if (key !== "boy" && key !== "girl") return "";
     var pal = palFor(key), skin = pal.s, shirt = pal.b, hi = pal.L || shirt, front = frame === "front", fill = "", boy = key === "boy";
@@ -2060,7 +2080,7 @@ if (typeof module !== "undefined") module.exports = HD;
   var SHOP_PACC = { collar: { n: "RED COLLAR", c: 30 }, bow: { n: "PINK BOW TIE", c: 30 }, scarf: { n: "TEAL SCARF", c: 40 } };
   var SLOTS = { hat: { t: SHOP_HATS, own: "hats", w: "hat" }, out: { t: SHOP_OUTS, own: "outs", w: "outfit" }, face: { t: SHOP_FACES, own: "faces", w: "face" }, back: { t: SHOP_BACKS, own: "backs", w: "back" }, pet: { t: SHOP_PACC, own: "paccs", w: "pacc" } };
   function slotOf(id) { var p = id.indexOf("-"); if (p < 0) return null; var sl = SLOTS[id.slice(0, p)]; return sl ? { sl: sl, k: id.slice(p + 1), item: sl.t[id.slice(p + 1)] } : null; }
-  function newInv() { return { house: 0, dog: 0, cat: 0, hats: [], hat: "", outs: [], outfit: "", faces: [], face: "", backs: [], back: "", paccs: [], pacc: "" }; }
+  function newInv() { return { house: 0, dog: 0, cat: 0, hats: [], hat: "", outs: [], outfit: "", faces: [], face: "", backs: [], back: "", paccs: [], pacc: "", furn: [] }; }
   function normLog(o) {
     var r = {}; if (!o || typeof o !== "object") return r;
     var keys = Object.keys(o).filter(function (k) { return /^\d{4}-\d{2}-\d{2}$/.test(k); }).sort().slice(-400);
@@ -2092,6 +2112,7 @@ if (typeof module !== "undefined") module.exports = HD;
     [["faces", "face", SHOP_FACES], ["backs", "back", SHOP_BACKS], ["paccs", "pacc", SHOP_PACC]].forEach(function (q) {
       r.inv[q[0]] = (Array.isArray(iv[q[0]]) ? iv[q[0]] : []).filter(function (h) { return q[2][h]; }); r.inv[q[1]] = r.inv[q[0]].indexOf(iv[q[1]]) >= 0 ? iv[q[1]] : "";
     });
+    r.inv.furn = (Array.isArray(iv.furn) ? iv.furn : []).filter(function (h, ix, a) { return ROOM.ITEMS[h] && a.indexOf(h) === ix; });
     if (o.lastQuick && typeof o.lastQuick === "object") ["hydration", "protein", "fitness", "study"].forEach(function (k) {
       var v = o.lastQuick[k]; r.lastQuick[k] = Array.isArray(v) ? v.map(function (n) { return n && typeof n === "object" ? { n: +n.n, t: String(n.t || ""), b: String(n.b || ""), tk: String(n.tk || ""), tm: n.tm ? 1 : 0, mins: +n.mins || 0, auto: n.auto ? 1 : 0, d: /^\d{4}-\d{2}-\d{2}$/.test(n.d || "") ? n.d : "" } : +n; }).filter(function (n) { return (typeof n === "object" ? n.n : n) > 0; }).slice(-50) : (+v > 0 ? [+v] : []);
     });
@@ -2744,6 +2765,106 @@ if (typeof module !== "undefined") module.exports = HD;
   $("#hLogo").innerHTML = logoSvg();
 
   /* ---------- scenery: house, pets, action effects, reactions ---------- */
+var ROOM = (function () {
+  var W = 72, FH = 30, TOP = 5;
+  function hex(c) { c = String(c).replace("#", ""); return [parseInt(c.substr(0, 2), 16), parseInt(c.substr(2, 2), 16), parseInt(c.substr(4, 2), 16)]; }
+  function mix(a, b, t) { return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]; }
+  function css(c) { return "#" + c.map(function (v) { v = Math.max(0, Math.min(255, Math.round(v))); return (v < 16 ? "0" : "") + v.toString(16); }).join(""); }
+  function rp(b) { b = hex(b); return [css(mix(b, [24, 12, 48], .62)), css(mix(b, [60, 30, 110], .3)), css(b), css(mix(b, [255, 238, 190], .28)), css(mix(b, [255, 255, 240], .6))]; }
+  var P = {}; ["#7a4a1a", "#c1272d", "#3a8fb7", "#d9d2c0", "#e07b39", "#3fa34d", "#ffd23f", "#2b2f3a", "#8a5a9e", "#dfe6ee", "#f4f1ea"].forEach(function (c) { P[c] = rp(c); });
+  function pal(c) { return P[c] || (P[c] = rp(c)); }
+  // furniture catalogue: id, name, price, w, wall (hung on wall), min stage
+  var ITEMS = {
+    bed:    { name: "BED", cost: 80, w: 14, st: 1, info: "SOFT BED. PIXEL SLEEPS HERE." },
+    rug:    { name: "RUG", cost: 40, w: 16, st: 1, info: "WARM STRIPED RUG." },
+    plant:  { name: "PLANT", cost: 25, w: 5, st: 1, info: "A LITTLE GREEN FRIEND." },
+    lamp:   { name: "LAMP", cost: 30, w: 3, st: 1, info: "COZY LIGHT FOR LATE STUDY." },
+    poster: { name: "POSTER", cost: 20, w: 6, st: 1, wall: 1, info: "COOL WALL ART." },
+    desk:   { name: "DESK", cost: 70, w: 12, st: 2, info: "STUDY DESK + COMPUTER." },
+    shelf:  { name: "BOOKSHELF", cost: 60, w: 10, st: 2, wall: 1, info: "BOOKS FOR BIG BRAINS." },
+    sofa:   { name: "SOFA", cost: 90, w: 14, st: 3, info: "CHILL AFTER FOCUS." },
+    tv:     { name: "TV", cost: 120, w: 9, st: 3, info: "SMALL TV FOR BREAKS." },
+    fridge: { name: "FRIDGE", cost: 100, w: 8, st: 4, info: "SNACKS AND WATER." }
+  };
+  var ORDER = ["bed", "rug", "plant", "lamp", "poster", "desk", "shelf", "sofa", "tv", "fridge"];
+  var FLOORS = { 1: 1, 2: 1, 3: 2, 4: 2, 5: 3 };
+  // layout[stage][id] = [floor(0=ground), x]
+  var LAY = {
+    1: { bed: [0, 5], rug: [0, 24], plant: [0, 58], lamp: [0, 44], poster: [0, 30] },
+    2: { bed: [0, 4], rug: [0, 22], plant: [0, 43], lamp: [0, 38], poster: [0, 27], desk: [0, 50], shelf: [0, 34] },
+    3: { sofa: [0, 4], tv: [0, 22], rug: [0, 34], lamp: [0, 56], plant: [0, 61], poster: [0, 48], bed: [1, 4], desk: [1, 50], shelf: [1, 25] },
+    4: { sofa: [0, 4], tv: [0, 22], fridge: [0, 56], rug: [0, 30], plant: [0, 48], poster: [0, 49], bed: [1, 4], desk: [1, 50], shelf: [1, 25], lamp: [1, 38] },
+    5: { sofa: [0, 4], tv: [0, 22], fridge: [0, 56], rug: [0, 30], plant: [0, 48], bed: [1, 4], lamp: [1, 38], poster: [1, 26], desk: [2, 50], shelf: [2, 25] }
+  };
+  function svgOf(rects, w, h) { return rects; }
+  function Painter() { this.s = ""; }
+  Painter.prototype.r = function (x, y, w, h, c) { if (w > 0 && h > 0) this.s += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + c + '"/>'; };
+  function shell(p, st, nf, H) {
+    var sty = {
+      1: { wall: "#f0c27a", wall2: "#e8a55a", floor: "#8a5a2c", trim: "#c1612a", roof: "#e8742a", bg: "#1e1420" },
+      2: { wall: "#b07a44", wall2: "#9a6636", floor: "#6e4223", trim: "#6e4223", roof: "#e0b04a", bg: "#3b2616" },
+      3: { wall: "#f3e6c8", wall2: "#e6d4ac", floor: "#a4693a", trim: "#7a4a1a", roof: "#c2452d", bg: "#3d2b1e" },
+      4: { wall: "#9fc7e8", wall2: "#8bb4d8", floor: "#8a5a2c", trim: "#f4f1ea", roof: "#b5523a", bg: "#2a3550" },
+      5: { wall: "#c9505a", wall2: "#b5414b", floor: "#eee8dc", trim: "#ffcf3f", roof: "#4b5470", bg: "#3a2230" }
+    }[st];
+    // roof
+    var ry = 0;
+    p.r(0, 0, W, TOP, sty.roof); p.r(0, TOP - 1, W, 1, pal(sty.roof)[0]);
+    if (st === 1) { p.r(0, 0, W, TOP, "#00000000"); }
+    for (var f = 0; f < nf; f++) {
+      var y = TOP + (nf - 1 - f) * FH; // top of this floor cell (top floor first)
+      p.r(0, y, W, FH - 3, sty.wall);
+      for (var x = 0; x < W; x += 6) p.r(x, y, 1, FH - 3, sty.wall2);
+      if (st === 2) for (var yy = y + 3; yy < y + FH - 3; yy += 4) p.r(0, yy, W, 1, sty.wall2);
+      p.r(0, y, W, 1, pal(sty.trim)[3]);
+      // window
+      var wx = 12, wy = y + 5;
+      p.r(wx - 1, wy - 1, 12, 10, pal(sty.trim)[2]); p.r(wx, wy, 10, 8, "#8fd3ff"); p.r(wx, wy, 10, 2, "#bfe8ff"); p.r(wx + 4, wy, 1, 8, pal(sty.trim)[2]); p.r(wx, wy + 3, 10, 1, pal(sty.trim)[2]);
+      // floor slab
+      p.r(0, y + FH - 3, W, 3, sty.floor); p.r(0, y + FH - 3, W, 1, pal(sty.floor)[3]); p.r(0, y + FH - 1, W, 1, pal(sty.floor)[0]);
+      for (var fx = 3; fx < W; fx += 8) p.r(fx, y + FH - 2, 1, 1, pal(sty.floor)[1]);
+      // side walls
+      p.r(0, y, 1, FH - 3, pal(sty.trim)[1]); p.r(W - 1, y, 1, FH - 3, pal(sty.trim)[1]);
+      if (f < nf - 1) { p.r(65, y + FH - 3, 6, 3, "#1b1220"); p.r(66, y, 1, FH - 3, pal("#7a4a1a")[2]); p.r(69, y, 1, FH - 3, pal("#7a4a1a")[2]); for (var k = 0; k < 7; k++) p.r(66, y + 3 + k * 4, 4, 1, pal("#7a4a1a")[3]); }
+      if (f === 0) { var dx = nf > 1 ? 40 : 64; p.r(dx, y + FH - 3 - 17, 7, 17, pal("#7a4a1a")[2]); p.r(dx + 1, y + FH - 3 - 16, 5, 15, pal("#7a4a1a")[1]); p.r(dx + 4, y + FH - 3 - 9, 1, 1, "#ffd23f"); }
+    }
+    p.r(0, H - 2, W, 2, "#4caf50"); p.r(0, H - 2, W, 1, "#7bd36b");
+    return sty;
+  }
+  var DRAW = {
+    bed: function (p, x, fy) { var w = pal("#7a4a1a"), b = pal("#c1272d"); p.r(x, fy - 8, 2, 8, w[1]); p.r(x, fy - 8, 2, 1, w[3]); p.r(x + 2, fy - 3, 12, 3, w[2]); p.r(x + 2, fy - 3, 12, 1, w[3]); p.r(x + 2, fy - 5, 5, 2, "#f4f1ea"); p.r(x + 2, fy - 5, 5, 1, "#ffffff"); p.r(x + 6, fy - 5, 8, 2, b[2]); p.r(x + 6, fy - 5, 8, 1, b[3]); p.r(x + 12, fy - 5, 2, 5, w[2]); p.r(x + 6, fy - 4, 1, 1, b[0]); p.r(x + 11, fy - 4, 1, 1, b[1]); },
+    rug: function (p, x, fy) { p.r(x, fy - 1, 16, 1, "#c1272d"); for (var i = 1; i < 16; i += 3) p.r(x + i, fy - 1, 1, 1, "#ffd23f"); },
+    plant: function (p, x, fy) { var g = pal("#3fa34d"), t = pal("#e07b39"); p.r(x + 1, fy - 3, 3, 3, t[2]); p.r(x + 1, fy - 3, 3, 1, t[3]); p.r(x + 2, fy - 6, 1, 3, g[1]); p.r(x, fy - 7, 2, 2, g[2]); p.r(x + 3, fy - 8, 2, 3, g[2]); p.r(x + 2, fy - 8, 1, 2, g[3]); p.r(x + 1, fy - 9, 2, 2, g[3]); },
+    lamp: function (p, x, fy) { p.r(x + 1, fy - 9, 1, 9, "#7a7a86"); p.r(x, fy - 12, 3, 3, "#ffd23f"); p.r(x, fy - 12, 3, 1, "#fff0a8"); p.r(x, fy - 1, 3, 1, "#5a5a66"); p.r(x - 1, fy - 13, 5, 1, "#ffe27a33"); },
+    poster: function (p, x, fy) { var y = fy - 22; p.r(x, y, 6, 8, "#f4f1ea"); p.r(x + 1, y + 1, 4, 6, "#3a8fb7"); p.r(x + 1, y + 4, 4, 3, "#3fa34d"); p.r(x + 3, y + 2, 1, 1, "#ffd23f"); },
+    desk: function (p, x, fy) { var w = pal("#7a4a1a"); p.r(x, fy - 6, 12, 1, w[3]); p.r(x, fy - 5, 12, 1, w[2]); p.r(x, fy - 5, 1, 5, w[1]); p.r(x + 11, fy - 5, 1, 5, w[1]); p.r(x + 7, fy - 4, 4, 3, w[1]); p.r(x + 8, fy - 3, 2, 1, "#ffd23f"); p.r(x + 2, fy - 11, 6, 5, "#2b2f3a"); p.r(x + 3, fy - 10, 4, 3, "#5ad1ff"); p.r(x + 4, fy - 7, 2, 1, "#2b2f3a"); p.r(x + 3, fy - 10, 2, 1, "#c6f0ff"); p.r(x + 9, fy - 7, 2, 1, "#f4f1ea"); },
+    shelf: function (p, x, fy) { var w = pal("#7a4a1a"), y = fy - 20, cols = ["#c1272d", "#3a8fb7", "#ffd23f", "#3fa34d", "#8a5a9e", "#e07b39"]; p.r(x, y, 10, 1, w[3]); p.r(x, y + 6, 10, 1, w[2]); p.r(x, y + 7, 10, 1, w[0]); p.r(x, y + 1, 1, 5, w[1]); p.r(x + 9, y + 1, 1, 5, w[1]); for (var i = 0; i < 4; i++) p.r(x + 1 + i * 2, y + 2 - (i % 2), 2, 4 + (i % 2), cols[i % 6]); p.r(x + 6, y + 3, 3, 3, cols[4]); p.r(x + 6, y + 3, 3, 1, "#ffffff55"); },
+    sofa: function (p, x, fy) { var t = pal("#3a8fb7"); p.r(x, fy - 7, 14, 3, t[2]); p.r(x, fy - 7, 14, 1, t[3]); p.r(x, fy - 5, 2, 5, t[1]); p.r(x + 12, fy - 5, 2, 5, t[1]); p.r(x + 2, fy - 4, 10, 4, t[2]); p.r(x + 2, fy - 4, 10, 1, t[3]); p.r(x + 7, fy - 4, 1, 3, t[1]); p.r(x + 1, fy - 1, 1, 1, "#2b2f3a"); p.r(x + 12, fy - 1, 1, 1, "#2b2f3a"); },
+    tv: function (p, x, fy) { p.r(x + 1, fy - 3, 7, 3, "#7a4a1a"); p.r(x + 1, fy - 3, 7, 1, "#a4693a"); p.r(x, fy - 8, 9, 5, "#2b2f3a"); p.r(x + 1, fy - 7, 7, 3, "#5ad1ff"); p.r(x + 1, fy - 7, 3, 1, "#c6f0ff"); p.r(x + 5, fy - 5, 2, 1, "#3a8fb7"); },
+    fridge: function (p, x, fy) { p.r(x, fy - 14, 8, 14, "#dfe6ee"); p.r(x, fy - 14, 8, 1, "#ffffff"); p.r(x, fy - 14, 1, 14, "#f4f8fc"); p.r(x + 7, fy - 14, 1, 14, "#aab4c2"); p.r(x, fy - 7, 8, 1, "#aab4c2"); p.r(x + 5, fy - 12, 1, 3, "#7a7a86"); p.r(x + 5, fy - 5, 1, 3, "#7a7a86"); p.r(x + 2, fy - 11, 2, 2, "#c1272d"); }
+  };
+  function floorY(st, f) { var nf = FLOORS[st]; return TOP + (nf - 1 - f) * FH + FH - 3; }
+  function H(st) { return TOP + FLOORS[st] * FH + 2; }
+  function render(st, owned, opts) {
+    opts = opts || {}; owned = owned || [];
+    var nf = FLOORS[st], h = H(st), p = new Painter();
+    shell(p, st, nf, h);
+    ORDER.forEach(function (id) { if (owned.indexOf(id) < 0) return; var l = LAY[st][id]; if (!l) return; DRAW[id](p, l[1], floorY(st, l[0])); });
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + " " + h + '" shape-rendering="crispEdges" aria-hidden="true">';
+    if (st === 1) svg += '<polygon points="0,' + h + " 0," + (TOP + 2) + " 36,0 72," + (TOP + 2) + " 72," + h + '" fill="none"/>';
+    return svg + p.s + "</svg>";
+  }
+  // single item preview (for the shop)
+  function item(id) {
+    var p = new Painter(), w = 18, h = 24, fy = 22, ww = ITEMS[id].w, x = Math.floor((w - ww) / 2);
+    var wall = ITEMS[id].wall; if (wall) fy = 22 + 0;
+    p.r(0, 0, w, h, "#3b2b44"); p.r(0, fy, w, 2, "#8a5a2c");
+    DRAW[id](p, x, wall ? fy : fy);
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + " " + h + '" shape-rendering="crispEdges" aria-hidden="true">' + p.s + "</svg>";
+  }
+  return { render: render, item: item, ITEMS: ITEMS, ORDER: ORDER, LAY: LAY, FLOORS: FLOORS, W: W, H: H, floorY: floorY, FH: FH };
+})();
+
 var BLD = (function () {
   var W = 48, H = 36;
   function hex(c) { c = String(c || "#888888").replace("#", ""); if (c.length === 3) c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2]; return [parseInt(c.substr(0, 2), 16) || 0, parseInt(c.substr(2, 2), 16) || 0, parseInt(c.substr(4, 2), 16) || 0]; }
@@ -3043,6 +3164,41 @@ if (typeof module !== "undefined") module.exports = PET;
     });
     placePets(0);
   }
+  /* ---------- Pixel's room ---------- */
+  var roomKey = "";
+  function roomSpot(focus) {
+    var i = stats.inv, st = i.house, L = ROOM.LAY[st] || {}, f = 0, x = 26;
+    if (focus && i.furn.indexOf("desk") >= 0 && L.desk) { f = L.desk[0]; x = L.desk[1] - 5; }
+    else if (focus && i.furn.indexOf("bed") >= 0 && L.bed && false) { f = L.bed[0]; x = L.bed[1]; }
+    return { f: f, x: x };
+  }
+  function roomHtml(focus) {
+    var i = stats.inv, st = i.house, sp = roomSpot(focus), H = ROOM.H(st), fy = ROOM.floorY(st, sp.f), sc = 0.42, pw = 32 * sc, ph = 44 * sc;
+    return ROOM.render(st, i.furn) + '<div class="rm-px' + (focus ? "" : " bob") + '" style="left:' + ((sp.x - pw / 2) / ROOM.W * 100).toFixed(2) + "%;top:" + ((fy + 1 - ph) / H * 100).toFixed(2) + "%;width:" + (pw / ROOM.W * 100).toFixed(2) + "%;height:" + (ph / H * 100).toFixed(2) + '%">' + (avatar ? prevSprite({}) : "") + "</div>";
+  }
+  function renderRoom() {
+    if (!stats) return; var i = stats.inv;
+    $("#roomView").innerHTML = i.house ? roomHtml(false) : "";
+    var names = ["", "TENT", "HUT", "COTTAGE", "HOUSE", "MANSION"];
+    $("#roomHint").textContent = i.house ? names[i.house] + ": " + ROOM.FLOORS[i.house] + " FLOOR" + (ROOM.FLOORS[i.house] > 1 ? "S" : "") + ". " + i.furn.length + "/" + ROOM.ORDER.length + " FURNITURE. BETTER HOMES UNLOCK MORE." : "";
+    $("#roomList").innerHTML = '<div class="shop-list">' + furnRows() + "</div>";
+  }
+  function openRoom() { if (!stats || !stats.inv.house) return; rollDay(); renderRoom(); $("#shopMsg").textContent = ""; $("#roomModal").hidden = false; $("#roomClose").focus(); }
+  function closeRoom() { $("#roomModal").hidden = true; }
+  function renderPomoRoom() {
+    var el = $("#pomoRoom"); if (!el || !stats) return; var i = stats.inv;
+    if (!i.house) { el.hidden = true; roomKey = ""; return; }
+    var k = i.house + "|" + i.furn.join(",") + "|" + (typeof sprSig === "function" ? sprSig() : "") + "|" + avatar;
+    if (el.dataset.k !== k) { el.dataset.k = k; el.innerHTML = roomHtml(true); }
+    el.hidden = false;
+  }
+  document.addEventListener("click", function (e) {
+    var t = e.target; if (!t.closest) return;
+    if (t.closest("#house") || t.closest("#pomoRoom")) { openRoom(); return; }
+    if (t.closest("#roomClose") || t.id === "roomModal") closeRoom();
+    else if (t.closest("#roomShop")) { closeRoom(); openShop(); }
+    else if (t.closest("#roomModal")) { var pv = t.closest("[data-prev]"); if (pv && !t.closest("[data-shop]")) { /* previews open the item in the shop */ } }
+  });
   function placePets(step) {
     var st = $("#stage"); if (!st || st.hidden || !stats) return;
     var left = ($("#flip").style.transform || "").indexOf("-1") >= 0, maxX = st.clientWidth - 40, front = walkerFront;
@@ -3112,6 +3268,7 @@ if (typeof module !== "undefined") module.exports = PET;
     var i = stats.inv;
     if (id === "house") return houseSvg(i.house + 1 > 5 ? 5 : i.house + 1);
     if (id === "dog" || id === "cat") return petSvg(id).replace("<svg ", '<svg class="pvpet" ');
+    if (id.indexOf("furn-") === 0) return ROOM.item(id.slice(5)).replace("<svg ", '<svg class="pvfurn" ');
     var q = slotOf(id); if (!q) return "";
     if (q.sl.w === "pacc") return petSvg(i.cat && !i.dog ? "cat" : "dog", "front", q.k).replace("<svg ", '<svg class="pvpet" ');
     var ov = {}; ov[q.sl.w] = q.k; return prevSprite(ov);
@@ -3120,6 +3277,7 @@ if (typeof module !== "undefined") module.exports = PET;
     var i = stats.inv;
     if (id === "house") return i.house < 5 ? { n: SHOP_HOUSE[i.house + 1].n + " (STAGE " + (i.house + 1) + "/5)", c: SHOP_HOUSE[i.house + 1].c } : { n: "MANSION", c: 0 };
     if (id === "dog" || id === "cat") return { n: id.toUpperCase(), c: PET_COST[id] };
+    if (id.indexOf("furn-") === 0) { var fi = ROOM.ITEMS[id.slice(5)]; return { n: fi.name, c: fi.cost }; }
     var q = slotOf(id); return { n: q.item.n, c: q.item.c };
   }
   var shopSel = "house";
@@ -3129,9 +3287,18 @@ if (typeof module !== "undefined") module.exports = PET;
     document.querySelectorAll(".shop-prev").forEach(function (b) { b.classList.toggle("on", b.dataset.prev === id); });
   }
   function shopRow(id, name, cost, state, extra) {
-    var btn = state === "own" ? '<button class="btn alt" disabled>OWNED</button>' : state === "equip" ? '<button class="btn" data-shop="equip:' + id + '">WEAR</button>' : state === "worn" ? '<button class="btn alt" data-shop="unequip:' + id + '">TAKE OFF</button>' :
+    var btn = state === "lock" ? '<button class="btn alt" disabled>NEEDS ' + (extra || "").replace(/<[^>]*>/g, "") + "</button>" : state === "own" ? '<button class="btn alt" disabled>OWNED</button>' : state === "equip" ? '<button class="btn" data-shop="equip:' + id + '">WEAR</button>' : state === "worn" ? '<button class="btn alt" data-shop="unequip:' + id + '">TAKE OFF</button>' :
       '<button class="btn' + (stats.coins >= cost ? "" : " alt") + '" data-shop="buy:' + id + '"' + (stats.coins >= cost ? "" : " disabled") + ">BUY " + cost + "</button>";
     return '<div class="shop-row"><button class="shop-prev" type="button" data-prev="' + id + '" aria-label="Preview ' + name + '">' + prevHtml(id) + '</button><span class="shop-name" data-prev="' + id + '">' + name + (extra || "") + "</span>" + btn + "</div>";
+  }
+  function furnRows() {
+    var i = stats.inv;
+    return ROOM.ORDER.map(function (k) {
+      var it = ROOM.ITEMS[k], id = "furn-" + k;
+      if (i.furn.indexOf(k) >= 0) return shopRow(id, it.name, it.cost, "own");
+      if (!i.house || i.house < it.st) return shopRow(id, it.name, it.cost, "lock", "<i>" + (i.house ? SHOP_HOUSE[it.st].n : SHOP_HOUSE[1].n) + "</i>");
+      return shopRow(id, it.name, it.cost, "buy");
+    }).join("");
   }
   function renderShop() {
     var i = stats.inv, h = "";
@@ -3146,6 +3313,7 @@ if (typeof module !== "undefined") module.exports = PET;
       var sl = SLOTS[q.length && q[1]]; h += "<h3>" + q[0] + "</h3>" + Object.keys(sl.t).map(function (k) { return shopRow(q[1] + "-" + k, sl.t[k].n, sl.t[k].c, i[sl.own].indexOf(k) < 0 ? "buy" : i[sl.w] === k ? "worn" : "equip"); }).join("");
     });
     h += '<p class="hint">Pet style is worn by both your dog and cat.</p>';
+    h += "<h3>PIXEL'S ROOM</h3>" + furnRows() + '<p class="hint">' + (i.house ? "Tap your house to step inside." : "Build a tent first, then you can furnish it.") + "</p>";
     $("#shopList").innerHTML = h;
     if (shopSel === "house" && i.house >= 5) shopSel = "dog";
     showPrev(shopSel);
@@ -3154,16 +3322,20 @@ if (typeof module !== "undefined") module.exports = PET;
     if (/^PURCHASED/.test(msg)) { buySound(); setMood("wow", 2600); }
     dirty = true; store.save(); renderShop(); renderCoins(); renderScenery(); renderAvatar(); try { buildWalker(); } catch (e) {} $("#shopMsg").textContent = msg;
     var sc = $("#pomoScene"); if (sc) sc.dataset.k = ""; if (!$("#viewTT").hidden) renderPomo();
+    roomKey = ""; if (!$("#roomModal").hidden) renderRoom();
   }
   function shopAct(a) {
     var p = a.split(":"), op = p[0], id = p[1], i = stats.inv, q = slotOf(id);
     if (op === "buy") {
       var cost;
-      if (id === "house") cost = SHOP_HOUSE[i.house + 1].c; else if (id === "dog" || id === "cat") cost = PET_COST[id]; else cost = q.item.c;
+      var fk = id.indexOf("furn-") === 0 ? id.slice(5) : "";
+      if (fk) { var fit = ROOM.ITEMS[fk]; if (!fit || i.furn.indexOf(fk) >= 0 || !i.house || i.house < fit.st) return; }
+      if (id === "house") cost = SHOP_HOUSE[i.house + 1].c; else if (id === "dog" || id === "cat") cost = PET_COST[id]; else if (fk) cost = ROOM.ITEMS[fk].cost; else cost = q.item.c;
       if (stats.coins < cost) { $("#shopMsg").textContent = "NOT ENOUGH R COINS YET."; return; }
       stats.coins -= cost;
       if (id === "house") { i.house++; levelSound(); sysBanner("[ SYSTEM ]", "HOUSE UPGRADED!<br>" + SHOP_HOUSE[i.house].n); }
       else if (id === "dog" || id === "cat") { i[id] = 1; levelSound(); }
+      else if (fk) { i.furn.push(fk); }
       else { i[q.sl.own].push(q.k); i[q.sl.w] = q.k; }
       shopAfter("PURCHASED! SPENT " + cost + " R COINS.");
     } else if (op === "equip") { i[q.sl.w] = q.k; shopAfter("EQUIPPED."); }
@@ -3181,7 +3353,7 @@ if (typeof module !== "undefined") module.exports = PET;
     else if (e.target.closest && e.target.closest("#shopDone")) closeShop();
     else if (e.target.id === "shop") closeShop();
   });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { if (!$("#coinGuide").hidden) $("#coinGuide").hidden = true; else if (!$("#shop").hidden) closeShop(); } });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { if (!$("#roomModal").hidden) { $("#roomModal").hidden = true; return; } if (!$("#coinGuide").hidden) $("#coinGuide").hidden = true; else if (!$("#shop").hidden) closeShop(); } });
 
 
   /* ---------- opening splash ---------- */
@@ -3360,7 +3532,7 @@ if (typeof module !== "undefined") module.exports = PET;
     $("#notifTxt").textContent = st === 1 ? "Allow notifications so Pixel can remind you when the app is closed." : "Allow exact alarms so reminders arrive on time.";
   }
   /* in-app update notice (Android app): compares the installed version with the newest GitHub release */
-  var APP_NOTES = { "2.5": ["New look for notifications: a pixel-style card with your character, a colour for each kind of reminder, and a big live countdown for the focus timer."], "2.4": ["The UPDATE button now downloads the new version inside the app and opens the installer by itself."], "2.3": ["Focus timer keeps running in the background with a live countdown notification and a ringtone when it ends.", "Home-screen widget with today's tasks, your next block, coins and streak.", "Activity calendars for fitness, study, water and protein in the report.", "Phone alarms from tasks and time-table blocks.", "Pixel gets sleepy at night, says wow on big moments, and every action has its own sound.", "Optional lo-fi music loop during focus sessions."] };
+  var APP_NOTES = { "2.6": ["Pixel's room: tap your tent or house to step inside. Each home has its own floors, from a one-room tent up to a three-storey mansion.", "Buy a bed, desk, sofa, TV and more with R coins. They show in the shop, in your room and on the focus screen.", "Back up your progress to a file and pick Google Drive on the save screen. Restore it from the same screen after a phone change."], "2.5": ["New look for notifications: a pixel-style card with your character, a colour for each kind of reminder, and a big live countdown for the focus timer."], "2.4": ["The UPDATE button now downloads the new version inside the app and opens the installer by itself."], "2.3": ["Focus timer keeps running in the background with a live countdown notification and a ringtone when it ends.", "Home-screen widget with today's tasks, your next block, coins and streak.", "Activity calendars for fitness, study, water and protein in the report.", "Phone alarms from tasks and time-table blocks.", "Pixel gets sleepy at night, says wow on big moments, and every action has its own sound.", "Optional lo-fi music loop during focus sessions."] };
   function notesHtml(body) {
     var lines = String(body).split(/\r?\n/).filter(function (l) { return /^\s*[-*]\s+/.test(l); }).slice(0, 6);
     return lines.length ? '<small class="wn">WHAT\'S NEW</small>' + lines.map(function (l) { return "<small>- " + esc(l.replace(/^\s*[-*]\s+/, "").slice(0, 110)) + "</small>"; }).join("") : "";
@@ -4279,7 +4451,7 @@ if (typeof module !== "undefined") module.exports = PET;
     } catch (e) {}
   }
   function renderPomo() {
-    timerSync(); lofiSync();
+    timerSync(); lofiSync(); try { renderPomoRoom(); } catch (e) {}
     var left = pomo.running ? pomo.endAt - Date.now() : pomo.left;
     $("#pomoTime").textContent = fmtMs(left);
     $("#pomoPhase").textContent = pomo.phase === "focus" ? "FOCUS" : pomo.phase === "short" ? "SHORT BREAK" : "LONG BREAK";
@@ -4543,9 +4715,9 @@ if (typeof module !== "undefined") module.exports = PET;
     t.select();
     try { if (navigator.clipboard) navigator.clipboard.writeText(t.value).then(function () { toast("COPIED TO CLIPBOARD", "blue"); }, function () { toast("SELECT AND COPY THE TEXT", "gold"); }); else toast("SELECT AND COPY THE TEXT", "gold"); } catch (e) { toast("SELECT AND COPY THE TEXT", "gold"); }
   });
-  $("#bkImport").addEventListener("click", function () {
+  function importBackupText(txt) {
     try {
-      var d = JSON.parse($("#backupText").value);
+      var d = JSON.parse(txt);
       if (!d || d.app !== "pixel-planner" || !Array.isArray(d.tasks)) throw new Error("bad");
       state.tasks = d.tasks.filter(function (x) { return x && typeof x.title === "string"; }).map(function (x) { return { id: String(x.id || uid()), title: String(x.title).slice(0, 120), pri: [1, 2, 3].indexOf(+x.pri) >= 0 ? +x.pri : 2, due: /^\d{4}-\d{2}-\d{2}$/.test(x.due || "") ? x.due : "", cat: CATS[x.cat] ? x.cat : "", amt: +x.amt > 0 ? +x.amt : 0, rep: REPS[x.rep] ? x.rep : "", done: !!x.done, focus: +x.focus > 0 ? +x.focus : 0, pts: +x.pts || 0, doneOn: x.doneOn || null, spawnedId: x.spawnedId || null, at: /^\d{2}:\d{2}$/.test(x.at || "") ? x.at : "" }; });
       if (d.avatar && SPRITES[d.avatar]) avatar = d.avatar;
@@ -4554,7 +4726,14 @@ if (typeof module !== "undefined") module.exports = PET;
       stats = normStats(d.stats); tt = normTT(d.tt); plans = Array.isArray(d.plans) ? d.plans.map(normTT) : [];
       dirty = true; store.save(); closeGoals(); render(); renderAvatar(); buildWalker(); toast("BACKUP IMPORTED", "");
     } catch (e) { toast("NOT A VALID BACKUP", "red"); }
-  });
+  }
+  $("#bkImport").addEventListener("click", function () { importBackupText($("#backupText").value); });
+  window.__restoreBackup = function (t) { importBackupText(String(t || "")); };
+  window.__toast = function (m) { toast(m, "gold"); };
+  window.__backupDone = function (ok) { if (ok) { prof.bk = Date.now(); dirty = true; store.save(); abNote(); } toast(ok ? "BACKUP SAVED. PICK GOOGLE DRIVE TO KEEP IT SAFE" : "COULD NOT SAVE THE FILE", ok ? "blue" : "red"); };
+  function driveOk() { return !!(window.AndroidBridge && window.AndroidBridge.exportBackup); }
+  $("#bkDrive").addEventListener("click", function () { var d = new Date(), n = "PixelPlanner-backup-" + iso(d) + ".json"; try { window.AndroidBridge.exportBackup(backupJson(), n); } catch (e) { toast("COULD NOT OPEN THE FILE PICKER", "red"); } });
+  $("#bkRestore").addEventListener("click", function () { try { window.AndroidBridge.importBackup(); } catch (e) { toast("COULD NOT OPEN THE FILE PICKER", "red"); } });
 
 
   /* ---------- weekly report ---------- */
@@ -4631,7 +4810,7 @@ if (typeof module !== "undefined") module.exports = PET;
     $("#abNote").textContent = (android ? (on ? "A COPY IS SAVED TO YOUR DOWNLOADS FOLDER (PixelPlanner-backup.json) ABOUT ONCE A DAY." : "AUTO-BACKUP IS OFF.") : "BACKUP FILES NEED THE ANDROID APP. HERE, USE EXPORT AND COPY THE TEXT.") + (when ? " LAST BACKUP: " + when.toLocaleDateString() + " " + when.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + "." : "");
     $("#bkFile").innerHTML = pxi("disk") + "SAVE TO DOWNLOADS"; $("#bkFile").hidden = !android; $("#bkLoad").hidden = !android;
     $("#abChips").innerHTML = ["on", "off"].map(function (v) { return '<button class="chip" type="button" data-ab="' + v + '" aria-pressed="' + ((v === "on") === on) + '">' + v.toUpperCase() + "</button>"; }).join("");
-    $("#abRow").hidden = !android;
+    $("#abRow").hidden = !android; var dv = driveOk(); $("#bkDrive").hidden = !dv; $("#bkRestore").hidden = !dv;
   }
   function abAuto() {
     if (!(window.AndroidBridge && window.AndroidBridge.saveBackup) || prof.ab === 0 || !initDone) return;
@@ -5075,7 +5254,7 @@ if (typeof module !== "undefined") module.exports = PET;
     "hat-beanie": "Warm and cosy for late study nights.", "hat-party": "Every finished task deserves a celebration!", "hat-cowboy": "Yeehaw! Perfect for a long study day.", "hat-wizard": "Adds at least one spell to your knowledge.", "hat-crown": "Pure gold with a ruby and a heart gem. Study royalty only.", "face-shades": "Too cool for school. Deadlines fear these.", "face-hearts": "Pink heart lenses. See your goals with love!", "back-pack": "A sturdy brown backpack packed with notes and snacks.", "back-cape": "A flowing red cape. Every task is a heroic mission.", "back-wings": "Fluffy angel wings. Your focus is heavenly.", "pet-collar": "A red collar with a shiny gold tag for your pet.", "pet-bow": "A dapper pink bow tie. Looking sharp!", "pet-scarf": "A cosy teal scarf with golden stripes.",
     "out-hoodie": "A soft grey hoodie for deep focus sessions.", "out-sunset": "A bright orange tee, the colour of a sunset.", "out-ninja": "Silent, dark and very productive.", "out-royal": "A purple robe fit for a study king."
   };
-  function infoText(id) { if (id === "house") return ITEM_INFO["house:" + Math.min(5, stats.inv.house + 1)]; return ITEM_INFO[id] || ""; }
+  function infoText(id) { if (id.indexOf("furn-") === 0) return ROOM.ITEMS[id.slice(5)].info; if (id === "house") return ITEM_INFO["house:" + Math.min(5, stats.inv.house + 1)]; return ITEM_INFO[id] || ""; }
   var dlgEl = null, dlgT = null;
   function dlgBox() {
     if (dlgEl) return dlgEl; dlgEl = document.createElement("div"); dlgEl.className = "dlg"; dlgEl.hidden = true; dlgEl.setAttribute("role", "tooltip");
@@ -5093,7 +5272,7 @@ if (typeof module !== "undefined") module.exports = PET;
   function hideDlg() { clearTimeout(dlgT); if (dlgEl) dlgEl.hidden = true; }
   function shopDlg(row) {
     var el = row.querySelector("[data-prev]"); if (!el || !stats) return; var id = el.dataset.prev, inf = prevInfo(id), i = stats.inv, own = false;
-    if (id === "dog" || id === "cat") own = !!i[id]; else { var q = slotOf(id); own = !!q && i[q.sl.own].indexOf(q.k) >= 0; }
+    if (id === "dog" || id === "cat") own = !!i[id]; else if (id.indexOf("furn-") === 0) own = i.furn.indexOf(id.slice(5)) >= 0; else { var q = slotOf(id); own = !!q && i[q.sl.own].indexOf(q.k) >= 0; }
     var cost = own ? "OWNED" : inf.c ? inf.c + " R COINS" : "BUILT", mood = own ? "cheer" : stats.coins >= inf.c ? "happy" : "sad";
     if (!own && stats.coins < inf.c) cost += " (NEED " + (inf.c - stats.coins) + " MORE)";
     showDlg(row, inf.n, infoText(id), cost, mood);
@@ -5107,7 +5286,7 @@ if (typeof module !== "undefined") module.exports = PET;
     list.addEventListener("touchstart", function (e) { var row = e.target.closest ? e.target.closest(".shop-row") : null; if (!row) return; clearTimeout(hold); hold = setTimeout(function () { shopDlg(row); clearTimeout(dlgT); dlgT = setTimeout(hideDlg, 3200); }, 380); }, { passive: true });
     ["touchend", "touchmove", "touchcancel"].forEach(function (t) { list.addEventListener(t, function () { clearTimeout(hold); }, { passive: true }); });
     var sh = document.getElementById("shop"); if (sh) new MutationObserver(function () { if (sh.hidden) hideDlg(); }).observe(sh, { attributes: true, attributeFilter: ["hidden"] });
-    [["#house", function () { var n = stats && stats.inv.house; return n ? { n: SHOP_HOUSE[n].n, d: ITEM_INFO["house:" + n], c: "YOUR HOME (STAGE " + n + "/5)" } : null; }], ["#petDog", function () { return stats && stats.inv.dog ? { n: "DOG", d: ITEM_INFO.dog, c: "YOUR PET" } : null; }], ["#petCat", function () { return stats && stats.inv.cat ? { n: "CAT", d: ITEM_INFO.cat, c: "YOUR PET" } : null; }]].forEach(function (a) {
+    [["#house", function () { var n = stats && stats.inv.house; return n ? { n: SHOP_HOUSE[n].n, d: ITEM_INFO["house:" + n], c: "TAP TO GO INSIDE (STAGE " + n + "/5)" } : null; }], ["#petDog", function () { return stats && stats.inv.dog ? { n: "DOG", d: ITEM_INFO.dog, c: "YOUR PET" } : null; }], ["#petCat", function () { return stats && stats.inv.cat ? { n: "CAT", d: ITEM_INFO.cat, c: "YOUR PET" } : null; }]].forEach(function (a) {
       var el = document.querySelector(a[0]); if (!el) return;
       function go() { var v = a[1](); if (v) showDlg(el, v.n, v.d, v.c, "happy"); }
       el.addEventListener("mouseenter", go); el.addEventListener("mouseleave", hideDlg);
