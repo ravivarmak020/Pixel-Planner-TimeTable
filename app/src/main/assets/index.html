@@ -3540,7 +3540,7 @@ if (typeof module !== "undefined") module.exports = PET;
     $("#notifTxt").textContent = st === 1 ? "Notifications are blocked for Pixel Planner, so the timer and reminders cannot show. Tap ALLOW and switch them on." : "Allow exact alarms so reminders arrive on time.";
   }
   /* in-app update notice (Android app): compares the installed version with the newest GitHub release */
-  var APP_NOTES = { "3.2": ["Notifications now use Android's standard layout with a live countdown for the timer, so they show reliably on new phones."], "3.1": ["The app now tells you when notifications are blocked and the ALLOW button opens the right settings screen.", "Safer fallback so the timer and reminder notifications still show."], "3.0": ["Fixed the crash when starting the focus timer."], "2.7": ["After the opening animation, new installs ask if you are new or an existing user. Existing users can restore their Google Drive backup right away."], "2.6": ["Pixel's room: tap your tent or house to step inside. Each home has its own floors, from a one-room tent up to a three-storey mansion.", "Buy a bed, desk, sofa, TV and more with R coins. They show in the shop, in your room and on the focus screen.", "Back up your progress to a file and pick Google Drive on the save screen. Restore it from the same screen after a phone change."], "2.5": ["New look for notifications: a pixel-style card with your character, a colour for each kind of reminder, and a big live countdown for the focus timer."], "2.4": ["The UPDATE button now downloads the new version inside the app and opens the installer by itself."], "2.3": ["Focus timer keeps running in the background with a live countdown notification and a ringtone when it ends.", "Home-screen widget with today's tasks, your next block, coins and streak.", "Activity calendars for fitness, study, water and protein in the report.", "Phone alarms from tasks and time-table blocks.", "Pixel gets sleepy at night, says wow on big moments, and every action has its own sound.", "Optional lo-fi music loop during focus sessions."] };
+  var APP_NOTES = { "3.3": ["A running focus timer is now remembered. Reopen the app and it shows the real time left instead of resetting."], "3.2": ["Notifications now use Android's standard layout with a live countdown for the timer, so they show reliably on new phones."], "3.1": ["The app now tells you when notifications are blocked and the ALLOW button opens the right settings screen.", "Safer fallback so the timer and reminder notifications still show."], "3.0": ["Fixed the crash when starting the focus timer."], "2.7": ["After the opening animation, new installs ask if you are new or an existing user. Existing users can restore their Google Drive backup right away."], "2.6": ["Pixel's room: tap your tent or house to step inside. Each home has its own floors, from a one-room tent up to a three-storey mansion.", "Buy a bed, desk, sofa, TV and more with R coins. They show in the shop, in your room and on the focus screen.", "Back up your progress to a file and pick Google Drive on the save screen. Restore it from the same screen after a phone change."], "2.5": ["New look for notifications: a pixel-style card with your character, a colour for each kind of reminder, and a big live countdown for the focus timer."], "2.4": ["The UPDATE button now downloads the new version inside the app and opens the installer by itself."], "2.3": ["Focus timer keeps running in the background with a live countdown notification and a ringtone when it ends.", "Home-screen widget with today's tasks, your next block, coins and streak.", "Activity calendars for fitness, study, water and protein in the report.", "Phone alarms from tasks and time-table blocks.", "Pixel gets sleepy at night, says wow on big moments, and every action has its own sound.", "Optional lo-fi music loop during focus sessions."] };
   function notesHtml(body) {
     var lines = String(body).split(/\r?\n/).filter(function (l) { return /^\s*[-*]\s+/.test(l); }).slice(0, 6);
     return lines.length ? '<small class="wn">WHAT\'S NEW</small>' + lines.map(function (l) { return "<small>- " + esc(l.replace(/^\s*[-*]\s+/, "").slice(0, 110)) + "</small>"; }).join("") : "";
@@ -4449,7 +4449,14 @@ if (typeof module !== "undefined") module.exports = PET;
   }
   /* background timer: keeps the phone notification countdown + ringtone in step with the timer */
   var tmSig = "";
+  var pmSaved = "";
+  function savePomo() {
+    var k = JSON.stringify({ p: pomo.phase, r: pomo.running ? 1 : 0, e: Math.round(pomo.endAt), l: Math.round(pomo.left), t: pomo.target || "" });
+    if (k === pmSaved) return; pmSaved = k;
+    try { localStorage.setItem("pixel-planner-pomo", k); } catch (e) {}
+  }
   function timerSync() {
+    savePomo();
     var B = window.AndroidBridge; if (!B || !B.timerSet) return;
     var sig = pomo.running ? pomo.endAt + "|" + pomo.phase + "|" + pomo.target : "";
     if (sig === tmSig) return; tmSig = sig;
@@ -4533,7 +4540,7 @@ if (typeof module !== "undefined") module.exports = PET;
       }
     } else { pomo.phase = "focus"; toast("BREAK OVER. READY TO FOCUS?", "blue"); }
     pomo.left = pomoMs(pomo.phase);
-    dirty = true; store.save(); render(); if ($("#viewTT").hidden) renderPomo();
+    dirty = true; store.save(); render(); if ($("#viewTT").hidden) renderPomo(); savePomo();
   }
   function pomoStart() {
     try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === "suspended") actx.resume(); } catch (e) {}
@@ -4553,6 +4560,19 @@ if (typeof module !== "undefined") module.exports = PET;
     if (pomo.endAt - Date.now() <= 0) pomoComplete();
     else if (!$("#viewTT").hidden) { $("#pomoTime").textContent = fmtMs(pomo.endAt - Date.now()); psSceneSync(); }
   }, 250);
+
+  /* bring back a timer that was running when the app was closed or the phone cleared it from memory */
+  (function () {
+    try {
+      var o = JSON.parse(localStorage.getItem("pixel-planner-pomo") || "null");
+      if (!o || (o.p !== "focus" && o.p !== "short" && o.p !== "long")) return;
+      pomo.phase = o.p; pomo.target = String(o.t || "");
+      if (o.r && +o.e > 0) { pomo.endAt = +o.e; pomo.running = true; pomo.left = Math.max(0, pomo.endAt - Date.now()); }
+      else if (+o.l > 0) { pomo.left = +o.l; pomo.running = false; }
+      pmSaved = localStorage.getItem("pixel-planner-pomo");
+      setTimeout(function () { try { renderPomo(); } catch (e) {} }, 0);
+    } catch (e) {}
+  })();
 
   /* ---------- plan an exam (wizard + panel) ---------- */
   var planWizard = true, planStep = 1, planFresh = false, pFeat = {}, pBuild = true;

@@ -1,1 +1,1 @@
-- Notifications now use Android's standard layout with a live countdown, so they show reliably on new phones and Android versions
+- A running focus timer is now remembered: reopen the app and it shows the real time left
