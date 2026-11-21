@@ -1,3 +1,1 @@
-- New notepad app icon
-- Redesigned pixel-style Today widget and a new Upcoming widget that lists the next days (add it from the widget picker)
-- The running timer notification can no longer be swiped away and has a STOP button
+- The notepad icon now has a black background and also shows inside the app
