@@ -54,6 +54,31 @@ public class BuyWidget extends AppWidgetProvider {
         return PendingIntent.getActivity(c, "buy".equals(view) ? 9100 : 9101, open, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
+    static String textOf(JSONArray a, int i) {
+        Object o = a == null ? null : a.opt(i);
+        if (o instanceof JSONObject) return ((JSONObject) o).optString("t");
+        return o == null ? "" : String.valueOf(o);
+    }
+
+    static String idOf(JSONArray a, int i) {
+        Object o = a == null ? null : a.opt(i);
+        if (o instanceof JSONObject) return ((JSONObject) o).optString("i", textOf(a, i));
+        return textOf(a, i);
+    }
+
+    /** Drop a ticked item from the saved widget data so it disappears at once (the app syncs later). */
+    static void removeItem(Context c, String kind, String id) {
+        try {
+            JSONObject o = data(c);
+            String key = "buy".equals(kind) ? "buy" : "tasks";
+            JSONArray a = o.optJSONArray(key), out = new JSONArray();
+            if (a != null) for (int i = 0; i < a.length(); i++) if (!idOf(a, i).equals(id)) out.put(a.get(i));
+            o.put(key, out);
+            if ("buy".equals(kind)) o.put("n", Math.max(0, o.optInt("n") - 1));
+            c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY, o.toString()).apply();
+        } catch (Exception ignored) { }
+    }
+
     static void refresh(Context c) {
         try {
             AppWidgetManager mgr = AppWidgetManager.getInstance(c);
@@ -71,13 +96,14 @@ public class BuyWidget extends AppWidgetProvider {
         Bitmap av = avatar(c);
         int[] rows = {R.id.b_row1, R.id.b_row2, R.id.b_row3, R.id.b_row4, R.id.b_row5, R.id.b_row6, R.id.b_row7};
         int[] txt = {R.id.b_t1, R.id.b_t2, R.id.b_t3, R.id.b_t4, R.id.b_t5, R.id.b_t6, R.id.b_t7};
+        int[] circ = {R.id.b_c1, R.id.b_c2, R.id.b_c3, R.id.b_c4, R.id.b_c5, R.id.b_c6, R.id.b_c7};
         for (int id : ids) {
             Bundle opt = mgr.getAppWidgetOptions(id);
             int minH = opt == null ? 0 : opt.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0);
-            // card padding 28 + header 38 + gap 8 = 74dp, each row 36dp, the "+N more" line 26dp
-            int byH = minH <= 0 ? 4 : Math.max(1, Math.min(7, (minH - 74) / 36));
+            // card padding 32 + header 38 + gap 8 = 78dp, each row 36dp, the "+N more" line 26dp
+            int byH = minH <= 0 ? 4 : Math.max(3, Math.min(7, (minH - 80) / 36));
             int n = arr == null ? 0 : Math.min(byH, arr.length());
-            if (total > n && n == byH && n > 1 && (minH - 74) - n * 36 < 26) n--;
+            if (total > n && n == byH && n > 1 && (minH - 80) - n * 36 < 26) n--;
             RemoteViews rv = new RemoteViews(c.getPackageName(), R.layout.widget_buy);
             if (av != null) rv.setImageViewBitmap(R.id.b_icon, av);
             else rv.setImageViewResource(R.id.b_icon, R.drawable.w_coin);
@@ -86,7 +112,9 @@ public class BuyWidget extends AppWidgetProvider {
             for (int i = 0; i < 7; i++) {
                 if (i < n) {
                     rv.setViewVisibility(rows[i], View.VISIBLE);
-                    rv.setTextViewText(txt[i], arr.optString(i));
+                    String tid = idOf(arr, i);
+                    WidgetTick.style(c, rv, "buy", tid, circ[i], txt[i], textOf(arr, i));
+                    rv.setOnClickPendingIntent(rows[i], WidgetTick.intent(c, "buy", tid));
                 } else rv.setViewVisibility(rows[i], View.GONE);
             }
             int extra = total - n;

@@ -35,28 +35,28 @@
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:orientation="vertical">
         <LinearLayout android:id="@+id/w_row1" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingTop="8dp" android:paddingBottom="8dp">
-                <ImageView android:layout_width="18dp" android:layout_height="18dp" android:background="@drawable/w_circle"/>
+                <ImageView android:id="@+id/w_c1" android:layout_width="18dp" android:layout_height="18dp" android:scaleType="fitCenter" android:src="@drawable/w_circle"/>
                 <TextView android:id="@+id/w_t1" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:ellipsize="end" android:fontFamily="sans-serif" android:singleLine="true" android:textColor="@color/w_text" android:textSize="14sp"/>
             </LinearLayout>
             <ImageView android:layout_width="match_parent" android:layout_height="1dp" android:background="@drawable/w_div"/>
         </LinearLayout>
         <LinearLayout android:id="@+id/w_row2" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingTop="8dp" android:paddingBottom="8dp">
-                <ImageView android:layout_width="18dp" android:layout_height="18dp" android:background="@drawable/w_circle"/>
+                <ImageView android:id="@+id/w_c2" android:layout_width="18dp" android:layout_height="18dp" android:scaleType="fitCenter" android:src="@drawable/w_circle"/>
                 <TextView android:id="@+id/w_t2" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:ellipsize="end" android:fontFamily="sans-serif" android:singleLine="true" android:textColor="@color/w_text" android:textSize="14sp"/>
             </LinearLayout>
             <ImageView android:layout_width="match_parent" android:layout_height="1dp" android:background="@drawable/w_div"/>
         </LinearLayout>
         <LinearLayout android:id="@+id/w_row3" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingTop="8dp" android:paddingBottom="8dp">
-                <ImageView android:layout_width="18dp" android:layout_height="18dp" android:background="@drawable/w_circle"/>
+                <ImageView android:id="@+id/w_c3" android:layout_width="18dp" android:layout_height="18dp" android:scaleType="fitCenter" android:src="@drawable/w_circle"/>
                 <TextView android:id="@+id/w_t3" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:ellipsize="end" android:fontFamily="sans-serif" android:singleLine="true" android:textColor="@color/w_text" android:textSize="14sp"/>
             </LinearLayout>
             <ImageView android:layout_width="match_parent" android:layout_height="1dp" android:background="@drawable/w_div"/>
         </LinearLayout>
         <LinearLayout android:id="@+id/w_row4" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingTop="8dp" android:paddingBottom="8dp">
-                <ImageView android:layout_width="18dp" android:layout_height="18dp" android:background="@drawable/w_circle"/>
+                <ImageView android:id="@+id/w_c4" android:layout_width="18dp" android:layout_height="18dp" android:scaleType="fitCenter" android:src="@drawable/w_circle"/>
                 <TextView android:id="@+id/w_t4" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:ellipsize="end" android:fontFamily="sans-serif" android:singleLine="true" android:textColor="@color/w_text" android:textSize="14sp"/>
             </LinearLayout>
             <ImageView android:layout_width="match_parent" android:layout_height="1dp" android:background="@drawable/w_div"/>

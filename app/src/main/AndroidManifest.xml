@@ -29,6 +29,7 @@
         <receiver android:name=".ReminderReceiver" android:exported="false" />
         <receiver android:name=".ActionReceiver" android:exported="false" />
         <receiver android:name=".TimerReceiver" android:exported="false" />
+        <receiver android:name=".WidgetTick" android:exported="false" />
         <receiver android:name=".PlannerWidget" android:exported="false" android:label="Pixel Planner: Today">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

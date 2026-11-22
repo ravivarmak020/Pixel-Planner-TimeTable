@@ -1,1 +1,2 @@
-- To Buy widget redesigned: rounder shape, smaller default size, aligned rows, shows only as many items as fit
+- Widgets: tap a round check to tick an item off, with a tick animation and sound (To Buy items and Planner tasks)
+- To Buy widget is rounder and always shows at least 3 items

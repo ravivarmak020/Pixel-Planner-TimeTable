@@ -32,6 +32,7 @@ public class PlannerWidget extends AppWidgetProvider {
         PendingIntent pi = BuyWidget.openIntent(c, "planner");
         int[] rows = {R.id.w_row1, R.id.w_row2, R.id.w_row3, R.id.w_row4};
         int[] txt = {R.id.w_t1, R.id.w_t2, R.id.w_t3, R.id.w_t4};
+        int[] circ = {R.id.w_c1, R.id.w_c2, R.id.w_c3, R.id.w_c4};
         for (int id : ids) {
             Bundle opt = mgr.getAppWidgetOptions(id);
             int minH = opt == null ? 0 : opt.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0);
@@ -53,7 +54,9 @@ public class PlannerWidget extends AppWidgetProvider {
             for (int i = 0; i < 4; i++) {
                 if (i < n) {
                     rv.setViewVisibility(rows[i], View.VISIBLE);
-                    rv.setTextViewText(txt[i], arr.optString(i));
+                    String tid = BuyWidget.idOf(arr, i);
+                    WidgetTick.style(c, rv, "task", tid, circ[i], txt[i], BuyWidget.textOf(arr, i));
+                    rv.setOnClickPendingIntent(rows[i], WidgetTick.intent(c, "task", tid));
                 } else rv.setViewVisibility(rows[i], View.GONE);
             }
             rv.setViewVisibility(R.id.w_empty, (arr == null || arr.length() == 0) ? View.VISIBLE : View.GONE);
