@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.graphics.BitmapFactory;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -70,8 +71,11 @@ public class BuyWidget extends AppWidgetProvider {
         Bitmap av = avatar(c);
         int[] rows = {R.id.b_row1, R.id.b_row2, R.id.b_row3, R.id.b_row4, R.id.b_row5, R.id.b_row6, R.id.b_row7};
         int[] txt = {R.id.b_t1, R.id.b_t2, R.id.b_t3, R.id.b_t4, R.id.b_t5, R.id.b_t6, R.id.b_t7};
-        int n = arr == null ? 0 : Math.min(7, arr.length());
         for (int id : ids) {
+            Bundle opt = mgr.getAppWidgetOptions(id);
+            int minH = opt == null ? 0 : opt.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0);
+            int fit = minH <= 0 ? 7 : Math.max(1, Math.min(7, (minH - 52 - 14 - 22) / 26));
+            int n = arr == null ? 0 : Math.min(fit, arr.length());
             RemoteViews rv = new RemoteViews(c.getPackageName(), R.layout.widget_buy);
             if (av != null) rv.setImageViewBitmap(R.id.b_icon, av);
             else rv.setImageViewResource(R.id.b_icon, R.drawable.w_coin);
@@ -90,6 +94,11 @@ public class BuyWidget extends AppWidgetProvider {
             rv.setOnClickPendingIntent(R.id.b_root, openIntent(c));
             mgr.updateAppWidget(id, rv);
         }
+    }
+
+    @Override
+    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager mgr, int id, Bundle newOptions) {
+        render(context, mgr, new int[]{id});
     }
 
     @Override

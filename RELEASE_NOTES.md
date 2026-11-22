@@ -1,3 +1,2 @@
-- Fixed the widgets that said they could not load (a layout element Android does not allow in widgets)
-- Two widgets now: Planner (coins, streak, next block, tasks) and To Buy, each with a pixel scenery banner
-- Tapping a widget opens the matching tab in the app
+- Widgets are resizable: taller widgets show more items, narrower ones hide extras
+- Widget colours follow your phone wallpaper colours on Android 12 and newer (Material You)
