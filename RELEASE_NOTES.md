@@ -1,2 +1,1 @@
-- Widgets redesigned: rounded cards, clean text, round check circles, date and item count in the header
-- Pixel scenery banners removed from widgets
+- To Buy widget redesigned: rounder shape, smaller default size, aligned rows, shows only as many items as fit

@@ -74,8 +74,10 @@ public class BuyWidget extends AppWidgetProvider {
         for (int id : ids) {
             Bundle opt = mgr.getAppWidgetOptions(id);
             int minH = opt == null ? 0 : opt.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0);
-            int fit = minH <= 0 ? 7 : Math.max(1, Math.min(7, (minH - 28 - 46 - 24) / 33));
-            int n = arr == null ? 0 : Math.min(fit, arr.length());
+            // card padding 28 + header 38 + gap 8 = 74dp, each row 36dp, the "+N more" line 26dp
+            int byH = minH <= 0 ? 4 : Math.max(1, Math.min(7, (minH - 74) / 36));
+            int n = arr == null ? 0 : Math.min(byH, arr.length());
+            if (total > n && n == byH && n > 1 && (minH - 74) - n * 36 < 26) n--;
             RemoteViews rv = new RemoteViews(c.getPackageName(), R.layout.widget_buy);
             if (av != null) rv.setImageViewBitmap(R.id.b_icon, av);
             else rv.setImageViewResource(R.id.b_icon, R.drawable.w_coin);
