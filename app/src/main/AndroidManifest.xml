@@ -29,6 +29,12 @@
         <receiver android:name=".ReminderReceiver" android:exported="false" />
         <receiver android:name=".ActionReceiver" android:exported="false" />
         <receiver android:name=".TimerReceiver" android:exported="false" />
+        <receiver android:name=".PlannerWidget" android:exported="false" android:label="Pixel Planner: Today">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_info" />
+        </receiver>
         <receiver android:name=".BuyWidget" android:exported="false" android:label="Pixel Planner: To Buy">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

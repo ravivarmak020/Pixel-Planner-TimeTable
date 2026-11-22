@@ -1,2 +1,3 @@
-- Widgets: Today and Upcoming removed; new To Buy widget with a pixel look (tap to open the Buy List). Re-add it from the widget picker
-- Far fewer notifications: no motivational pings or plan-tomorrow reminder, water twice a day, protein once
+- Fixed the widgets that said they could not load (a layout element Android does not allow in widgets)
+- Two widgets now: Planner (coins, streak, next block, tasks) and To Buy, each with a pixel scenery banner
+- Tapping a widget opens the matching tab in the app

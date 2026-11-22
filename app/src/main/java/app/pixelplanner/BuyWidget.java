@@ -43,12 +43,14 @@ public class BuyWidget extends AppWidgetProvider {
         return null;
     }
 
-    static PendingIntent openIntent(Context c) {
+    static PendingIntent openIntent(Context c) { return openIntent(c, "buy"); }
+
+    static PendingIntent openIntent(Context c, String view) {
         Intent open = new Intent(c, MainActivity.class);
         open.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         open.putExtra("act_k", "view");
-        open.putExtra("act_b", "buy");
-        return PendingIntent.getActivity(c, 9100, open, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        open.putExtra("act_b", view);
+        return PendingIntent.getActivity(c, "buy".equals(view) ? 9100 : 9101, open, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
     static void refresh(Context c) {
@@ -57,6 +59,7 @@ public class BuyWidget extends AppWidgetProvider {
             int[] ids = mgr.getAppWidgetIds(new ComponentName(c, BuyWidget.class));
             if (ids != null && ids.length > 0) render(c, mgr, ids);
         } catch (Throwable ignored) { }
+        PlannerWidget.refresh(c);
     }
 
     private static void render(Context c, AppWidgetManager mgr, int[] ids) {
