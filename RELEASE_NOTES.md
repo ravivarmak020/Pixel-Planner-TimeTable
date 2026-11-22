@@ -1,2 +1,2 @@
-- Widgets are resizable: taller widgets show more items, narrower ones hide extras
-- Widget colours follow your phone wallpaper colours on Android 12 and newer (Material You)
+- Widgets redesigned: rounded cards, clean text, round check circles, date and item count in the header
+- Pixel scenery banners removed from widgets

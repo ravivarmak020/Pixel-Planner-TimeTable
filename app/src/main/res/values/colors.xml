@@ -4,7 +4,7 @@
     <color name="icon_bg">#3B2F8F</color>
     <color name="w_border_plan">#FFFFD23F</color>
     <color name="w_border_buy">#FFFFB347</color>
-    <color name="w_fill">#FF1B1838</color>
+    <color name="w_fill">#FF17142E</color>
     <color name="w_hi">#FF26225A</color>
     <color name="w_text">#FFFFFFFF</color>
     <color name="w_text_dim">#FFB9B4E8</color>
@@ -12,4 +12,7 @@
     <color name="w_check_fill">#FFF4F1EA</color>
     <color name="w_box_border">#FF39D353</color>
     <color name="w_box_fill">#FF1F4A2E</color>
+    <color name="w_stroke">#FF3A3470</color>
+    <color name="w_divider">#FF2F2A60</color>
+    <color name="w_on_accent">#FF1B1838</color>
 </resources>

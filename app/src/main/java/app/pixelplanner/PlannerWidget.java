@@ -36,11 +36,11 @@ public class PlannerWidget extends AppWidgetProvider {
             Bundle opt = mgr.getAppWidgetOptions(id);
             int minH = opt == null ? 0 : opt.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0);
             int minW = opt == null ? 0 : opt.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0);
-            int fit = minH <= 0 ? 4 : Math.max(0, Math.min(4, (minH - 56 - 10 - 40 - 12) / 25));
+            int fit = minH <= 0 ? 4 : Math.max(0, Math.min(4, (minH - 28 - 46 - 44 - 50) / 33));
             RemoteViews rv = new RemoteViews(c.getPackageName(), R.layout.widget);
             boolean wide = minW <= 0 || minW >= 190;
-            rv.setViewVisibility(R.id.w_ic3, wide ? View.VISIBLE : View.GONE);
-            rv.setViewVisibility(R.id.w_best, wide ? View.VISIBLE : View.GONE);
+            rv.setViewVisibility(R.id.w_chip3, wide ? View.VISIBLE : View.GONE);
+            rv.setTextViewText(R.id.w_sub, new java.text.SimpleDateFormat("EEEE, d MMM", java.util.Locale.getDefault()).format(new java.util.Date()));
             rv.setTextViewText(R.id.w_title, o.optString("title", "PIXEL PLANNER"));
             rv.setTextViewText(R.id.w_coins, String.valueOf(o.optInt("coins")));
             rv.setTextViewText(R.id.w_streak, String.valueOf(o.optInt("streak")));

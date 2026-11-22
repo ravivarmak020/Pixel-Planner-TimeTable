@@ -74,12 +74,13 @@ public class BuyWidget extends AppWidgetProvider {
         for (int id : ids) {
             Bundle opt = mgr.getAppWidgetOptions(id);
             int minH = opt == null ? 0 : opt.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0);
-            int fit = minH <= 0 ? 7 : Math.max(1, Math.min(7, (minH - 52 - 14 - 22) / 26));
+            int fit = minH <= 0 ? 7 : Math.max(1, Math.min(7, (minH - 28 - 46 - 24) / 33));
             int n = arr == null ? 0 : Math.min(fit, arr.length());
             RemoteViews rv = new RemoteViews(c.getPackageName(), R.layout.widget_buy);
             if (av != null) rv.setImageViewBitmap(R.id.b_icon, av);
             else rv.setImageViewResource(R.id.b_icon, R.drawable.w_coin);
             rv.setTextViewText(R.id.b_count, String.valueOf(total));
+            rv.setTextViewText(R.id.b_sub, !has ? "Open the app once" : total == 0 ? "All done" : total == 1 ? "1 item left" : total + " items left");
             for (int i = 0; i < 7; i++) {
                 if (i < n) {
                     rv.setViewVisibility(rows[i], View.VISIBLE);
@@ -88,7 +89,7 @@ public class BuyWidget extends AppWidgetProvider {
             }
             int extra = total - n;
             rv.setViewVisibility(R.id.b_more, extra > 0 ? View.VISIBLE : View.GONE);
-            rv.setTextViewText(R.id.b_more, "+" + extra + " MORE");
+            rv.setTextViewText(R.id.b_more, "+" + extra + " more");
             rv.setViewVisibility(R.id.b_empty, n == 0 ? View.VISIBLE : View.GONE);
             rv.setTextViewText(R.id.b_empty, has ? "Nothing to buy. All done!" : "Open the app once to fill this widget");
             rv.setOnClickPendingIntent(R.id.b_root, openIntent(c));
