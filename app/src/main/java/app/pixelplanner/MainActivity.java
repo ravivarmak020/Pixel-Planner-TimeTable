@@ -437,7 +437,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void widgetData(String json) {
             try {
-                if (json != null && json.length() < 20000) PlannerWidget.save(MainActivity.this, json);
+                if (json != null && json.length() < 20000) BuyWidget.save(MainActivity.this, json);
             } catch (Exception ignored) {
             }
         }

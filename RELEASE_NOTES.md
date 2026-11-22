@@ -1,1 +1,2 @@
-- Fire Streaks can now be set to NONE so a habit gives no XP
+- Widgets: Today and Upcoming removed; new To Buy widget with a pixel look (tap to open the Buy List). Re-add it from the widget picker
+- Far fewer notifications: no motivational pings or plan-tomorrow reminder, water twice a day, protein once

@@ -17,8 +17,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 
-/** Home-screen widgets: "Today" (stats, next block, tasks) and "Upcoming" (the next days). */
-public class PlannerWidget extends AppWidgetProvider {
+/** Home-screen widget: "To Buy" list. */
+public class BuyWidget extends AppWidgetProvider {
     static final String PREFS = "pixel_widget";
     private static final String KEY = "data";
 
@@ -46,47 +46,45 @@ public class PlannerWidget extends AppWidgetProvider {
     static PendingIntent openIntent(Context c) {
         Intent open = new Intent(c, MainActivity.class);
         open.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        open.putExtra("act_k", "view");
+        open.putExtra("act_b", "buy");
         return PendingIntent.getActivity(c, 9100, open, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
     static void refresh(Context c) {
         try {
             AppWidgetManager mgr = AppWidgetManager.getInstance(c);
-            int[] ids = mgr.getAppWidgetIds(new ComponentName(c, PlannerWidget.class));
+            int[] ids = mgr.getAppWidgetIds(new ComponentName(c, BuyWidget.class));
             if (ids != null && ids.length > 0) render(c, mgr, ids);
         } catch (Throwable ignored) { }
-        UpcomingWidget.refresh(c);
     }
 
     private static void render(Context c, AppWidgetManager mgr, int[] ids) {
         JSONObject o = data(c);
-        boolean has = o.has("coins");
-        String next = o.optString("next", has ? "" : "Open the app once to fill this widget");
-        JSONArray arr = o.optJSONArray("tasks");
+        boolean has = o.has("ok");
+        JSONArray arr = o.optJSONArray("buy");
+        int total = o.optInt("n");
         Bitmap av = avatar(c);
-        PendingIntent pi = openIntent(c);
-        int[] rows = {R.id.w_row1, R.id.w_row2, R.id.w_row3, R.id.w_row4};
-        int[] txt = {R.id.w_t1, R.id.w_t2, R.id.w_t3, R.id.w_t4};
+        int[] rows = {R.id.b_row1, R.id.b_row2, R.id.b_row3, R.id.b_row4, R.id.b_row5, R.id.b_row6, R.id.b_row7};
+        int[] txt = {R.id.b_t1, R.id.b_t2, R.id.b_t3, R.id.b_t4, R.id.b_t5, R.id.b_t6, R.id.b_t7};
+        int n = arr == null ? 0 : Math.min(7, arr.length());
         for (int id : ids) {
-            RemoteViews rv = new RemoteViews(c.getPackageName(), R.layout.widget);
-            rv.setTextViewText(R.id.w_title, o.optString("title", "PIXEL PLANNER"));
-            rv.setTextViewText(R.id.w_coins, String.valueOf(o.optInt("coins")));
-            rv.setTextViewText(R.id.w_streak, String.valueOf(o.optInt("streak")));
-            rv.setTextViewText(R.id.w_best, String.valueOf(o.optInt("best")));
-            rv.setTextViewText(R.id.w_next, next);
-            rv.setViewVisibility(R.id.w_next, next.length() > 0 ? View.VISIBLE : View.GONE);
-            if (av != null) rv.setImageViewBitmap(R.id.w_icon, av);
-            else rv.setImageViewResource(R.id.w_icon, R.drawable.w_coin);
-            int n = arr == null ? 0 : Math.min(4, arr.length());
-            for (int i = 0; i < 4; i++) {
+            RemoteViews rv = new RemoteViews(c.getPackageName(), R.layout.widget_buy);
+            if (av != null) rv.setImageViewBitmap(R.id.b_icon, av);
+            else rv.setImageViewResource(R.id.b_icon, R.drawable.w_coin);
+            rv.setTextViewText(R.id.b_count, String.valueOf(total));
+            for (int i = 0; i < 7; i++) {
                 if (i < n) {
                     rv.setViewVisibility(rows[i], View.VISIBLE);
                     rv.setTextViewText(txt[i], arr.optString(i));
                 } else rv.setViewVisibility(rows[i], View.GONE);
             }
-            rv.setViewVisibility(R.id.w_empty, n == 0 ? View.VISIBLE : View.GONE);
-            rv.setTextViewText(R.id.w_empty, has ? "All clear today. Nice work!" : "");
-            rv.setOnClickPendingIntent(R.id.w_root, pi);
+            int extra = total - n;
+            rv.setViewVisibility(R.id.b_more, extra > 0 ? View.VISIBLE : View.GONE);
+            rv.setTextViewText(R.id.b_more, "+" + extra + " MORE");
+            rv.setViewVisibility(R.id.b_empty, n == 0 ? View.VISIBLE : View.GONE);
+            rv.setTextViewText(R.id.b_empty, has ? "Nothing to buy. All done!" : "Open the app once to fill this widget");
+            rv.setOnClickPendingIntent(R.id.b_root, openIntent(c));
             mgr.updateAppWidget(id, rv);
         }
     }
