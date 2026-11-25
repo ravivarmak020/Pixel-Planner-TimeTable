@@ -1,2 +1,1 @@
-- Widgets: tap a round check to tick an item off, with a tick animation and sound (To Buy items and Planner tasks)
-- To Buy widget is rounder and always shows at least 3 items
+- One Well done notification every morning at 8:00 when you kept a streak going (perfect-day streak and Fire Streak habits)
